@@ -31,6 +31,7 @@ static int cl_stream_prepare(struct snd_sof_dev *sdev, unsigned int format,
 	struct hdac_stream *hstream;
 	struct pci_dev *pci = sdev->pci;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (direction == SNDRV_PCM_STREAM_PLAYBACK) {
 		dsp_stream = hda_dsp_stream_get(sdev, direction);
@@ -83,6 +84,7 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, const void *fwdata,
 	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
 	const struct sof_intel_dsp_desc *chip = hda->desc;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* step 1: power up corex */
 	ret = hda_dsp_core_power_up(sdev, chip->cores_mask);
@@ -148,6 +150,7 @@ static int cl_trigger(struct snd_sof_dev *sdev,
 {
 	struct hdac_stream *hstream = &stream->hstream;
 	int sd_offset = SOF_STREAM_SD_OFFSET(hstream);
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* code loader is special case that reuses stream ops */
 	switch (cmd) {
@@ -196,6 +199,7 @@ static int cl_cleanup(struct snd_sof_dev *sdev, struct snd_dma_buffer *dmab,
 	struct hdac_stream *hstream = &stream->hstream;
 	int sd_offset = SOF_STREAM_SD_OFFSET(hstream);
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = hda_dsp_stream_spib_config(sdev, stream, HDA_DSP_SPIB_DISABLE, 0);
 
@@ -249,6 +253,7 @@ int hda_dsp_cl_load_fw(struct snd_sof_dev *sdev)
 {
 	struct snd_sof_pdata *plat_data = dev_get_platdata(sdev->dev);
 	const char *fw_filename;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* set code loading condition to true */
 	sdev->code_loading = 1;
@@ -263,6 +268,7 @@ int hda_dsp_cl_boot_firmware(struct snd_sof_dev *sdev)
 	struct hdac_ext_stream *stream;
 	struct firmware stripped_firmware;
 	int ret, ret1, tag, i;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	stripped_firmware.data = plat_data->fw->data;
 	stripped_firmware.size = plat_data->fw->size;
@@ -359,6 +365,8 @@ err:
 /* pre fw run operations */
 int hda_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* disable clock gating and power gating */
 	return hda_dsp_ctrl_clock_power_gating(sdev, false);
 }
@@ -366,6 +374,8 @@ int hda_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 /* post fw run operations */
 int hda_dsp_post_fw_run(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* re-enable clock gating and power gating */
 	return hda_dsp_ctrl_clock_power_gating(sdev, true);
 }

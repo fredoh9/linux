@@ -499,7 +499,7 @@ static int wm8523_i2c_probe(struct i2c_client *i2c,
 		dev_err(&i2c->dev, "Failed to read revision register\n");
 		goto err_enable;
 	}
-	dev_info(&i2c->dev, "revision %c\n",
+	dev_err(&i2c->dev, "revision %c\n",
 		 (val & WM8523_CHIP_REV_MASK) + 'A');
 
 	ret = regmap_write(wm8523->regmap, WM8523_DEVICE_ID, 0x8523);

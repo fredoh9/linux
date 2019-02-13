@@ -42,6 +42,7 @@ static int broxton_hdmi_init(struct snd_soc_pcm_runtime *rtd)
 	struct bxt_card_private *ctx = snd_soc_card_get_drvdata(rtd->card);
 	struct snd_soc_dai *dai = rtd->codec_dai;
 	struct bxt_hdmi_pcm *pcm;
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 
 	pcm = devm_kzalloc(rtd->card->dev, sizeof(*pcm), GFP_KERNEL);
 	if (!pcm)
@@ -63,6 +64,8 @@ static int bxt_card_late_probe(struct snd_soc_card *card)
 	struct snd_soc_component *component = NULL;
 	int err, i = 0;
 	char jack_name[NAME_SIZE];
+
+	dev_err(card->dev, "%s: SOC_HDAC_HDMI entry\n", __func__);
 
 	list_for_each_entry(pcm, &ctx->hdmi_pcm_list, head) {
 		component = pcm->codec_dai->component;
@@ -91,6 +94,8 @@ static int bxt_card_late_probe(struct snd_soc_card *card)
 #else
 static int bxt_card_late_probe(struct snd_soc_card *card)
 {
+	dev_err(card->dev, "%s: entry\n", __func__);
+
 	return 0;
 }
 #endif
@@ -256,6 +261,7 @@ static int bxt_pcm512x_probe(struct platform_device *pdev)
 	int dai_index = 0;
 	int ret_val = 0;
 	int i;
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 
 	ctx = devm_kzalloc(&pdev->dev, sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
@@ -287,6 +293,7 @@ static int bxt_pcm512x_probe(struct platform_device *pdev)
 	if (i2c_name) {
 		snprintf(codec_name, sizeof(codec_name),
 			 "%s%s", "i2c-", i2c_name);
+		dev_err(&pdev->dev, "%s: i2c_name=%s\n", i2c_name);	// Fred: why add i2c- again here???
 		dailink[dai_index].codec_name = codec_name;
 	}
 

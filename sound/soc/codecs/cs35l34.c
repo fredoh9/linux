@@ -1092,7 +1092,7 @@ static int cs35l34_i2c_probe(struct i2c_client *i2c_client,
 		goto err_regulator;
 	}
 
-	dev_info(&i2c_client->dev,
+	dev_err(&i2c_client->dev,
 		 "Cirrus Logic CS35l34 (%x), Revision: %02X\n", devid,
 		reg & 0xFF);
 

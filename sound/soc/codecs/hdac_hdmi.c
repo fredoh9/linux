@@ -1149,6 +1149,7 @@ static int hdac_hdmi_init_dai_map(struct hdac_device *hdev)
 	struct hdac_hdmi_dai_port_map *dai_map;
 	struct hdac_hdmi_cvt *cvt;
 	int dai_id = 0;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	if (list_empty(&hdmi->cvt_list))
 		return -EINVAL;
@@ -1408,6 +1409,7 @@ static int hdac_hdmi_create_dais(struct hdac_device *hdev,
 	unsigned int rate_max = 384000, rate_min = 8000;
 	u64 formats;
 	int ret;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	hdmi_dais = devm_kzalloc(&hdev->dev,
 			(sizeof(*hdmi_dais) * num_dais),
@@ -1472,6 +1474,7 @@ static int hdac_hdmi_parse_and_map_nid(struct hdac_device *hdev,
 	int i, num_nodes;
 	struct hdac_hdmi_priv *hdmi = hdev_to_hdmi_priv(hdev);
 	int ret;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	hdac_hdmi_skl_enable_all_pins(hdev);
 	hdac_hdmi_skl_enable_dp12(hdev);
@@ -1761,6 +1764,7 @@ int hdac_hdmi_jack_init(struct snd_soc_dai *dai, int device,
 	struct hdac_hdmi_pcm *pcm;
 	struct snd_pcm *snd_pcm;
 	int err;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	/*
 	 * this is a new PCM device, create new pcm and
@@ -1824,6 +1828,7 @@ static int hdmi_codec_probe(struct snd_soc_component *component)
 		snd_soc_component_get_dapm(component);
 	struct hdac_ext_link *hlink = NULL;
 	int ret;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	hdmi->component = component;
 
@@ -1869,6 +1874,7 @@ static void hdmi_codec_remove(struct snd_soc_component *component)
 {
 	struct hdac_hdmi_priv *hdmi = snd_soc_component_get_drvdata(component);
 	struct hdac_device *hdev = hdmi->hdev;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	pm_runtime_disable(&hdev->dev);
 }
@@ -1879,6 +1885,7 @@ static int hdmi_codec_resume(struct device *dev)
 	struct hdac_device *hdev = dev_to_hdac_dev(dev);
 	struct hdac_hdmi_priv *hdmi = hdev_to_hdmi_priv(hdev);
 	int ret;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	ret = pm_runtime_force_resume(dev);
 	if (ret < 0)
@@ -1913,6 +1920,7 @@ static void hdac_hdmi_get_chmap(struct hdac_device *hdev, int pcm_idx,
 {
 	struct hdac_hdmi_priv *hdmi = hdev_to_hdmi_priv(hdev);
 	struct hdac_hdmi_pcm *pcm = get_hdmi_pcm_from_id(hdmi, pcm_idx);
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	memcpy(chmap, pcm->chmap, ARRAY_SIZE(pcm->chmap));
 }
@@ -1923,6 +1931,7 @@ static void hdac_hdmi_set_chmap(struct hdac_device *hdev, int pcm_idx,
 	struct hdac_hdmi_priv *hdmi = hdev_to_hdmi_priv(hdev);
 	struct hdac_hdmi_pcm *pcm = get_hdmi_pcm_from_id(hdmi, pcm_idx);
 	struct hdac_hdmi_port *port;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	if (!pcm)
 		return;
@@ -1958,6 +1967,7 @@ static int hdac_hdmi_get_spk_alloc(struct hdac_device *hdev, int pcm_idx)
 	struct hdac_hdmi_priv *hdmi = hdev_to_hdmi_priv(hdev);
 	struct hdac_hdmi_pcm *pcm = get_hdmi_pcm_from_id(hdmi, pcm_idx);
 	struct hdac_hdmi_port *port;
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	if (!pcm)
 		return 0;
@@ -1996,6 +2006,7 @@ static int hdac_hdmi_dev_probe(struct hdac_device *hdev)
 	int ret = 0;
 	struct hdac_driver *hdrv = drv_to_hdac_driver(hdev->dev.driver);
 	const struct hda_device_id *hdac_id = hdac_get_device_id(hdev, hdrv);
+	dev_err(&hdev->dev, "%s: entry\n", __func__);
 
 	/* hold the ref while we probe */
 	hlink = snd_hdac_ext_bus_get_link(hdev->bus, dev_name(&hdev->dev));
@@ -2070,7 +2081,7 @@ static int hdac_hdmi_runtime_suspend(struct device *dev)
 	struct hdac_bus *bus = hdev->bus;
 	struct hdac_ext_link *hlink = NULL;
 
-	dev_dbg(dev, "Enter: %s\n", __func__);
+	dev_err(dev, "Enter: CONFIG_PM %s\n", __func__);
 
 	/* controller may not have been initialized for the first time */
 	if (!bus)

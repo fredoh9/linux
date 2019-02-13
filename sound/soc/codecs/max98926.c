@@ -571,7 +571,7 @@ static int max98926_i2c_probe(struct i2c_client *i2c,
 	if (ret < 0)
 		dev_err(&i2c->dev,
 				"Failed to register component: %d\n", ret);
-	dev_info(&i2c->dev, "device version: %x\n", reg);
+	dev_err(&i2c->dev, "device version: %x\n", reg);
 err_out:
 	return ret;
 }

@@ -56,6 +56,7 @@ static int hda_link_dma_get_channels(struct snd_soc_dai *dai,
 		snd_soc_component_get_drvdata(dai->component);
 
 	bus = sof_to_bus(sdev);
+	dev_err(bus->dev, "%s: entry\n", __func__);
 
 	memset(&substream, 0, sizeof(substream));
 	if (*tx_num == 1) {
@@ -99,6 +100,8 @@ static int hda_link_dma_params(struct hdac_ext_stream *stream,
 	unsigned int format_val;
 	struct hdac_ext_link *link;
 
+	dev_err(bus->dev, "%s: entry\n", __func__);
+
 	snd_hdac_ext_stream_decouple(bus, stream, true);
 	snd_hdac_ext_link_stream_reset(stream);
 
@@ -134,6 +137,8 @@ static int hda_link_hw_params(struct snd_pcm_substream *substream,
 	struct hda_pipe_params p_params = {0};
 	struct hdac_ext_link *link;
 	int stream_tag;
+
+	dev_err(bus->dev, "%s: entry\n", __func__);
 
 	link_dev = snd_soc_dai_get_dma_data(dai, substream);
 
@@ -171,6 +176,7 @@ static int hda_link_pcm_trigger(struct snd_pcm_substream *substream,
 	struct hdac_ext_stream *link_dev =
 				snd_soc_dai_get_dma_data(dai, substream);
 
+	dev_err(dai->dev, "%s: entry\n", __func__);
 	dev_dbg(dai->dev, "In %s cmd=%d\n", __func__, cmd);
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_RESUME:

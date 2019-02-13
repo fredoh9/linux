@@ -2847,7 +2847,7 @@ static int wm8996_i2c_probe(struct i2c_client *i2c,
 		goto err_regmap;
 	}
 
-	dev_info(&i2c->dev, "revision %c\n",
+	dev_err(&i2c->dev, "revision %c\n",
 		 (reg & WM8996_CHIP_REV_MASK) + 'A');
 
 	if (wm8996->pdata.ldo_ena > 0) {

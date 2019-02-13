@@ -950,7 +950,7 @@ static int wm8961_i2c_probe(struct i2c_client *i2c,
 		return ret;
 	}
 
-	dev_info(&i2c->dev, "WM8961 family %d revision %c\n",
+	dev_err(&i2c->dev, "WM8961 family %d revision %c\n",
 		 (val & WM8961_DEVICE_ID_MASK) >> WM8961_DEVICE_ID_SHIFT,
 		 ((val & WM8961_CHIP_REV_MASK) >> WM8961_CHIP_REV_SHIFT)
 		 + 'A');

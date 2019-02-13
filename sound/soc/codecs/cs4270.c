@@ -711,9 +711,9 @@ static int cs4270_i2c_probe(struct i2c_client *i2c_client,
 		return -ENODEV;
 	}
 
-	dev_info(&i2c_client->dev, "found device at i2c address %X\n",
+	dev_err(&i2c_client->dev, "found device at i2c address %X\n",
 		i2c_client->addr);
-	dev_info(&i2c_client->dev, "hardware revision %X\n", val & 0xF);
+	dev_err(&i2c_client->dev, "hardware revision %X\n", val & 0xF);
 
 	i2c_set_clientdata(i2c_client, cs4270);
 

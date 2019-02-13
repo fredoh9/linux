@@ -1265,8 +1265,8 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
 	alpha_rev = reg & CS42L56_AREV_MASK;
 	metal_rev = reg & CS42L56_MTLREV_MASK;
 
-	dev_info(&i2c_client->dev, "Cirrus Logic CS42L56 ");
-	dev_info(&i2c_client->dev, "Alpha Rev %X Metal Rev %X\n",
+	dev_err(&i2c_client->dev, "Cirrus Logic CS42L56 ");
+	dev_err(&i2c_client->dev, "Alpha Rev %X Metal Rev %X\n",
 		 alpha_rev, metal_rev);
 
 	if (cs42l56->pdata.ain1a_ref_cfg)

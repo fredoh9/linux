@@ -991,7 +991,7 @@ int sst_module_runtime_restore(struct sst_module_runtime *runtime,
 	mutex_lock(&dsp->mutex);
 
 	if (!context->buffer) {
-		dev_info(dsp->dev, "no context buffer need to restore!\n");
+		dev_err(dsp->dev, "no context buffer need to restore!\n");
 		goto err;
 	}
 
@@ -1095,7 +1095,7 @@ int sst_block_alloc_scratch(struct sst_dsp *dsp)
 		dsp->scratch_size);
 
 	if (dsp->scratch_size == 0) {
-		dev_info(dsp->dev, "no modules need scratch buffer\n");
+		dev_err(dsp->dev, "no modules need scratch buffer\n");
 		mutex_unlock(&dsp->mutex);
 		return 0;
 	}

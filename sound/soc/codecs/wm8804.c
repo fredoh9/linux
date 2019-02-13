@@ -650,7 +650,7 @@ int wm8804_probe(struct device *dev, struct regmap *regmap)
 			ret);
 		goto err_reg_enable;
 	}
-	dev_info(dev, "revision %c\n", id1 + 'A');
+	dev_err(dev, "revision %c\n", id1 + 'A');
 
 	if (!wm8804->reset) {
 		ret = wm8804_soft_reset(wm8804);

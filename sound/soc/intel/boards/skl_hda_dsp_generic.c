@@ -26,13 +26,15 @@ static const struct snd_soc_dapm_widget skl_hda_widgets[] = {
 };
 
 static const struct snd_soc_dapm_route skl_hda_map[] = {
+/* Fred to remove HDMI working on it */
+#if 1
 	{ "hifi3", NULL, "iDisp3 Tx"},
 	{ "iDisp3 Tx", NULL, "iDisp3_out"},
 	{ "hifi2", NULL, "iDisp2 Tx"},
 	{ "iDisp2 Tx", NULL, "iDisp2_out"},
 	{ "hifi1", NULL, "iDisp1 Tx"},
 	{ "iDisp1 Tx", NULL, "iDisp1_out"},
-
+#endif
 	{ "Analog Out", NULL, "Codec Output Pin1" },
 	{ "Digital Out", NULL, "Codec Output Pin2" },
 	{ "Alt Analog Out", NULL, "Codec Output Pin3" },
@@ -96,7 +98,10 @@ static struct snd_soc_card hda_soc_card = {
 	.late_probe = skl_hda_card_late_probe,
 };
 
+//Fred to remove IDISP, working on it
 #define IDISP_DAI_COUNT		3
+//#define IDISP_DAI_COUNT		0
+
 /* there are two routes per iDisp output */
 #define IDISP_ROUTE_COUNT	(IDISP_DAI_COUNT * 2)
 #define IDISP_CODEC_MASK	0x4
@@ -108,8 +113,11 @@ static int skl_hda_fill_card_info(struct snd_soc_acpi_mach_params *mach_params)
 	u32 codec_count, codec_mask;
 	int i, num_links, num_route;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
+
 	codec_mask = mach_params->codec_mask;
 	codec_count = hweight_long(codec_mask);
+	dev_err(card->dev, "%s: mask=0x%x, count=%d\n", __func__, codec_mask, codec_count);
 
 	if (codec_count == 1 && codec_mask & IDISP_CODEC_MASK) {
 		num_links = IDISP_DAI_COUNT;
@@ -122,6 +130,8 @@ static int skl_hda_fill_card_info(struct snd_soc_acpi_mach_params *mach_params)
 	} else {
 		return -EINVAL;
 	}
+
+	dev_err(card->dev, "%s: num_links=%d, num_route=%d\n", __func__, num_links, num_route);
 
 	card->num_links = num_links;
 	card->num_dapm_routes = num_route;
@@ -138,7 +148,7 @@ static int skl_hda_audio_probe(struct platform_device *pdev)
 	struct skl_hda_private *ctx;
 	int ret;
 
-	dev_dbg(&pdev->dev, "%s: entry\n", __func__);
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 
 	ctx = devm_kzalloc(&pdev->dev, sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)

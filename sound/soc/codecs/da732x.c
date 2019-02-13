@@ -1541,7 +1541,7 @@ static int da732x_i2c_probe(struct i2c_client *i2c,
 		goto err;
 	}
 
-	dev_info(&i2c->dev, "Revision: %d.%d\n",
+	dev_err(&i2c->dev, "Revision: %d.%d\n",
 		 (reg & DA732X_ID_MAJOR_MASK) >> 4,
 		 (reg & DA732X_ID_MINOR_MASK));
 

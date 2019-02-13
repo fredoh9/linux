@@ -16,6 +16,7 @@ static int sof_restore_kcontrols(struct snd_sof_dev *sdev)
 	struct snd_sof_control *scontrol = NULL;
 	int ipc_cmd, ctrl_type;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* restore kcontrol values */
 	list_for_each_entry(scontrol, &sdev->kcontrol_list, list) {
@@ -63,6 +64,7 @@ static int sof_restore_pipelines(struct snd_sof_dev *sdev)
 	struct sof_ipc_comp_dai *comp_dai;
 	struct sof_ipc_cmd_hdr *hdr;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* restore pipeline components */
 	list_for_each_entry_reverse(swidget, &sdev->widget_list, list) {
@@ -182,6 +184,7 @@ static int sof_send_pm_ipc(struct snd_sof_dev *sdev, int cmd)
 {
 	struct sof_ipc_pm_ctx pm_ctx;
 	struct sof_ipc_reply reply;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	memset(&pm_ctx, 0, sizeof(pm_ctx));
 
@@ -199,6 +202,7 @@ static void sof_suspend_streams(struct snd_sof_dev *sdev)
 	struct snd_sof_pcm *spcm;
 	struct snd_pcm_substream *substream;
 	int dir, playback_dir, capture_dir;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* suspend all running streams */
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
@@ -233,6 +237,7 @@ static int sof_resume(struct device *dev, bool runtime_resume)
 	struct sof_platform_priv *priv = dev_get_drvdata(dev);
 	struct snd_sof_dev *sdev = dev_get_drvdata(&priv->pdev_pcm->dev);
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* do nothing if dsp resume callbacks are not set */
 	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
@@ -303,6 +308,7 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
 	struct sof_platform_priv *priv = dev_get_drvdata(dev);
 	struct snd_sof_dev *sdev = dev_get_drvdata(&priv->pdev_pcm->dev);
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* do nothing if dsp suspend callback is not set */
 	if (!sof_ops(sdev)->suspend)

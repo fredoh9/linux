@@ -394,10 +394,10 @@ static int max98371_i2c_probe(struct i2c_client *i2c,
 
 	ret = regmap_read(max98371->regmap, MAX98371_VERSION, &reg);
 	if (ret < 0) {
-		dev_info(&i2c->dev, "device error %d\n", ret);
+		dev_err(&i2c->dev, "device error %d\n", ret);
 		return ret;
 	}
-	dev_info(&i2c->dev, "device version %x\n", reg);
+	dev_err(&i2c->dev, "device version %x\n", reg);
 
 	ret = devm_snd_soc_register_component(&i2c->dev, &max98371_component,
 			max98371_dai, ARRAY_SIZE(max98371_dai));

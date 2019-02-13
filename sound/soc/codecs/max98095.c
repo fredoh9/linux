@@ -2047,7 +2047,7 @@ static int max98095_probe(struct snd_soc_component *component)
 			ret);
 		goto err_irq;
 	}
-	dev_info(component->dev, "Hardware revision: %c\n", ret - 0x40 + 'A');
+	dev_err(component->dev, "Hardware revision: %c\n", ret - 0x40 + 'A');
 
 	snd_soc_component_write(component, M98095_097_PWR_SYS, M98095_PWRSV);
 

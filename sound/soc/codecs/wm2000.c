@@ -878,7 +878,7 @@ static int wm2000_i2c_probe(struct i2c_client *i2c,
 		dev_err(&i2c->dev, "Unable to read Revision: %d\n", ret);
 		return ret;
 	}
-	dev_info(&i2c->dev, "revision %c\n", reg + 'A');
+	dev_err(&i2c->dev, "revision %c\n", reg + 'A');
 
 	wm2000->mclk = devm_clk_get(&i2c->dev, "MCLK");
 	if (IS_ERR(wm2000->mclk)) {

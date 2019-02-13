@@ -88,6 +88,7 @@ int snd_sof_debugfs_io_create_item(struct snd_sof_dev *sdev,
 	if (!sdev)
 		return -EINVAL;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	dfse = devm_kzalloc(sdev->dev, sizeof(*dfse), GFP_KERNEL);
 	if (!dfse)
 		return -ENOMEM;
@@ -118,6 +119,7 @@ int snd_sof_debugfs_buf_create_item(struct snd_sof_dev *sdev,
 	if (!sdev)
 		return -EINVAL;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	dfse = devm_kzalloc(sdev->dev, sizeof(*dfse), GFP_KERNEL);
 	if (!dfse)
 		return -ENOMEM;
@@ -144,6 +146,7 @@ int snd_sof_dbg_init(struct snd_sof_dev *sdev)
 	const struct snd_sof_debugfs_map *map;
 	int err = 0, i;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	/* use "sof" as top level debugFS dir */
 	sdev->debugfs_root = debugfs_create_dir("sof", NULL);
 	if (IS_ERR_OR_NULL(sdev->debugfs_root)) {

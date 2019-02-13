@@ -1,0 +1,389 @@
+
+
+STARTING AUTOMATED TESTS
+
+DEFAULT OPTIONS:
+BISECT_MANUAL = 0
+BISECT_SKIP = 1
+BISECT_SLEEP_TIME = 60
+BISECT_TRIES = 1
+BOOTED_TIMEOUT = 1
+BUILD_DIR = /home/fredoh/ktest/sof-dev-0130
+BUILD_NOCLEAN = 0
+BUILD_OPTIONS = -j16
+BUILD_TARGET = arch/x86/boot/bzImage
+BUILD_TYPE = randconfig
+CLEAR_LOG = 1
+CLOSE_CONSOLE_SIGNAL = INT
+CONNECT_TIMEOUT = 25
+CONSOLE = cat ${BUILD_DIR}/sof-dev-cat
+DETECT_TRIPLE_FAULT = 1
+DIE_ON_FAILURE = 1
+EMAIL_ON_ERROR = 1
+EMAIL_WHEN_CANCELED = 0
+EMAIL_WHEN_FINISHED = 1
+EMAIL_WHEN_STARTED = 0
+GRUB_FILE = /boot/grub/grub.cfg
+GRUB_MENU = Ubuntu, with Linux test
+GRUB_REBOOT = grub-reboot
+IGNORE_UNUSED = 0
+LOCALVERSION = -test
+LOG_FILE = /home/fredoh/ktest/sof-dev-0130/sof-dev.log
+MACHINE = up2
+MAILER = sendmail
+MAKE_CMD = make
+MAX_MONITOR_WAIT = 1800
+MIN_CONFIG_TYPE = boot
+NO_INSTALL = 0
+NUM_TESTS = 1
+OUTPUT_DIR = ${BUILD_DIR}/sof-dev-build
+PATCHCHECK_SLEEP_TIME = 60
+POST_INSTALL = ssh -o 'ProxyCommand none' $SSH_USER@$MACHINE 'sudo /usr/sbin/mkinitramfs -o /boot/initrd.img-test $KERNEL_VERSION'
+POWEROFF_ON_ERROR = 0
+POWEROFF_ON_SUCCESS = 0
+POWER_CYCLE = echo Power cycle the machine now and press ENTER; read a
+REBOOT = ssh -o 'ProxyCommand none' $SSH_USER@$MACHINE 'sudo reboot > /dev/null &'
+REBOOT_ON_ERROR = 0
+REBOOT_ON_SUCCESS = 1
+REBOOT_TYPE = grub2
+SCP_TO_TARGET = scp $SRC_FILE $SSH_USER@$MACHINE:$DST_FILE
+SCP_TO_TARGET_INSTALL = ${SCP_TO_TARGET}
+SLEEP_TIME = 60
+SSH_EXEC = ssh $SSH_USER@$MACHINE $SSH_COMMAND
+SSH_USER = root
+STOP_AFTER_FAILURE = 60
+STOP_AFTER_SUCCESS = 10
+STOP_TEST_AFTER = 600
+SUCCESS_LINE = login:
+SYSLINUX = extlinux
+SYSLINUX_PATH = /boot/extlinux
+TARGET_IMAGE = /boot/vmlinuz-test
+TEST_TYPE = build
+TIMEOUT = 120
+TMP_DIR = /tmp/ktest/${MACHINE}
+
+TEST 1 OPTIONS
+BUILD_NOCLEAN[1] = 1
+BUILD_TYPE[1] = useconfig:/home/fredoh/ktest/0130-defconfig
+TEST_TYPE[1] = boot
+
+
+RUNNING TEST 1 of 1 with option boot useconfig:/home/fredoh/ktest/0130-defconfig
+
+cp /home/fredoh/ktest/0130-defconfig /home/fredoh/ktest/sof-dev-0130/sof-dev-build/.config ... [0 seconds] SUCCESS
+touch /home/fredoh/ktest/sof-dev-0130/sof-dev-build/.config ... [0 seconds] SUCCESS
+make O=/home/fredoh/ktest/sof-dev-0130/sof-dev-build olddefconfig ... make[1]: Entering directory '/home/fredoh/ktest/sof-dev-0130/sof-dev-build'
+  GEN     Makefile
+scripts/kconfig/conf  --olddefconfig Kconfig
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/fredoh/ktest/sof-dev-0130/sof-dev-build'
+[1 second] SUCCESS
+make O=/home/fredoh/ktest/sof-dev-0130/sof-dev-build -j16 ... make[1]: Entering directory '/home/fredoh/ktest/sof-dev-0130/sof-dev-build'
+  GEN     Makefile
+scripts/kconfig/conf  --syncconfig Kconfig
+  GEN     Makefile
+  DESCEND  objtool
+  Using .. as source for kernel
+  CALL    ../scripts/checksyscalls.sh
+  CHK     include/generated/compile.h
+  Building modules, stage 2.
+  MODPOST 104 modules
+Kernel: arch/x86/boot/bzImage is ready  (#19)
+make[1]: Leaving directory '/home/fredoh/ktest/sof-dev-0130/sof-dev-build'
+[6 seconds] SUCCESS
+** Wait for monitor to settle down **
+kill child process 4517
+wait for child process 4517 to exit
+Find grub2 menu ... 0
+make O=/home/fredoh/ktest/sof-dev-0130/sof-dev-build kernelrelease ... 4.20.0-test+
+ssh root@up2 echo testing connection ... testing connection
+[0 seconds] SUCCESS
+scp /home/fredoh/ktest/sof-dev-0130/sof-dev-build/arch/x86/boot/bzImage root@up2:/boot/vmlinuz-test ... [1 second] SUCCESS
+make O=/home/fredoh/ktest/sof-dev-0130/sof-dev-build INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=/tmp/ktest/up2 modules_install ... make[1]: Entering directory '/home/fredoh/ktest/sof-dev-0130/sof-dev-build'
+  INSTALL drivers/mfd/intel-lpss-acpi.ko
+  INSTALL drivers/mfd/intel-lpss-pci.ko
+  INSTALL drivers/mfd/intel-lpss.ko
+  INSTALL drivers/mfd/mfd-core.ko
+  INSTALL drivers/misc/cb710/cb710.ko
+  INSTALL drivers/misc/tifm_7xx1.ko
+  INSTALL drivers/misc/tifm_core.ko
+  INSTALL drivers/mmc/core/mmc_block.ko
+  INSTALL drivers/mmc/core/sdio_uart.ko
+  INSTALL drivers/mmc/host/cb710-mmc.ko
+  INSTALL drivers/mmc/host/cqhci.ko
+  INSTALL drivers/mmc/host/sdhci-acpi.ko
+  INSTALL drivers/mmc/host/sdhci-pci.ko
+  INSTALL drivers/mmc/host/sdhci-pltfm.ko
+  INSTALL drivers/mmc/host/sdhci.ko
+  INSTALL drivers/mmc/host/sdricoh_cs.ko
+  INSTALL drivers/mmc/host/tifm_sd.ko
+  INSTALL drivers/mmc/host/toshsd.ko
+  INSTALL drivers/mmc/host/usdhi6rol0.ko
+  INSTALL drivers/mmc/host/ushc.ko
+  INSTALL drivers/mmc/host/via-sdmmc.ko
+  INSTALL drivers/mmc/host/vub300.ko
+  INSTALL drivers/net/ethernet/intel/igb/igb.ko
+  INSTALL drivers/net/usb/asix.ko
+  INSTALL drivers/net/usb/ax88179_178a.ko
+  INSTALL drivers/net/usb/cdc_ether.ko
+  INSTALL drivers/net/usb/cdc_ncm.ko
+  INSTALL drivers/net/usb/cdc_subset.ko
+  INSTALL drivers/net/usb/net1080.ko
+  INSTALL drivers/net/usb/r8152.ko
+  INSTALL drivers/net/usb/usbnet.ko
+  INSTALL drivers/net/usb/zaurus.ko
+  INSTALL drivers/net/wireless/intel/iwlwifi/iwlwifi.ko
+  INSTALL drivers/net/wireless/intel/iwlwifi/mvm/iwlmvm.ko
+  INSTALL drivers/nvme/host/nvme-fabrics.ko
+  INSTALL drivers/nvme/host/nvme-fc.ko
+  INSTALL drivers/spi/spi-dw-midpci.ko
+  INSTALL drivers/spi/spi-dw-mmio.ko
+  INSTALL drivers/spi/spi-dw.ko
+  INSTALL drivers/thermal/x86_pkg_temp_thermal.ko
+  INSTALL drivers/usb/host/xhci-hcd.ko
+  INSTALL drivers/usb/host/xhci-pci.ko
+  INSTALL drivers/usb/host/xhci-plat-hcd.ko
+  INSTALL fs/efivarfs/efivarfs.ko
+  INSTALL net/ipv4/netfilter/ipt_MASQUERADE.ko
+  INSTALL net/ipv4/netfilter/iptable_nat.ko
+  INSTALL net/ipv4/netfilter/nf_log_arp.ko
+  INSTALL net/ipv4/netfilter/nf_log_ipv4.ko
+  INSTALL net/ipv4/netfilter/nf_nat_ipv4.ko
+  INSTALL net/ipv6/netfilter/nf_log_ipv6.ko
+  INSTALL net/netfilter/nf_log_common.ko
+  INSTALL net/netfilter/nf_nat.ko
+  INSTALL net/netfilter/nf_nat_ftp.ko
+  INSTALL net/netfilter/nf_nat_irc.ko
+  INSTALL net/netfilter/nf_nat_sip.ko
+  INSTALL net/netfilter/xt_LOG.ko
+  INSTALL net/netfilter/xt_addrtype.ko
+  INSTALL net/netfilter/xt_mark.ko
+  INSTALL net/netfilter/xt_nat.ko
+  INSTALL sound/core/snd-hwdep.ko
+  INSTALL sound/core/snd-pcm.ko
+  INSTALL sound/hda/ext/snd-hda-ext-core.ko
+  INSTALL sound/hda/snd-hda-core.ko
+  INSTALL sound/pci/hda/snd-hda-codec-analog.ko
+  INSTALL sound/pci/hda/snd-hda-codec-ca0110.ko
+  INSTALL sound/pci/hda/snd-hda-codec-ca0132.ko
+  INSTALL sound/pci/hda/snd-hda-codec-cirrus.ko
+  INSTALL sound/pci/hda/snd-hda-codec-cmedia.ko
+  INSTALL sound/pci/hda/snd-hda-codec-conexant.ko
+  INSTALL sound/pci/hda/snd-hda-codec-generic.ko
+  INSTALL sound/pci/hda/snd-hda-codec-hdmi.ko
+  INSTALL sound/pci/hda/snd-hda-codec-idt.ko
+  INSTALL sound/pci/hda/snd-hda-codec-realtek.ko
+  INSTALL sound/pci/hda/snd-hda-codec-si3054.ko
+  INSTALL sound/pci/hda/snd-hda-codec-via.ko
+  INSTALL sound/pci/hda/snd-hda-codec.ko
+  INSTALL sound/pci/hda/snd-hda-intel.ko
+  INSTALL sound/soc/codecs/snd-soc-dmic.ko
+  INSTALL sound/soc/codecs/snd-soc-es8316.ko
+  INSTALL sound/soc/codecs/snd-soc-hdac-hda.ko
+  INSTALL sound/soc/codecs/snd-soc-hdac-hdmi.ko
+  INSTALL sound/soc/codecs/snd-soc-nau8824.ko
+  INSTALL sound/soc/codecs/snd-soc-pcm512x-i2c.ko
+  INSTALL sound/soc/codecs/snd-soc-pcm512x.ko
+  INSTALL sound/soc/codecs/snd-soc-ts3a227e.ko
+  INSTALL sound/soc/codecs/snd-soc-wm8804-i2c.ko
+  INSTALL sound/soc/codecs/snd-soc-wm8804.ko
+  INSTALL sound/soc/intel/boards/snd-soc-skl_hda_dsp.ko
+  INSTALL sound/soc/intel/boards/snd-soc-sst-bxt-pcm512x.ko
+  INSTALL sound/soc/intel/common/snd-soc-acpi-intel-match.ko
+  INSTALL sound/soc/snd-soc-acpi.ko
+  INSTALL sound/soc/snd-soc-core.ko
+  INSTALL sound/soc/sof/intel/snd-sof-intel-bdw.ko
+  INSTALL sound/soc/sof/intel/snd-sof-intel-byt.ko
+  INSTALL sound/soc/sof/intel/snd-sof-intel-hda-common.ko
+  INSTALL sound/soc/sof/intel/snd-sof-intel-hda.ko
+  INSTALL sound/soc/sof/intel/snd-sof-intel-hsw.ko
+  INSTALL sound/soc/sof/snd-sof-nocodec.ko
+  INSTALL sound/soc/sof/snd-sof-spi.ko
+  INSTALL sound/soc/sof/snd-sof.ko
+  INSTALL sound/soc/sof/sof-acpi-dev.ko
+  INSTALL sound/soc/sof/sof-pci-dev.ko
+  INSTALL sound/soc/sof/sof-spi-dev.ko
+  INSTALL sound/soc/sof/xtensa/snd-sof-xtensa-dsp.ko
+  DEPMOD  4.20.0-test+
+make[1]: Leaving directory '/home/fredoh/ktest/sof-dev-0130/sof-dev-build'
+[3 seconds] SUCCESS
+ssh root@up2 rm -rf /lib/modules/4.20.0-test+ ... [0 seconds] SUCCESS
+cd /tmp/ktest/up2 && tar -cjf ktest-mods.tar.bz2 lib/modules/4.20.0-test+ ... [1 second] SUCCESS
+scp /tmp/ktest/up2/ktest-mods.tar.bz2 root@up2:/tmp ... [0 seconds] SUCCESS
+ssh root@up2 '(cd / && tar xjf /tmp/ktest-mods.tar.bz2)' ... tar: lib/modules/4.20.0-test+/modules.order: time stamp 2019-02-12 17:49:23 is 6.334347676 s in the future
+tar: lib/modules/4.20.0-test+/modules.builtin: time stamp 2019-02-12 17:49:23 is 6.334068191 s in the future
+tar: lib/modules/4.20.0-test+/modules.alias.bin: time stamp 2019-02-12 17:49:24 is 7.333162977 s in the future
+tar: lib/modules/4.20.0-test+/modules.symbols.bin: time stamp 2019-02-12 17:49:24 is 7.332243442 s in the future
+tar: lib/modules/4.20.0-test+/modules.softdep: time stamp 2019-02-12 17:49:24 is 7.331805397 s in the future
+tar: lib/modules/4.20.0-test+/modules.devname: time stamp 2019-02-12 17:49:24 is 7.331744724 s in the future
+tar: lib/modules/4.20.0-test+/modules.builtin.bin: time stamp 2019-02-12 17:49:24 is 7.331456416 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv6/netfilter/nf_log_ipv6.ko: time stamp 2019-02-12 17:49:23 is 6.330401876 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv6/netfilter: time stamp 2019-02-12 17:49:23 is 6.330357894 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv6: time stamp 2019-02-12 17:49:23 is 6.3303228 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/nf_log_common.ko: time stamp 2019-02-12 17:49:23 is 6.329106223 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/nf_nat.ko: time stamp 2019-02-12 17:49:23 is 6.326969359 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/nf_nat_sip.ko: time stamp 2019-02-12 17:49:23 is 6.325240974 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/xt_mark.ko: time stamp 2019-02-12 17:49:23 is 6.325048388 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/nf_nat_ftp.ko: time stamp 2019-02-12 17:49:23 is 6.324628223 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/nf_nat_irc.ko: time stamp 2019-02-12 17:49:23 is 6.324106162 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/xt_nat.ko: time stamp 2019-02-12 17:49:23 is 6.323385448 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/xt_addrtype.ko: time stamp 2019-02-12 17:49:23 is 6.322801292 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter/xt_LOG.ko: time stamp 2019-02-12 17:49:23 is 6.322316536 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/netfilter: time stamp 2019-02-12 17:49:23 is 6.322271419 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4/netfilter/ipt_MASQUERADE.ko: time stamp 2019-02-12 17:49:23 is 6.321680946 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4/netfilter/nf_nat_ipv4.ko: time stamp 2019-02-12 17:49:23 is 6.320460654 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4/netfilter/nf_log_arp.ko: time stamp 2019-02-12 17:49:23 is 6.320385906 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4/netfilter/iptable_nat.ko: time stamp 2019-02-12 17:49:23 is 6.319424438 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4/netfilter/nf_log_ipv4.ko: time stamp 2019-02-12 17:49:23 is 6.318291463 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4/netfilter: time stamp 2019-02-12 17:49:23 is 6.318160511 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net/ipv4: time stamp 2019-02-12 17:49:23 is 6.318129412 s in the future
+tar: lib/modules/4.20.0-test+/kernel/net: time stamp 2019-02-12 17:49:23 is 6.318102592 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/ax88179_178a.ko: time stamp 2019-02-12 17:49:23 is 6.316322379 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/cdc_subset.ko: time stamp 2019-02-12 17:49:23 is 6.315566698 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/asix.ko: time stamp 2019-02-12 17:49:23 is 6.313123476 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/zaurus.ko: time stamp 2019-02-12 17:49:23 is 6.312383454 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/net1080.ko: time stamp 2019-02-12 17:49:23 is 6.311461763 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/cdc_ncm.ko: time stamp 2019-02-12 17:49:23 is 6.309018399 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/usbnet.ko: time stamp 2019-02-12 17:49:23 is 6.306557258 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/cdc_ether.ko: time stamp 2019-02-12 17:49:23 is 6.305035838 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb/r8152.ko: time stamp 2019-02-12 17:49:23 is 6.301599436 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/usb: time stamp 2019-02-12 17:49:23 is 6.30147192 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/wireless/intel/iwlwifi/iwlwifi.ko: time stamp 2019-02-12 17:49:23 is 6.24763084 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/wireless/intel/iwlwifi/mvm/iwlmvm.ko: time stamp 2019-02-12 17:49:23 is 6.227406217 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/wireless/intel/iwlwifi/mvm: time stamp 2019-02-12 17:49:23 is 6.22727341 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/wireless/intel/iwlwifi: time stamp 2019-02-12 17:49:23 is 6.227239606 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/wireless/intel: time stamp 2019-02-12 17:49:23 is 6.227210897 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/wireless: time stamp 2019-02-12 17:49:23 is 6.22718379 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/ethernet/intel/igb/igb.ko: time stamp 2019-02-12 17:49:23 is 6.182238469 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/ethernet/intel/igb: time stamp 2019-02-12 17:49:23 is 6.182109432 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/ethernet/intel: time stamp 2019-02-12 17:49:23 is 6.182076388 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net/ethernet: time stamp 2019-02-12 17:49:23 is 6.182048194 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/net: time stamp 2019-02-12 17:49:23 is 6.182020777 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/usb/host/xhci-hcd.ko: time stamp 2019-02-12 17:49:23 is 6.16958916 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/usb/host/xhci-pci.ko: time stamp 2019-02-12 17:49:23 is 6.168078752 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/usb/host/xhci-plat-hcd.ko: time stamp 2019-02-12 17:49:23 is 6.166594528 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/usb/host: time stamp 2019-02-12 17:49:23 is 6.166463479 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/usb: time stamp 2019-02-12 17:49:23 is 6.166432839 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/spi/spi-dw-midpci.ko: time stamp 2019-02-12 17:49:23 is 6.165874738 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/spi/spi-dw.ko: time stamp 2019-02-12 17:49:23 is 6.164554063 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/spi/spi-dw-mmio.ko: time stamp 2019-02-12 17:49:23 is 6.164056275 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/spi: time stamp 2019-02-12 17:49:23 is 6.164010523 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/sdricoh_cs.ko: time stamp 2019-02-12 17:49:23 is 6.163234716 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/usdhi6rol0.ko: time stamp 2019-02-12 17:49:23 is 6.161015117 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/sdhci.ko: time stamp 2019-02-12 17:49:23 is 6.156954229 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/sdhci-pci.ko: time stamp 2019-02-12 17:49:23 is 6.154088519 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/sdhci-pltfm.ko: time stamp 2019-02-12 17:49:23 is 6.153241698 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/vub300.ko: time stamp 2019-02-12 17:49:23 is 6.150084753 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/cb710-mmc.ko: time stamp 2019-02-12 17:49:23 is 6.14863525 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/toshsd.ko: time stamp 2019-02-12 17:49:23 is 6.147375779 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/via-sdmmc.ko: time stamp 2019-02-12 17:49:23 is 6.112553032 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/cqhci.ko: time stamp 2019-02-12 17:49:23 is 6.110221927 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/ushc.ko: time stamp 2019-02-12 17:49:23 is 6.109321954 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/sdhci-acpi.ko: time stamp 2019-02-12 17:49:23 is 6.107239943 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host/tifm_sd.ko: time stamp 2019-02-12 17:49:23 is 6.105576225 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/host: time stamp 2019-02-12 17:49:23 is 6.105444765 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/core/mmc_block.ko: time stamp 2019-02-12 17:49:23 is 6.101466961 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/core/sdio_uart.ko: time stamp 2019-02-12 17:49:23 is 6.100021662 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc/core: time stamp 2019-02-12 17:49:23 is 6.099871268 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mmc: time stamp 2019-02-12 17:49:23 is 6.099839815 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/misc/cb710/cb710.ko: time stamp 2019-02-12 17:49:23 is 6.098233621 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/misc/cb710: time stamp 2019-02-12 17:49:23 is 6.098104949 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/misc/tifm_7xx1.ko: time stamp 2019-02-12 17:49:23 is 6.096746822 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/misc/tifm_core.ko: time stamp 2019-02-12 17:49:23 is 6.096042411 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/misc: time stamp 2019-02-12 17:49:23 is 6.095336967 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/thermal/x86_pkg_temp_thermal.ko: time stamp 2019-02-12 17:49:23 is 6.094076446 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/thermal: time stamp 2019-02-12 17:49:23 is 6.093971569 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/nvme/host/nvme-fc.ko: time stamp 2019-02-12 17:49:23 is 6.091242016 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/nvme/host/nvme-fabrics.ko: time stamp 2019-02-12 17:49:23 is 6.089015132 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/nvme/host: time stamp 2019-02-12 17:49:23 is 6.088863774 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/nvme: time stamp 2019-02-12 17:49:23 is 6.088832989 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mfd/intel-lpss.ko: time stamp 2019-02-12 17:49:23 is 6.088107296 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mfd/intel-lpss-pci.ko: time stamp 2019-02-12 17:49:23 is 6.087153612 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mfd/intel-lpss-acpi.ko: time stamp 2019-02-12 17:49:23 is 6.086148548 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mfd/mfd-core.ko: time stamp 2019-02-12 17:49:23 is 6.084604501 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers/mfd: time stamp 2019-02-12 17:49:23 is 6.084473257 s in the future
+tar: lib/modules/4.20.0-test+/kernel/drivers: time stamp 2019-02-12 17:49:23 is 6.084441958 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-intel.ko: time stamp 2019-02-12 17:49:23 is 6.081554415 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-cirrus.ko: time stamp 2019-02-12 17:49:23 is 6.079364884 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-hdmi.ko: time stamp 2019-02-12 17:49:23 is 6.075548642 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-conexant.ko: time stamp 2019-02-12 17:49:23 is 6.073581012 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-ca0132.ko: time stamp 2019-02-12 17:49:23 is 6.069378092 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-cmedia.ko: time stamp 2019-02-12 17:49:23 is 6.068732453 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-realtek.ko: time stamp 2019-02-12 17:49:23 is 6.063123121 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-si3054.ko: time stamp 2019-02-12 17:49:23 is 6.062870564 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-ca0110.ko: time stamp 2019-02-12 17:49:23 is 6.062097262 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-analog.ko: time stamp 2019-02-12 17:49:23 is 6.060400525 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec.ko: time stamp 2019-02-12 17:49:23 is 6.020889964 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-idt.ko: time stamp 2019-02-12 17:49:23 is 6.016945519 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-generic.ko: time stamp 2019-02-12 17:49:23 is 6.011917518 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda/snd-hda-codec-via.ko: time stamp 2019-02-12 17:49:23 is 6.009664728 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci/hda: time stamp 2019-02-12 17:49:23 is 6.009535075 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/pci: time stamp 2019-02-12 17:49:23 is 6.009504077 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/intel/boards/snd-soc-sst-bxt-pcm512x.ko: time stamp 2019-02-12 17:49:23 is 6.009192866 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/intel/boards/snd-soc-skl_hda_dsp.ko: time stamp 2019-02-12 17:49:23 is 6.008269152 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/intel/boards: time stamp 2019-02-12 17:49:23 is 6.008137814 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/intel/common/snd-soc-acpi-intel-match.ko: time stamp 2019-02-12 17:49:23 is 6.007079558 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/intel/common: time stamp 2019-02-12 17:49:23 is 6.006651544 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/intel: time stamp 2019-02-12 17:49:23 is 6.00661336 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-wm8804.ko: time stamp 2019-02-12 17:49:23 is 6.005336144 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-ts3a227e.ko: time stamp 2019-02-12 17:49:23 is 6.004377757 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-pcm512x-i2c.ko: time stamp 2019-02-12 17:49:23 is 6.004165634 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-es8316.ko: time stamp 2019-02-12 17:49:23 is 6.002248815 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-pcm512x.ko: time stamp 2019-02-12 17:49:23 is 6.000012169 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-nau8824.ko: time stamp 2019-02-12 17:49:23 is 5.997024083 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-hdac-hda.ko: time stamp 2019-02-12 17:49:23 is 5.995531024 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-wm8804-i2c.ko: time stamp 2019-02-12 17:49:23 is 5.995334282 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-hdac-hdmi.ko: time stamp 2019-02-12 17:49:23 is 5.993087202 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs/snd-soc-dmic.ko: time stamp 2019-02-12 17:49:23 is 5.992473019 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/codecs: time stamp 2019-02-12 17:49:23 is 5.992425117 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/sof-acpi-dev.ko: time stamp 2019-02-12 17:49:24 is 6.991403384 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/xtensa/snd-sof-xtensa-dsp.ko: time stamp 2019-02-12 17:49:24 is 6.990493217 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/xtensa: time stamp 2019-02-12 17:49:24 is 6.990360279 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/snd-sof-spi.ko: time stamp 2019-02-12 17:49:23 is 5.989862089 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/sof-pci-dev.ko: time stamp 2019-02-12 17:49:24 is 6.988681807 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/snd-sof.ko: time stamp 2019-02-12 17:49:24 is 6.983474508 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/intel/snd-sof-intel-hda.ko: time stamp 2019-02-12 17:49:23 is 5.982370302 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/intel/snd-sof-intel-hda-common.ko: time stamp 2019-02-12 17:49:23 is 5.978170406 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/intel/snd-sof-intel-bdw.ko: time stamp 2019-02-12 17:49:23 is 5.946523145 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/intel/snd-sof-intel-byt.ko: time stamp 2019-02-12 17:49:23 is 5.944913101 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/intel/snd-sof-intel-hsw.ko: time stamp 2019-02-12 17:49:23 is 5.943630385 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/intel: time stamp 2019-02-12 17:49:23 is 5.943498304 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/sof-spi-dev.ko: time stamp 2019-02-12 17:49:24 is 6.943157335 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof/snd-sof-nocodec.ko: time stamp 2019-02-12 17:49:23 is 5.942538597 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/sof: time stamp 2019-02-12 17:49:24 is 6.942404499 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/snd-soc-acpi.ko: time stamp 2019-02-12 17:49:23 is 5.94195694 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc/snd-soc-core.ko: time stamp 2019-02-12 17:49:23 is 5.931562044 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/soc: time stamp 2019-02-12 17:49:23 is 5.931432536 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/hda/snd-hda-core.ko: time stamp 2019-02-12 17:49:23 is 5.926630025 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/hda/ext/snd-hda-ext-core.ko: time stamp 2019-02-12 17:49:23 is 5.92461187 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/hda/ext: time stamp 2019-02-12 17:49:23 is 5.924478966 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/hda: time stamp 2019-02-12 17:49:23 is 5.924447761 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/core/snd-hwdep.ko: time stamp 2019-02-12 17:49:23 is 5.923344748 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/core/snd-pcm.ko: time stamp 2019-02-12 17:49:23 is 5.917111774 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound/core: time stamp 2019-02-12 17:49:23 is 5.916958727 s in the future
+tar: lib/modules/4.20.0-test+/kernel/sound: time stamp 2019-02-12 17:49:23 is 5.916926809 s in the future
+tar: lib/modules/4.20.0-test+/kernel/fs/efivarfs/efivarfs.ko: time stamp 2019-02-12 17:49:23 is 5.915973126 s in the future
+tar: lib/modules/4.20.0-test+/kernel/fs/efivarfs: time stamp 2019-02-12 17:49:23 is 5.915921978 s in the future
+tar: lib/modules/4.20.0-test+/kernel/fs: time stamp 2019-02-12 17:49:23 is 5.915892531 s in the future
+tar: lib/modules/4.20.0-test+/kernel: time stamp 2019-02-12 17:49:23 is 5.915867134 s in the future
+tar: lib/modules/4.20.0-test+/modules.dep: time stamp 2019-02-12 17:49:24 is 6.915570057 s in the future
+tar: lib/modules/4.20.0-test+/modules.alias: time stamp 2019-02-12 17:49:24 is 6.914518663 s in the future
+tar: lib/modules/4.20.0-test+/modules.dep.bin: time stamp 2019-02-12 17:49:24 is 6.913834616 s in the future
+tar: lib/modules/4.20.0-test+/modules.symbols: time stamp 2019-02-12 17:49:24 is 6.912771677 s in the future
+tar: lib/modules/4.20.0-test+/source: time stamp 2019-02-12 17:49:23 is 5.912449757 s in the future
+tar: lib/modules/4.20.0-test+: time stamp 2019-02-12 17:49:24 is 6.912383193 s in the future
+[1 second] SUCCESS
+ssh root@up2 rm -f /tmp/ktest-mods.tar.bz2 ... [1 second] SUCCESS
+ssh -o 'ProxyCommand none' root@up2 'sudo /usr/sbin/mkinitramfs -o /boot/initrd.img-test 4.20.0-test+' ... [6 seconds] SUCCESS
+** Wait for monitor to settle down **
+ssh root@up2 grub-reboot 0 ... [1 second] SUCCESS
+ssh root@up2 echo check machine status ... timeout = 25
+timeout = 25
+check machine status
+[0 seconds] SUCCESS
+ssh root@up2 sync ... [1 second] SUCCESS
+ssh -o 'ProxyCommand none' root@up2 'sudo reboot > /dev/null &' ... [1 second] SUCCESS
+Timed out after 120 seconds
+CRITICAL FAILURE... failed - never got a boot prompt.

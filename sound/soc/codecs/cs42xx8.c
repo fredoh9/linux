@@ -511,7 +511,7 @@ int cs42xx8_probe(struct device *dev, struct regmap *regmap)
 		goto err_enable;
 	}
 
-	dev_info(dev, "found device, revision %X\n",
+	dev_err(dev, "found device, revision %X\n",
 			val & CS42XX8_CHIPID_REV_ID_MASK);
 
 	cs42xx8_dai.name = cs42xx8->drvdata->name;

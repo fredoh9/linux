@@ -1174,7 +1174,7 @@ static int cs42l52_i2c_probe(struct i2c_client *i2c_client,
 		return ret;
 	}
 
-	dev_info(&i2c_client->dev, "Cirrus Logic CS42L52, Revision: %02X\n",
+	dev_err(&i2c_client->dev, "Cirrus Logic CS42L52, Revision: %02X\n",
 		 reg & CS42L52_CHIP_REV_MASK);
 
 	/* Set Platform Data */

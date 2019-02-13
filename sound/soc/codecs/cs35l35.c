@@ -1537,7 +1537,7 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
 		ret = PTR_ERR(cs35l35->reset_gpio);
 		cs35l35->reset_gpio = NULL;
 		if (ret == -EBUSY) {
-			dev_info(dev,
+			dev_err(dev,
 				 "Reset line busy, assuming shared reset\n");
 		} else {
 			dev_err(dev, "Failed to get reset GPIO: %d\n", ret);
@@ -1585,7 +1585,7 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
 		goto err;
 	}
 
-	dev_info(dev, "Cirrus Logic CS35L35 (%x), Revision: %02X\n",
+	dev_err(dev, "Cirrus Logic CS35L35 (%x), Revision: %02X\n",
 		 devid, reg & 0xFF);
 
 	/* Set the INT Masks for critical errors */

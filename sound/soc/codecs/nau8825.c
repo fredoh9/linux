@@ -2111,7 +2111,7 @@ static int nau8825_mclk_prepare(struct nau8825 *nau8825, unsigned int freq)
 
 	nau8825->mclk = devm_clk_get(nau8825->dev, "mclk");
 	if (IS_ERR(nau8825->mclk)) {
-		dev_info(nau8825->dev, "No 'mclk' clock found, assume MCLK is managed externally");
+		dev_err(nau8825->dev, "No 'mclk' clock found, assume MCLK is managed externally");
 		return 0;
 	}
 
@@ -2540,7 +2540,7 @@ static int nau8825_read_device_properties(struct device *dev,
 	} else if (PTR_ERR(nau8825->mclk) == -ENOENT) {
 		/* The MCLK is managed externally or not used at all */
 		nau8825->mclk = NULL;
-		dev_info(dev, "No 'mclk' clock found, assume MCLK is managed externally");
+		dev_err(dev, "No 'mclk' clock found, assume MCLK is managed externally");
 	} else if (IS_ERR(nau8825->mclk)) {
 		return -EINVAL;
 	}

@@ -314,7 +314,7 @@ static int aic26_probe(struct snd_soc_component *component)
 	/* Create SysFS files */
 	ret = device_create_file(component->dev, &dev_attr_keyclick);
 	if (ret)
-		dev_info(component->dev, "error creating sysfs files\n");
+		dev_err(component->dev, "error creating sysfs files\n");
 
 	return 0;
 }

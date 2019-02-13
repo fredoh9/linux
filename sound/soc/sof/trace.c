@@ -109,6 +109,7 @@ static int trace_debugfs_create(struct snd_sof_dev *sdev)
 
 	if (!sdev)
 		return -EINVAL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dfse = devm_kzalloc(sdev->dev, sizeof(*dfse), GFP_KERNEL);
 	if (!dfse)
@@ -134,6 +135,7 @@ int snd_sof_init_trace_ipc(struct snd_sof_dev *sdev)
 	struct sof_ipc_dma_trace_params params;
 	struct sof_ipc_reply ipc_reply;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (sdev->dtrace_is_enabled || !sdev->dma_trace_pages)
 		return -EINVAL;
@@ -186,6 +188,7 @@ trace_release:
 int snd_sof_init_trace(struct snd_sof_dev *sdev)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* set false before start initialization */
 	sdev->dtrace_is_enabled = false;
@@ -269,6 +272,7 @@ EXPORT_SYMBOL(snd_sof_trace_notify_for_error);
 void snd_sof_release_trace(struct snd_sof_dev *sdev)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (!sdev->dtrace_is_enabled)
 		return;
@@ -289,6 +293,8 @@ EXPORT_SYMBOL(snd_sof_release_trace);
 
 void snd_sof_free_trace(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	snd_sof_release_trace(sdev);
 
 	snd_dma_free_pages(&sdev->dmatb);

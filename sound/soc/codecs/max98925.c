@@ -395,7 +395,7 @@ static int max98925_set_clock(struct max98925_priv *max98925,
 		mdll  = M98925_MDLL_MULT_MCLKx8;
 		break;
 	default:
-		dev_info(max98925->component->dev, "unsupported sysclk %d\n",
+		dev_err(max98925->component->dev, "unsupported sysclk %d\n",
 					max98925->sysclk);
 		return -EINVAL;
 	}
@@ -612,7 +612,7 @@ static int max98925_i2c_probe(struct i2c_client *i2c,
 		return ret;
 	}
 
-	dev_info(&i2c->dev, "device version 0x%02X\n", reg);
+	dev_err(&i2c->dev, "device version 0x%02X\n", reg);
 
 	ret = devm_snd_soc_register_component(&i2c->dev,
 			&soc_component_dev_max98925,

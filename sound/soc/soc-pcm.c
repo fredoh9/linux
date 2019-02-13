@@ -484,6 +484,7 @@ static int soc_pcm_open(struct snd_pcm_substream *substream)
 	const char *codec_dai_name = "multicodec";
 	int i, ret = 0;
 
+	dev_err(cpu_dai->dev, "%s: entry\n", __func__);
 	pinctrl_pm_select_default_state(cpu_dai->dev);
 	for_each_rtd_codec_dai(rtd, i, codec_dai)
 		pinctrl_pm_select_default_state(codec_dai->dev);
@@ -693,6 +694,7 @@ static int soc_pcm_close(struct snd_pcm_substream *substream)
 	struct snd_soc_dai *codec_dai;
 	int i;
 
+	dev_err(cpu_dai->dev, "%s: entry\n", __func__);
 	mutex_lock_nested(&rtd->pcm_mutex, rtd->pcm_subclass);
 
 	snd_soc_runtime_deactivate(rtd, substream->stream);
@@ -773,6 +775,7 @@ static int soc_pcm_prepare(struct snd_pcm_substream *substream)
 	struct snd_soc_dai *codec_dai;
 	int i, ret = 0;
 
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 	mutex_lock_nested(&rtd->pcm_mutex, rtd->pcm_subclass);
 
 	if (rtd->dai_link->ops->prepare) {
@@ -847,6 +850,7 @@ static void soc_pcm_codec_params_fixup(struct snd_pcm_hw_params *params,
 	struct snd_interval *interval;
 	int channels = hweight_long(mask);
 
+	pr_debug("%s: entry\n", __func__);
 	interval = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
 	interval->min = channels;
 	interval->max = channels;
@@ -859,6 +863,7 @@ int soc_dai_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	int ret;
 
+	dev_err(rtd->dev, "%s: entry\n", __func__);
 	/* perform any topology hw_params fixups before DAI  */
 	if (rtd->dai_link->be_hw_params_fixup) {
 		ret = rtd->dai_link->be_hw_params_fixup(rtd, params);
@@ -920,6 +925,7 @@ static int soc_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_dai *codec_dai;
 	int i, ret = 0;
 
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 	mutex_lock_nested(&rtd->pcm_mutex, rtd->pcm_subclass);
 	if (rtd->dai_link->ops->hw_params) {
 		ret = rtd->dai_link->ops->hw_params(substream, params);
@@ -1039,6 +1045,7 @@ static int soc_pcm_hw_free(struct snd_pcm_substream *substream)
 	bool playback = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
 	int i;
 
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 	mutex_lock_nested(&rtd->pcm_mutex, rtd->pcm_subclass);
 
 	/* clear the corresponding DAIs parameters when going to be inactive */
@@ -1093,6 +1100,7 @@ static int soc_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	struct snd_soc_dai *codec_dai;
 	int i, ret;
 
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 	for_each_rtd_codec_dai(rtd, i, codec_dai) {
 		if (codec_dai->driver->ops->trigger) {
 			ret = codec_dai->driver->ops->trigger(substream,
@@ -1171,6 +1179,7 @@ static snd_pcm_uframes_t soc_pcm_pointer(struct snd_pcm_substream *substream)
 	snd_pcm_sframes_t codec_delay = 0;
 	int i;
 
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 	/* clearing the previous total delay */
 	runtime->delay = 0;
 
@@ -3025,6 +3034,7 @@ int soc_new_pcm(struct snd_soc_pcm_runtime *rtd, int num)
 	int ret = 0, playback = 0, capture = 0;
 	int i;
 
+	dev_err(rtd->card->dev, "%s: entry\n", __func__);
 	if (rtd->dai_link->dynamic || rtd->dai_link->no_pcm) {
 		playback = rtd->dai_link->dpcm_playback;
 		capture = rtd->dai_link->dpcm_capture;

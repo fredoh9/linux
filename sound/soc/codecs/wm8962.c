@@ -3624,7 +3624,7 @@ static int wm8962_i2c_probe(struct i2c_client *i2c,
 		goto err_enable;
 	}
 
-	dev_info(&i2c->dev, "customer id %x revision %c\n",
+	dev_err(&i2c->dev, "customer id %x revision %c\n",
 		 (reg & WM8962_CUST_ID_MASK) >> WM8962_CUST_ID_SHIFT,
 		 ((reg & WM8962_CHIP_REV_MASK) >> WM8962_CHIP_REV_SHIFT)
 		 + 'A');

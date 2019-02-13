@@ -29,6 +29,7 @@ int hda_dsp_ctrl_link_reset(struct snd_sof_dev *sdev, bool reset)
 	unsigned long timeout;
 	u32 gctl = 0;
 	u32 val;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* 0 to enter reset and 1 to exit reset */
 	val = reset ? 0 : SOF_HDA_GCTL_RESET;
@@ -57,6 +58,8 @@ int hda_dsp_ctrl_get_caps(struct snd_sof_dev *sdev)
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	u32 cap, offset, feature;
 	int count = 0;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	offset = snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR, SOF_HDA_LLCH);
 
@@ -155,6 +158,8 @@ int hda_dsp_ctrl_init_chip(struct snd_sof_dev *sdev, bool full_reset)
 {
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	hda_dsp_ctrl_misc_clock_gating(sdev, false);
 	ret = snd_hdac_bus_init_chip(bus, full_reset);

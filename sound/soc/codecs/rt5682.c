@@ -2334,6 +2334,7 @@ static int rt5682_probe(struct snd_soc_component *component)
 {
 	struct rt5682_priv *rt5682 = snd_soc_component_get_drvdata(component);
 
+	dev_err(component->dev, "%s: entry\n", __func__);
 	rt5682->component = component;
 
 	return 0;
@@ -2533,6 +2534,7 @@ static int rt5682_i2c_probe(struct i2c_client *i2c,
 	struct rt5682_priv *rt5682;
 	int i, ret;
 	unsigned int val;
+	dev_err(&i2c->dev, "%s: entry\n", __func__);
 
 	rt5682 = devm_kzalloc(&i2c->dev, sizeof(struct rt5682_priv),
 		GFP_KERNEL);

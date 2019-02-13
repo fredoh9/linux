@@ -196,6 +196,7 @@ static int load_modules(struct snd_sof_dev *sdev, const struct firmware *fw)
 			   struct snd_sof_mod_hdr *hdr);
 	int ret, count;
 	size_t remaining;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	header = (struct snd_sof_fw_header *)fw->data;
 	load_module = sof_ops(sdev)->load_module;
@@ -231,6 +232,7 @@ int snd_sof_load_firmware_memcpy(struct snd_sof_dev *sdev)
 	struct snd_sof_pdata *plat_data = dev_get_platdata(sdev->dev);
 	const char *fw_filename;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* set code loading condition to true */
 	sdev->code_loading = 1;
@@ -276,6 +278,7 @@ EXPORT_SYMBOL(snd_sof_load_firmware_memcpy);
 
 int snd_sof_load_firmware(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	dev_dbg(sdev->dev, "loading firmware\n");
 
 	if (sof_ops(sdev)->load_firmware)
@@ -287,6 +290,7 @@ EXPORT_SYMBOL(snd_sof_load_firmware);
 int snd_sof_run_firmware(struct snd_sof_dev *sdev)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	init_waitqueue_head(&sdev->boot_wait);
 	sdev->boot_complete = false;
@@ -329,7 +333,7 @@ int snd_sof_run_firmware(struct snd_sof_dev *sdev)
 		return -EIO;
 	}
 
-	dev_info(sdev->dev, "firmware boot complete\n");
+	dev_err(sdev->dev, "firmware boot complete\n");
 
 	/* perform post fw run operations */
 	ret = snd_sof_dsp_post_fw_run(sdev);
@@ -344,6 +348,8 @@ EXPORT_SYMBOL(snd_sof_run_firmware);
 
 void snd_sof_fw_unload(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* TODO: support module unloading at runtime */
 }
 EXPORT_SYMBOL(snd_sof_fw_unload);

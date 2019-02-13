@@ -91,7 +91,7 @@ static int wm8958_dsp2_fw(struct snd_soc_component *component, const char *name,
 
 	if (check) {
 		memcpy(&data64, fw->data + 24, sizeof(u64));
-		dev_info(component->dev, "%s timestamp %llx\n",
+		dev_err(component->dev, "%s timestamp %llx\n",
 			 name, be64_to_cpu(data64));
 	} else {
 		snd_soc_component_write(component, 0x102, 0x2);
@@ -131,7 +131,7 @@ static int wm8958_dsp2_fw(struct snd_soc_component *component, const char *name,
 			str = kzalloc(block_len + 1, GFP_KERNEL);
 			if (str) {
 				memcpy(str, data + 8, block_len);
-				dev_info(component->dev, "%s: %s\n", name, str);
+				dev_err(component->dev, "%s: %s\n", name, str);
 				kfree(str);
 			} else {
 				dev_err(component->dev, "Out of memory\n");
@@ -176,7 +176,7 @@ static int wm8958_dsp2_fw(struct snd_soc_component *component, const char *name,
 		dev_dbg(component->dev, "%s: download done\n", name);
 		wm8994->cur_fw = fw;
 	} else {
-		dev_info(component->dev, "%s: got firmware\n", name);
+		dev_err(component->dev, "%s: got firmware\n", name);
 	}
 
 	goto ok;

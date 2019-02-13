@@ -104,14 +104,14 @@ static bool is_byt_cr(struct platform_device *pdev)
 			bios_status = (bios_status >> 26) & 3;
 
 			if (bios_status == 1 || bios_status == 3) {
-				dev_info(dev, "Detected Baytrail-CR platform\n");
+				dev_err(dev, "Detected Baytrail-CR platform\n");
 				return true;
 			}
 
-			dev_info(dev, "BYT-CR not detected\n");
+			dev_err(dev, "BYT-CR not detected\n");
 		}
 	} else {
-		dev_info(dev, "IOSF_MBI not available, no BYT-CR detection\n");
+		dev_err(dev, "IOSF_MBI not available, no BYT-CR detection\n");
 	}
 
 	if (platform_get_resource(pdev, IORESOURCE_IRQ, 5) == NULL) {
@@ -120,7 +120,7 @@ static bool is_byt_cr(struct platform_device *pdev)
 		 * causing platform_get_irq with index 5 to return -ENXIO.
 		 * The correct IRQ in this case is at index 0, as on BYT-CR.
 		 */
-		dev_info(dev, "Falling back to Baytrail-CR platform\n");
+		dev_err(dev, "Falling back to Baytrail-CR platform\n");
 		return true;
 	}
 
@@ -163,7 +163,7 @@ static int sof_acpi_probe(struct platform_device *pdev)
 	struct sof_platform_priv *priv;
 	const struct snd_sof_dsp_ops *ops;
 	int ret = 0;
-
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 	dev_dbg(&pdev->dev, "ACPI DSP detected");
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
@@ -246,6 +246,8 @@ static int sof_acpi_remove(struct platform_device *pdev)
 {
 	struct sof_platform_priv *priv = dev_get_drvdata(&pdev->dev);
 	struct snd_sof_pdata *sof_pdata = priv->sof_pdata;
+
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 
 	if (!IS_ERR_OR_NULL(priv->pdev_pcm))
 		platform_device_unregister(priv->pdev_pcm);

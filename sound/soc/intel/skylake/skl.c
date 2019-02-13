@@ -800,7 +800,7 @@ static void skl_probe_work(struct work_struct *work)
 
 	/* codec detection */
 	if (!bus->codec_mask)
-		dev_info(bus->dev, "no hda codecs found!\n");
+		dev_err(bus->dev, "no hda codecs found!\n");
 
 	/* create codec instances */
 	skl_codec_create(bus);
@@ -977,20 +977,20 @@ static int skl_probe(struct pci_dev *pci,
 		 * class=04 subclass 03 prog-if 80: use DSP or legacy mode
 		 */
 		if (pci->class == 0x040300) {
-			dev_info(&pci->dev, "The DSP is not enabled on this platform, aborting probe\n");
+			dev_err(&pci->dev, "The DSP is not enabled on this platform, aborting probe\n");
 			return -ENODEV;
 		}
 		if (pci->class != 0x040100 && pci->class != 0x040380) {
 			dev_err(&pci->dev, "Unknown PCI class/subclass/prog-if information (0x%06x) found, aborting probe\n", pci->class);
 			return -ENODEV;
 		}
-		dev_info(&pci->dev, "DSP detected with PCI class/subclass/prog-if info 0x%06x\n", pci->class);
+		dev_err(&pci->dev, "DSP detected with PCI class/subclass/prog-if info 0x%06x\n", pci->class);
 		break;
 	case SND_SKL_PCI_BIND_LEGACY:
-		dev_info(&pci->dev, "Module parameter forced binding with HDaudio legacy, aborting probe\n");
+		dev_err(&pci->dev, "Module parameter forced binding with HDaudio legacy, aborting probe\n");
 		return -ENODEV;
 	case SND_SKL_PCI_BIND_ASOC:
-		dev_info(&pci->dev, "Module parameter forced binding with SKL driver, bypassed detection logic\n");
+		dev_err(&pci->dev, "Module parameter forced binding with SKL driver, bypassed detection logic\n");
 		break;
 	default:
 		dev_err(&pci->dev, "invalid value for skl_pci_binding module parameter, ignored\n");

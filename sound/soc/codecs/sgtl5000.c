@@ -1453,7 +1453,7 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
 	}
 
 	rev = (reg & SGTL5000_REVID_MASK) >> SGTL5000_REVID_SHIFT;
-	dev_info(&client->dev, "sgtl5000 revision 0x%x\n", rev);
+	dev_err(&client->dev, "sgtl5000 revision 0x%x\n", rev);
 	sgtl5000->revision = rev;
 
 	/* reconfigure the clocks in case we're using the PLL */
@@ -1477,7 +1477,7 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
 				"Error %d setting LINREG_VDDD\n", ret);
 
 		ana_pwr |= SGTL5000_LINEREG_D_POWERUP;
-		dev_info(&client->dev,
+		dev_err(&client->dev,
 			 "Using internal LDO instead of VDDD: check ER1 erratum\n");
 	} else {
 		/* using external LDO for VDDD

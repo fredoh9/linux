@@ -113,6 +113,7 @@ static int cl_skl_cldma_setup_bdle(struct snd_sof_dev *sdev,
 	__le32 *bdl = *bdlp;
 	int frags = 0;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	while (size > 0) {
 		phys_addr_t addr = virt_to_phys(dmab_data->area +
 						(frags * size));
@@ -139,6 +140,7 @@ static void cl_skl_cldma_stream_run(struct snd_sof_dev *sdev, bool enable)
 	int sd_offset = SOF_HDA_ADSP_LOADER_BASE;
 	u32 run = enable ? 0x1 : 0;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR,
 				sd_offset + SOF_HDA_ADSP_REG_CL_SD_CTL,
 				HDA_CL_SD_CTL_RUN(1), HDA_CL_SD_CTL_RUN(run));
@@ -237,6 +239,8 @@ static void cl_skl_cldma_setup_controller(struct snd_sof_dev *sdev,
 					  unsigned int max_size, u32 count)
 {
 	int sd_offset = SOF_HDA_ADSP_LOADER_BASE;
+	
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	/* Clear the stream first and then set it. */
 	cl_skl_cldma_stream_clear(sdev);
 
@@ -276,6 +280,7 @@ static int cl_stream_prepare_skl(struct snd_sof_dev *sdev)
 	__le32 *bdl;
 	unsigned int bufsize = HDA_SKL_CLDMA_MAX_BUFFER_SIZE;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, &pci->dev, bufsize,
 				  &sdev->dmab);
 	if (ret < 0) {
@@ -311,6 +316,7 @@ static void cl_cleanup_skl(struct snd_sof_dev *sdev)
 static int cl_dsp_init_skl(struct snd_sof_dev *sdev)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/*
 	 * check if the core is already enabled, if yes, reset and
@@ -449,6 +455,7 @@ static int cl_copy_fw_skl(struct snd_sof_dev *sdev)
 	const struct firmware *fw =  plat_data->fw;
 	unsigned int bufsize = HDA_SKL_CLDMA_MAX_BUFFER_SIZE;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dev_dbg(sdev->dev, "firmware size: 0x%zx buffer size 0x%x\n", fw->size,
 		bufsize);
@@ -477,6 +484,7 @@ static int cl_copy_fw_skl(struct snd_sof_dev *sdev)
 int hda_dsp_cl_boot_firmware_skl(struct snd_sof_dev *sdev)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = cl_dsp_init_skl(sdev);
 

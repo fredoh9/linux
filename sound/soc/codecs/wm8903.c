@@ -2069,7 +2069,7 @@ static int wm8903_i2c_probe(struct i2c_client *i2c,
 		dev_err(&i2c->dev, "Failed to read chip revision: %d\n", ret);
 		goto err;
 	}
-	dev_info(&i2c->dev, "WM8903 revision %c\n",
+	dev_err(&i2c->dev, "WM8903 revision %c\n",
 		 (val & WM8903_CHIP_REV_MASK) + 'A');
 
 	/* Reset the device */

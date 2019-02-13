@@ -548,7 +548,7 @@ static int byt_pci_probe(struct snd_sof_dev *sdev)
 
 	/* some BIOSes don't map IMR */
 	if (base == 0x55aa55aa || base == 0x0) {
-		dev_info(sdev->dev, "IMR not set by BIOS. Ignoring\n");
+		dev_err(sdev->dev, "IMR not set by BIOS. Ignoring\n");
 		goto irq;
 	}
 
@@ -706,7 +706,7 @@ static int byt_acpi_probe(struct snd_sof_dev *sdev)
 
 	/* some BIOSes don't map IMR */
 	if (base == 0x55aa55aa || base == 0x0) {
-		dev_info(sdev->dev, "IMR not set by BIOS. Ignoring\n");
+		dev_err(sdev->dev, "IMR not set by BIOS. Ignoring\n");
 		goto irq;
 	}
 
