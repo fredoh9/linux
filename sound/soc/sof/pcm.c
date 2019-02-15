@@ -50,6 +50,7 @@ static int sof_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct sof_ipc_pcm_params_reply ipc_params_reply;
 	int posn_offset;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* nothing todo for BE */
 	if (rtd->dai_link->no_pcm)
@@ -180,6 +181,7 @@ static int sof_pcm_hw_free(struct snd_pcm_substream *substream)
 	struct sof_ipc_stream stream;
 	struct sof_ipc_reply reply;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* nothing todo for BE */
 	if (rtd->dai_link->no_pcm)
@@ -207,6 +209,7 @@ static int sof_restore_hw_params(struct snd_pcm_substream *substream,
 	snd_pcm_uframes_t host = 0;
 	u64 host_posn;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* resume stream */
 	host_posn = spcm->stream[substream->stream].posn.host_posn;
@@ -242,6 +245,7 @@ static int sof_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	struct sof_ipc_stream stream;
 	struct sof_ipc_reply reply;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* nothing todo for BE */
 	if (rtd->dai_link->no_pcm)
@@ -338,6 +342,7 @@ static snd_pcm_uframes_t sof_pcm_pointer(struct snd_pcm_substream *substream)
 		snd_soc_component_get_drvdata(component);
 	struct snd_sof_pcm *spcm = rtd->private;
 	snd_pcm_uframes_t host = 0, dai = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* nothing todo for BE */
 	if (rtd->dai_link->no_pcm)
@@ -371,6 +376,7 @@ static int sof_pcm_open(struct snd_pcm_substream *substream)
 	struct snd_soc_tplg_stream_caps *caps =
 		&spcm->pcm.caps[substream->stream];
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* nothing todo for BE */
 	if (rtd->dai_link->no_pcm)
@@ -442,6 +448,7 @@ static int sof_pcm_close(struct snd_pcm_substream *substream)
 		snd_soc_component_get_drvdata(component);
 	struct snd_sof_pcm *spcm = rtd->private;
 	int err;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* nothing todo for BE */
 	if (rtd->dai_link->no_pcm)
@@ -490,6 +497,7 @@ static int sof_pcm_new(struct snd_soc_pcm_runtime *rtd)
 	struct snd_pcm *pcm = rtd->pcm;
 	struct snd_soc_tplg_stream_caps *caps;
 	int ret = 0, stream = SNDRV_PCM_STREAM_PLAYBACK;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* find SOF PCM for this RTD */
 	spcm = snd_sof_find_spcm_dai(sdev, rtd);
@@ -563,6 +571,7 @@ static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 		snd_soc_component_get_drvdata(component);
 	struct snd_sof_dai *dai =
 		snd_sof_find_dai(sdev, (char *)rtd->dai_link->name);
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* no topology exists for this BE, try a common configuration */
 	if (!dai) {
@@ -645,6 +654,8 @@ static int sof_pcm_probe(struct snd_soc_component *component)
 	const char *tplg_filename;
 	int ret;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* load the default topology */
 	sdev->component = component;
 
@@ -688,6 +699,9 @@ void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 	struct snd_soc_component_driver *pd = &sdev->plat_drv;
 	struct snd_sof_pdata *plat_data = sdev->pdata;
 	const char *drv_name;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 
 	drv_name = plat_data->machine->drv_name;
 

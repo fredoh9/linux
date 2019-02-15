@@ -1492,7 +1492,7 @@ static int rt5631_codec_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
 		for (i = 0; i < ARRAY_SIZE(codec_master_pll_div); i++)
 			if (freq_in == codec_master_pll_div[i].pll_in &&
 			freq_out == codec_master_pll_div[i].pll_out) {
-				dev_info(component->dev,
+				dev_err(component->dev,
 					"change PLL in master mode\n");
 				snd_soc_component_write(component, RT5631_PLL_CTRL,
 					codec_master_pll_div[i].reg_val);
@@ -1511,7 +1511,7 @@ static int rt5631_codec_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
 		for (i = 0; i < ARRAY_SIZE(codec_slave_pll_div); i++)
 			if (freq_in == codec_slave_pll_div[i].pll_in &&
 			freq_out == codec_slave_pll_div[i].pll_out) {
-				dev_info(component->dev,
+				dev_err(component->dev,
 					"change PLL in slave mode\n");
 				snd_soc_component_write(component, RT5631_PLL_CTRL,
 					codec_slave_pll_div[i].reg_val);

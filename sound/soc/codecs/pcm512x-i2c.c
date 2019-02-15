@@ -26,6 +26,7 @@ static int pcm512x_i2c_probe(struct i2c_client *i2c,
 {
 	struct regmap *regmap;
 	struct regmap_config config = pcm512x_regmap;
+	dev_err(&i2c->dev, "%s: entry\n", __func__);
 
 	/* msb needs to be set to enable auto-increment of addresses */
 	config.read_flag_mask = 0x80;
@@ -40,6 +41,8 @@ static int pcm512x_i2c_probe(struct i2c_client *i2c,
 
 static int pcm512x_i2c_remove(struct i2c_client *i2c)
 {
+	dev_err(&i2c->dev, "%s: entry\n", __func__);
+
 	pcm512x_remove(&i2c->dev);
 	return 0;
 }

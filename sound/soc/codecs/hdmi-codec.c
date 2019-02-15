@@ -416,6 +416,7 @@ static int hdmi_codec_startup(struct snd_pcm_substream *substream,
 	struct hdmi_codec_priv *hcp = snd_soc_dai_get_drvdata(dai);
 	int ret = 0;
 
+	dev_err(dai->dev, "%s: entry\n", __func__);
 	dev_dbg(dai->dev, "%s()\n", __func__);
 
 	ret = hdmi_codec_new_stream(substream, dai);
@@ -480,6 +481,7 @@ static int hdmi_codec_hw_params(struct snd_pcm_substream *substream,
 	};
 	int ret, idx;
 
+	dev_err(dai->dev, "%s: entry\n", __func__);
 	dev_dbg(dai->dev, "%s() width %d rate %d channels %d\n", __func__,
 		params_width(params), params_rate(params),
 		params_channels(params));
@@ -531,6 +533,7 @@ static int hdmi_codec_set_fmt(struct snd_soc_dai *dai,
 	struct hdmi_codec_daifmt cf = { 0 };
 	int ret = 0;
 
+	dev_err(dai->dev, "%s: entry, fmt=0x%x\n", __func__, fmt);
 	dev_dbg(dai->dev, "%s()\n", __func__);
 
 	if (dai->id == DAI_ID_SPDIF) {
@@ -693,6 +696,7 @@ static int hdmi_dai_probe(struct snd_soc_dai *dai)
 		.source = dai->driver->playback.stream_name,
 	};
 
+	dev_err(dai->dev, "%s: entry\n", __func__);
 	dapm = snd_soc_component_get_dapm(dai->component);
 
 	return snd_soc_dapm_add_routes(dapm, &route, 1);
@@ -759,6 +763,7 @@ static int hdmi_codec_probe(struct platform_device *pdev)
 	int dai_count, i = 0;
 	int ret;
 
+	dev_err(dai->dev, "%s: entry\n", __func__);
 	dev_dbg(dev, "%s()\n", __func__);
 
 	if (!hcd) {

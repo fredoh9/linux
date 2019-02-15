@@ -198,6 +198,7 @@ static int tx_wait_done(struct snd_sof_ipc *ipc, struct snd_sof_ipc_msg *msg,
 	struct snd_sof_dev *sdev = ipc->sdev;
 	struct sof_ipc_cmd_hdr *hdr = (struct sof_ipc_cmd_hdr *)msg->msg_data;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* wait for DSP IPC completion */
 	ret = wait_event_timeout(msg->waitq, msg->ipc_complete,
@@ -248,6 +249,8 @@ int sof_ipc_tx_message(struct snd_sof_ipc *ipc, u32 header,
 {
 	struct snd_sof_dev *sdev = ipc->sdev;
 	struct snd_sof_ipc_msg *msg;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	spin_lock_irq(&sdev->ipc_lock);
 
@@ -377,6 +380,7 @@ EXPORT_SYMBOL(sof_ipc_drop_all);
 int snd_sof_ipc_reply(struct snd_sof_dev *sdev, u32 msg_id)
 {
 	struct snd_sof_ipc_msg *msg;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	msg = sof_ipc_reply_find_msg(sdev->ipc, msg_id);
 	if (!msg) {
@@ -400,6 +404,8 @@ static void ipc_msgs_rx(struct work_struct *work)
 	struct sof_ipc_cmd_hdr hdr;
 	u32 cmd, type;
 	int err = 0;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* read back header */
 	snd_sof_dsp_mailbox_read(sdev, sdev->dsp_box.offset, &hdr, sizeof(hdr));
@@ -479,6 +485,7 @@ EXPORT_SYMBOL(snd_sof_ipc_msgs_rx);
 static void ipc_trace_message(struct snd_sof_dev *sdev, u32 msg_id)
 {
 	struct sof_ipc_dma_trace_posn posn;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	switch (msg_id) {
 	case SOF_IPC_TRACE_DMA_POSITION:
@@ -504,6 +511,8 @@ static void ipc_period_elapsed(struct snd_sof_dev *sdev, u32 msg_id)
 	struct snd_sof_pcm *spcm;
 	u32 posn_offset;
 	int direction;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* check if we have stream box */
 	if (sdev->stream_box.size == 0) {
@@ -550,6 +559,8 @@ static void ipc_xrun(struct snd_sof_dev *sdev, u32 msg_id)
 	struct snd_sof_pcm *spcm;
 	u32 posn_offset;
 	int direction;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* check if we have stream MMIO on this platform */
 	if (sdev->stream_box.size == 0) {
@@ -649,6 +660,8 @@ int snd_sof_ipc_set_comp_data(struct snd_sof_ipc *ipc,
 	struct sof_ipc_ctrl_data *cdata = scontrol->control_data;
 	int err;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* read firmware volume */
 	if (scontrol->readback_offset != 0) {
 		/* we can read value header via mmaped region */
@@ -745,10 +758,11 @@ int snd_sof_ipc_valid(struct snd_sof_dev *sdev)
 	struct sof_ipc_fw_ready *ready = &sdev->fw_ready;
 	struct sof_ipc_fw_version *v = &ready->version;
 
-	dev_info(sdev->dev,
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+	dev_err(sdev->dev,
 		 "Firmware info: version %d:%d:%d-%s\n",  v->major, v->minor,
 		 v->micro, v->tag);
-	dev_info(sdev->dev,
+	dev_err(sdev->dev,
 		 "Firmware: ABI %d:%d:%d Kernel ABI %d:%d:%d\n",
 		 SOF_ABI_VERSION_MAJOR(v->abi_version),
 		 SOF_ABI_VERSION_MINOR(v->abi_version),
@@ -761,7 +775,7 @@ int snd_sof_ipc_valid(struct snd_sof_dev *sdev)
 	}
 
 	if (ready->debug.bits.build) {
-		dev_info(sdev->dev,
+		dev_err(sdev->dev,
 			 "Firmware debug build %d on %s-%s - options:\n"
 			 " GDB: %s\n"
 			 " lock debug: %s\n"
@@ -784,6 +798,7 @@ struct snd_sof_ipc *snd_sof_ipc_init(struct snd_sof_dev *sdev)
 	struct snd_sof_ipc *ipc;
 	struct snd_sof_ipc_msg *msg;
 	int i;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* check if mandatory ops required for ipc are defined */
 	if (!sof_ops(sdev)->is_ipc_ready || !sof_ops(sdev)->fw_ready) {

@@ -109,7 +109,7 @@ static int spi_fw_ready(struct snd_sof_dev *sdev, u32 msg_id)
 
 	// read local buffer with SPI data
 
-	dev_info(sdev->dev, "Firmware info: version %d:%d-%s build %d on %s:%s\n",
+	dev_err(sdev->dev, "Firmware info: version %d:%d-%s build %d on %s:%s\n",
 		 v->major, v->minor, v->tag, v->build, v->date, v->time);
 
 	return 0;
@@ -247,6 +247,7 @@ static int spi_sof_probe(struct snd_sof_dev *sdev)
 	int ret;
 
 	sdev->ipc_irq = spi->irq;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 	dev_dbg(sdev->dev, "using IRQ %d\n", sdev->ipc_irq);
 	irqd = irq_get_irq_data(sdev->ipc_irq);
 	if (!irqd)

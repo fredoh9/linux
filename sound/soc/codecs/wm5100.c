@@ -2509,7 +2509,7 @@ static int wm5100_i2c_probe(struct i2c_client *i2c,
 	}
 	wm5100->rev = reg & WM5100_DEVICE_REVISION_MASK;
 
-	dev_info(&i2c->dev, "revision %c\n", wm5100->rev + 'A');
+	dev_err(&i2c->dev, "revision %c\n", wm5100->rev + 'A');
 
 	ret = wm5100_reset(wm5100);
 	if (ret < 0) {

@@ -218,7 +218,7 @@ static int wm1250_ev1_probe(struct i2c_client *i2c,
 		return -ENODEV;
 	}
 
-	dev_info(&i2c->dev, "revision %d\n", rev + 1);
+	dev_err(&i2c->dev, "revision %d\n", rev + 1);
 
 	ret = wm1250_ev1_pdata(i2c);
 	if (ret != 0)

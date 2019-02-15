@@ -2200,7 +2200,7 @@ static int wm8904_i2c_probe(struct i2c_client *i2c,
 			ret);
 		goto err_enable;
 	}
-	dev_info(&i2c->dev, "revision %c\n", val + 'A');
+	dev_err(&i2c->dev, "revision %c\n", val + 'A');
 
 	ret = regmap_write(wm8904->regmap, WM8904_SW_RESET_AND_ID, 0);
 	if (ret < 0) {

@@ -233,6 +233,7 @@ static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
 
 static void snd_soc_debugfs_init(void)
 {
+	pr_debug("%s: entry\n", __func__);
 	snd_soc_debugfs_root = debugfs_create_dir("asoc", NULL);
 	if (IS_ERR_OR_NULL(snd_soc_debugfs_root)) {
 		pr_warn("ASoC: Failed to create debugfs directory\n");
@@ -345,6 +346,7 @@ struct snd_pcm_substream *snd_soc_get_dai_substream(struct snd_soc_card *card,
 		const char *dai_link, int stream)
 {
 	struct snd_soc_pcm_runtime *rtd;
+	dev_err(card->dev, "%s: entry\n", __func__);
 
 	for_each_card_rtds(card, rtd) {
 		if (rtd->dai_link->no_pcm &&
@@ -362,6 +364,8 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
 	struct snd_soc_card *card, struct snd_soc_dai_link *dai_link)
 {
 	struct snd_soc_pcm_runtime *rtd;
+
+	dev_err(card->dev, "%s: entry\n", __func__);
 
 	rtd = kzalloc(sizeof(struct snd_soc_pcm_runtime), GFP_KERNEL);
 	if (!rtd)
@@ -386,6 +390,8 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
 
 static void soc_free_pcm_runtime(struct snd_soc_pcm_runtime *rtd)
 {
+	dev_err(rtd->dev, "%s: entry\n", __func__);
+
 	kfree(rtd->codec_dais);
 	snd_soc_rtdcom_del_all(rtd);
 	kfree(rtd);
@@ -394,6 +400,8 @@ static void soc_free_pcm_runtime(struct snd_soc_pcm_runtime *rtd)
 static void soc_add_pcm_runtime(struct snd_soc_card *card,
 		struct snd_soc_pcm_runtime *rtd)
 {
+	dev_err(card->dev, "%s: entry\n", __func__);
+
 	list_add_tail(&rtd->list, &card->rtd_list);
 	rtd->num = card->num_rtd;
 	card->num_rtd++;
@@ -402,6 +410,7 @@ static void soc_add_pcm_runtime(struct snd_soc_card *card,
 static void soc_remove_pcm_runtimes(struct snd_soc_card *card)
 {
 	struct snd_soc_pcm_runtime *rtd, *_rtd;
+	dev_err(card->dev, "%s: entry\n", __func__);
 
 	for_each_card_rtds_safe(card, rtd, _rtd) {
 		list_del(&rtd->list);
@@ -1042,6 +1051,7 @@ static int snd_soc_init_platform(struct snd_soc_card *card,
 				 struct snd_soc_dai_link *dai_link)
 {
 	struct snd_soc_dai_link_component *platform = dai_link->platforms;
+	dev_err(card->dev, "%s: entry\n", __func__);
 
 	/*
 	 * REMOVE ME
@@ -1098,6 +1108,8 @@ static void soc_cleanup_platform(struct snd_soc_card *card)
 static int snd_soc_init_multicodec(struct snd_soc_card *card,
 				   struct snd_soc_dai_link *dai_link)
 {
+	dev_err(card->dev, "%s: entry\n", __func__);
+
 	/*
 	 * REMOVE ME
 	 *
@@ -1138,6 +1150,7 @@ static int soc_init_dai_link(struct snd_soc_card *card,
 {
 	int i, ret;
 	struct snd_soc_dai_link_component *codec;
+	dev_err(card->dev, "%s: entry\n", __func__);
 
 	ret = snd_soc_init_platform(card, link);
 	if (ret) {
@@ -1258,6 +1271,8 @@ EXPORT_SYMBOL_GPL(snd_soc_disconnect_sync);
 int snd_soc_add_dai_link(struct snd_soc_card *card,
 		struct snd_soc_dai_link *dai_link)
 {
+	dev_err(card->dev, "%s: entry\n", __func__);
+
 	if (dai_link->dobj.type
 	    && dai_link->dobj.type != SND_SOC_DOBJ_DAI_LINK) {
 		dev_err(card->dev, "Invalid dai link type %d\n",
@@ -1368,6 +1383,8 @@ static int soc_probe_component(struct snd_soc_card *card,
 	struct snd_soc_dai *dai;
 	int ret;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
+
 	if (!strcmp(component->name, "snd-soc-dummy"))
 		return 0;
 
@@ -1467,6 +1484,7 @@ static int soc_post_component_init(struct snd_soc_pcm_runtime *rtd,
 	const char *name)
 {
 	int ret = 0;
+	dev_err(rtd->dev, "%s: entry\n", __func__);
 
 	/* register the rtd device */
 	rtd->dev = kzalloc(sizeof(struct device), GFP_KERNEL);
@@ -1501,6 +1519,7 @@ static int soc_probe_link_components(struct snd_soc_card *card,
 	struct snd_soc_component *component;
 	struct snd_soc_rtdcom_list *rtdcom;
 	int ret;
+	dev_err(card->dev, "%s: entry\n", __func__);
 
 	for_each_rtdcom(rtd, rtdcom) {
 		component = rtdcom->component;
@@ -1520,6 +1539,7 @@ static int soc_probe_dai(struct snd_soc_dai *dai, int order)
 	if (dai->probed ||
 	    dai->driver->probe_order != order)
 		return 0;
+	dev_err(dai->dev, "%s: entry\n", __func__);
 
 	if (dai->driver->probe) {
 		int ret = dai->driver->probe(dai);
@@ -1567,6 +1587,7 @@ static int soc_probe_link_dais(struct snd_soc_card *card,
 	struct snd_soc_dai *codec_dai;
 	int i, ret, num;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	dev_dbg(card->dev, "ASoC: probe %s dai link %d late %d\n",
 			card->name, rtd->num, order);
 
@@ -2257,6 +2278,7 @@ static int soc_probe(struct platform_device *pdev)
 	if (!card)
 		return -EINVAL;
 
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 	dev_warn(&pdev->dev,
 		 "ASoC: machine %s should use snd_soc_register_card()\n",
 		 card->name);
@@ -2272,6 +2294,7 @@ static int soc_remove(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = platform_get_drvdata(pdev);
 
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 	snd_soc_unregister_card(card);
 	return 0;
 }
@@ -2284,6 +2307,7 @@ int snd_soc_poweroff(struct device *dev)
 	if (!card->instantiated)
 		return 0;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	/*
 	 * Flush out pmdown_time work - we actually do want to run it
 	 * now, we're shutting down so no imminent restart.
@@ -2759,6 +2783,7 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	struct snd_soc_pcm_runtime *rtd;
 	int ret;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	ret = snd_soc_instantiate_card(card);
 	if (ret != 0)
 		return ret;
@@ -2795,6 +2820,7 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	if (!card->name || !card->dev)
 		return -EINVAL;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	mutex_lock(&client_mutex);
 	for_each_card_prelinks(card, i, link) {
 
@@ -3095,6 +3121,7 @@ static int snd_soc_component_initialize(struct snd_soc_component *component,
 {
 	struct snd_soc_dapm_context *dapm;
 
+	dev_err(dev, "%s: entry\n", __func__);
 	component->name = fmt_single_name(dev, &component->id);
 	if (!component->name) {
 		dev_err(dev, "ASoC: Failed to allocate name\n");
@@ -3127,6 +3154,7 @@ static void snd_soc_component_setup_regmap(struct snd_soc_component *component)
 {
 	int val_bytes = regmap_get_val_bytes(component->regmap);
 
+	dev_err(component->dev, "%s: entry\n", __func__);
 	/* Errors are legitimate for non-integer byte multiples */
 	if (val_bytes > 0)
 		component->val_bytes = val_bytes;
@@ -3148,6 +3176,7 @@ static void snd_soc_component_setup_regmap(struct snd_soc_component *component)
 void snd_soc_component_init_regmap(struct snd_soc_component *component,
 	struct regmap *regmap)
 {
+	dev_err(component->dev, "%s: entry\n", __func__);
 	component->regmap = regmap;
 	snd_soc_component_setup_regmap(component);
 }
@@ -3264,6 +3293,7 @@ int snd_soc_add_component(struct device *dev,
 	int ret;
 	int i;
 
+	dev_err(dev, "%s: entry\n", __func__);
 	ret = snd_soc_component_initialize(component, component_driver, dev);
 	if (ret)
 		goto err_free;
@@ -3300,6 +3330,7 @@ int snd_soc_register_component(struct device *dev,
 {
 	struct snd_soc_component *component;
 
+	dev_err(dev, "%s: entry\n", __func__);
 	component = devm_kzalloc(dev, sizeof(*component), GFP_KERNEL);
 	if (!component)
 		return -ENOMEM;
@@ -3379,6 +3410,7 @@ int snd_soc_of_parse_card_name(struct snd_soc_card *card,
 	struct device_node *np;
 	int ret;
 
+	dev_err(card->dev, "%s: entry, read from devicetree? \n", __func__);
 	if (!card->dev) {
 		pr_err("card->dev is not set before calling %s\n", __func__);
 		return -EINVAL;
@@ -3941,6 +3973,7 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
 
 static int __init snd_soc_init(void)
 {
+	pr_debug("%s: entry\n", __func__);
 	snd_soc_debugfs_init();
 	snd_soc_util_init();
 

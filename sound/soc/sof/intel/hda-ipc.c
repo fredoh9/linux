@@ -20,6 +20,9 @@
 
 int hda_dsp_ipc_cmd_done(struct snd_sof_dev *sdev, int dir)
 {
+	// Fred: reduce logging
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	if (dir == SOF_IPC_HOST_REPLY) {
 		/*
 		 * tell DSP cmd is done - clear busy
@@ -58,6 +61,8 @@ int hda_dsp_ipc_cmd_done(struct snd_sof_dev *sdev, int dir)
 int hda_dsp_is_ipc_ready(struct snd_sof_dev *sdev)
 {
 	u64 busy, done;
+	// Fred: reduce logging
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* is DSP ready for next IPC command */
 	busy = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_REG_HIPCI);
@@ -72,6 +77,8 @@ int hda_dsp_is_ipc_ready(struct snd_sof_dev *sdev)
 int hda_dsp_ipc_send_msg(struct snd_sof_dev *sdev, struct snd_sof_ipc_msg *msg)
 {
 	u32 cmd = msg->header;
+	// Fred: reduce logging
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* send IPC message to DSP */
 	sof_mailbox_write(sdev, sdev->host_box.offset, msg->msg_data,
@@ -88,6 +95,8 @@ int hda_dsp_ipc_get_reply(struct snd_sof_dev *sdev,
 	struct sof_ipc_reply reply;
 	int ret = 0;
 	u32 size;
+	// Fred: reduce logging
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* get IPC reply from DSP in the mailbox */
 	sof_mailbox_read(sdev, sdev->host_box.offset, &reply, sizeof(reply));
@@ -127,6 +136,8 @@ irqreturn_t hda_dsp_ipc_irq_thread(int irq, void *context)
 	u32 msg_ext;
 	irqreturn_t ret = IRQ_NONE;
 	int reply = -EINVAL;
+	// Fred: reduce logging
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* here we handle IPC interrupts only */
 	if (!(sdev->irq_status & HDA_DSP_ADSPIS_IPC))
@@ -224,6 +235,9 @@ irqreturn_t hda_dsp_ipc_irq_handler(int irq, void *context)
 	struct snd_sof_dev *sdev = (struct snd_sof_dev *)context;
 	int ret = IRQ_NONE;
 
+	// Fred: reduce logging
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	spin_lock(&sdev->hw_lock);
 
 	/* store status */
@@ -262,6 +276,7 @@ static void ipc_get_windows(struct snd_sof_dev *sdev)
 	u32 stream_size = 0;
 	u32 inbox_size = 0;
 	int i;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (!sdev->info_window) {
 		dev_err(sdev->dev, "error: have no window info\n");
@@ -372,6 +387,7 @@ int hda_dsp_ipc_fw_ready(struct snd_sof_dev *sdev, u32 msg_id)
 	struct sof_ipc_fw_ready *fw_ready = &sdev->fw_ready;
 	u32 offset;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* mailbox must be on 4k boundary */
 	offset = HDA_DSP_MBOX_UPLINK_OFFSET;

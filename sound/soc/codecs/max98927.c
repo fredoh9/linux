@@ -910,7 +910,7 @@ static int max98927_i2c_probe(struct i2c_client *i2c,
 			"Failed to read: 0x%02X\n", MAX98927_R01FF_REV_ID);
 		return ret;
 	}
-	dev_info(&i2c->dev, "MAX98927 revisionID: 0x%02X\n", reg);
+	dev_err(&i2c->dev, "MAX98927 revisionID: 0x%02X\n", reg);
 
 	/* voltage/current slot configuration */
 	max98927_slot_config(i2c, max98927);

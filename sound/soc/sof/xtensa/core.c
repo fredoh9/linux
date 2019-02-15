@@ -114,6 +114,7 @@ static void xtensa_stack(struct snd_sof_dev *sdev, void *oops, u32 *stack,
 	/* 4 * 8chars + 3 ws + 1 terminating NUL */
 	unsigned char buf[4 * 8 + 3 + 1];
 	int i;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dev_err(sdev->dev, "stack dump from 0x%8.8x\n", stack_ptr);
 

@@ -42,6 +42,8 @@ int skl_hda_hdmi_add_pcm(struct snd_soc_card *card, int device)
 /* skl_hda_digital audio interface glue - connects codec <--> CPU */
 struct snd_soc_dai_link skl_hda_be_dai_links[HDA_DSP_MAX_BE_DAI_LINKS] = {
 	/* Back End DAI links */
+/* Fred to remove HDMI working on */
+#if 1
 	{
 		.name = "iDisp1",
 		.id = 1,
@@ -69,6 +71,7 @@ struct snd_soc_dai_link skl_hda_be_dai_links[HDA_DSP_MAX_BE_DAI_LINKS] = {
 		.dpcm_playback = 1,
 		.no_pcm = 1,
 	},
+#endif
 	{
 		.name = "Analog Playback and Capture",
 		.id = 4,

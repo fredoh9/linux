@@ -2305,7 +2305,7 @@ static int wm2200_i2c_probe(struct i2c_client *i2c,
 
 	wm2200->rev = reg & WM2200_DEVICE_REVISION_MASK;
 
-	dev_info(&i2c->dev, "revision %c\n", wm2200->rev + 'A');
+	dev_err(&i2c->dev, "revision %c\n", wm2200->rev + 'A');
 
 	switch (wm2200->rev) {
 	case 0:

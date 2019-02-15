@@ -1030,7 +1030,7 @@ static int cs53l30_i2c_probe(struct i2c_client *client,
 	if (of_property_read_bool(np, "cirrus,use-sdout2"))
 		cs53l30->use_sdout2 = true;
 
-	dev_info(dev, "Cirrus Logic CS53L30, Revision: %02X\n", reg & 0xFF);
+	dev_err(dev, "Cirrus Logic CS53L30, Revision: %02X\n", reg & 0xFF);
 
 	ret = devm_snd_soc_register_component(dev, &cs53l30_driver, &cs53l30_dai, 1);
 	if (ret) {

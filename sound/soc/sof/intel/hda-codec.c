@@ -52,6 +52,8 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address)
 	u32 resp = -1;
 	int ret;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	mutex_lock(&hbus->core.cmd_mutex);
 	snd_hdac_bus_send_cmd(&hbus->core, hda_cmd);
 	snd_hdac_bus_get_response(&hbus->core, address, &resp);
@@ -98,6 +100,7 @@ int hda_codec_probe_bus(struct snd_sof_dev *sdev)
 {
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	int i, ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* probe codecs in avail slots */
 	for (i = 0; i < HDA_MAX_CODECS; i++) {
@@ -141,6 +144,8 @@ int hda_codec_i915_init(struct snd_sof_dev *sdev)
 {
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* i915 exposes a HDA codec for HDMI audio */
 	ret = snd_hdac_i915_init(bus);

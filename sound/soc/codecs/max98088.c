@@ -1682,7 +1682,7 @@ static int max98088_probe(struct snd_soc_component *component)
                        ret);
                goto err_access;
        }
-       dev_info(component->dev, "revision %c\n", ret - 0x40 + 'A');
+       dev_err(component->dev, "revision %c\n", ret - 0x40 + 'A');
 
        snd_soc_component_write(component, M98088_REG_51_PWR_SYS, M98088_PWRSV);
 

@@ -233,7 +233,7 @@ static int bxt_load_base_firmware(struct sst_dsp *ctx)
 	ret = sst_transfer_fw_host_dma(ctx);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Transfer firmware failed %d\n", ret);
-		dev_info(ctx->dev, "Error code=0x%x: FW status=0x%x\n",
+		dev_err(ctx->dev, "Error code=0x%x: FW status=0x%x\n",
 			sst_dsp_shim_read(ctx, BXT_ADSP_ERROR_CODE),
 			sst_dsp_shim_read(ctx, BXT_ADSP_FW_STATUS));
 

@@ -592,6 +592,7 @@ static int pcm512x_dai_startup_master(struct snd_pcm_substream *substream,
 	struct device *dev = dai->dev;
 	struct snd_pcm_hw_constraint_ratnums *constraints_no_pll;
 	struct snd_ratnum *rats_no_pll;
+	dev_err(dev, "%s: entry\n", __func__);
 
 	if (IS_ERR(pcm512x->sclk)) {
 		dev_err(dev, "Need SCLK for master mode: %ld\n",
@@ -633,9 +634,10 @@ static int pcm512x_dai_startup_slave(struct snd_pcm_substream *substream,
 	struct pcm512x_priv *pcm512x = snd_soc_component_get_drvdata(component);
 	struct device *dev = dai->dev;
 	struct regmap *regmap = pcm512x->regmap;
+	dev_err(dev, "%s: entry\n", __func__);
 
 	if (IS_ERR(pcm512x->sclk)) {
-		dev_info(dev, "No SCLK, using BCLK: %ld\n",
+		dev_err(dev, "No SCLK, using BCLK: %ld\n",
 			 PTR_ERR(pcm512x->sclk));
 
 		/* Disable reporting of missing SCLK as an error */
@@ -658,6 +660,9 @@ static int pcm512x_dai_startup(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = dai->component;
 	struct pcm512x_priv *pcm512x = snd_soc_component_get_drvdata(component);
 
+	dev_err(component->dev, "%s: entry, fmt=0x%x\n", __func__, pcm512x->fmt);
+	//dev_err(component->dev, "%s: entry, fmt=0x%x, fred force to set slave mode\n", __func__, pcm512x->fmt);
+	//pcm512x->fmt = 0x4001;
 	switch (pcm512x->fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBM_CFM:
 	case SND_SOC_DAIFMT_CBM_CFS:
@@ -677,6 +682,7 @@ static int pcm512x_set_bias_level(struct snd_soc_component *component,
 	struct pcm512x_priv *pcm512x = dev_get_drvdata(component->dev);
 	int ret;
 
+	dev_err(component->dev, "%s: entry, level=%d\n", __func__, level);
 	switch (level) {
 	case SND_SOC_BIAS_ON:
 	case SND_SOC_BIAS_PREPARE:
@@ -1515,6 +1521,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
 {
 	struct pcm512x_priv *pcm512x;
 	int i, ret;
+	dev_err(dev, "%s: entry\n", __func__);
 
 	pcm512x = devm_kzalloc(dev, sizeof(struct pcm512x_priv), GFP_KERNEL);
 	if (!pcm512x)
@@ -1655,6 +1662,7 @@ EXPORT_SYMBOL_GPL(pcm512x_probe);
 void pcm512x_remove(struct device *dev)
 {
 	struct pcm512x_priv *pcm512x = dev_get_drvdata(dev);
+	dev_err(dev, "%s: entry\n", __func__);
 
 	pm_runtime_disable(dev);
 	if (!IS_ERR(pcm512x->sclk))
@@ -1669,6 +1677,7 @@ static int pcm512x_suspend(struct device *dev)
 {
 	struct pcm512x_priv *pcm512x = dev_get_drvdata(dev);
 	int ret;
+	dev_err(dev, "%s: entry\n", __func__);
 
 	ret = regmap_update_bits(pcm512x->regmap, PCM512x_POWER,
 				 PCM512x_RQPD, PCM512x_RQPD);
@@ -1694,6 +1703,7 @@ static int pcm512x_resume(struct device *dev)
 {
 	struct pcm512x_priv *pcm512x = dev_get_drvdata(dev);
 	int ret;
+	dev_err(dev, "%s: entry\n", __func__);
 
 	if (!IS_ERR(pcm512x->sclk)) {
 		ret = clk_prepare_enable(pcm512x->sclk);

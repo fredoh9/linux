@@ -613,7 +613,7 @@ static int cs4265_i2c_probe(struct i2c_client *i2c_client,
 			devid, CS4265_CHIP_ID);
 		return ret;
 	}
-	dev_info(&i2c_client->dev,
+	dev_err(&i2c_client->dev,
 		"CS4265 Version %x\n",
 			reg & CS4265_REV_ID_MASK);
 

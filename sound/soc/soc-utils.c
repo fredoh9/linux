@@ -266,6 +266,7 @@ static int dummy_dma_open(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 
+	pr_debug("%s: entry\n", __func__);
 	/* BE's dont need dummy params */
 	if (!rtd->dai_link->no_pcm)
 		snd_soc_set_runtime_hwparams(substream, &dummy_dma_hardware);
@@ -337,6 +338,7 @@ static int snd_soc_dummy_probe(struct platform_device *pdev)
 {
 	int ret;
 
+	dev_err(&pdev->dev, "%s: entry\n", __func__);
 	ret = devm_snd_soc_register_component(&pdev->dev,
 					      &dummy_codec, &dummy_dai, 1);
 	if (ret < 0)

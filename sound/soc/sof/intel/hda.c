@@ -67,6 +67,7 @@ static void hda_dsp_get_status_skl(struct snd_sof_dev *sdev)
 {
 	u32 status;
 	int i;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	status = snd_sof_dsp_read(sdev, HDA_DSP_BAR,
 				  HDA_ADSP_FW_STATUS_SKL);
@@ -88,6 +89,8 @@ static void hda_dsp_get_status(struct snd_sof_dev *sdev)
 	u32 status;
 	int i;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	status = snd_sof_dsp_read(sdev, HDA_DSP_BAR,
 				  HDA_DSP_SRAM_REG_ROM_STATUS);
 
@@ -108,6 +111,8 @@ static void hda_dsp_get_registers(struct snd_sof_dev *sdev,
 				  struct sof_ipc_panic_info *panic_info,
 				  u32 *stack, size_t stack_words)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+	
 	/* first read registers */
 	sof_block_read(sdev, sdev->mmio_bar, sdev->dsp_oops_offset, xoops,
 		       sizeof(*xoops));
@@ -128,6 +133,8 @@ void hda_dsp_dump_skl(struct snd_sof_dev *sdev, u32 flags)
 	struct sof_ipc_panic_info panic_info;
 	u32 stack[HDA_DSP_STACK_DUMP_SIZE];
 	u32 status, panic;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* try APL specific status message types first */
 	hda_dsp_get_status_skl(sdev);
@@ -159,6 +166,8 @@ void hda_dsp_dump(struct snd_sof_dev *sdev, u32 flags)
 	u32 stack[HDA_DSP_STACK_DUMP_SIZE];
 	u32 status, panic;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* try APL specific status message types first */
 	hda_dsp_get_status(sdev);
 
@@ -186,6 +195,8 @@ static int hda_init(struct snd_sof_dev *sdev)
 	struct hdac_ext_bus_ops *ext_ops = NULL;
 	struct pci_dev *pci = to_pci_dev(sdev->dev);
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	hbus = sof_to_hbus(sdev);
 	bus = sof_to_bus(sdev);
@@ -259,6 +270,8 @@ static int hda_init_caps(struct snd_sof_dev *sdev)
 	int ret = 0;
 	int i;
 
+	dev_err(sdev->dev, "%s: SOF_SOF_HDA entry\n", __func__);
+
 	device_disable_async_suspend(bus->dev);
 
 	/* check if dsp is there */
@@ -283,9 +296,9 @@ static int hda_init_caps(struct snd_sof_dev *sdev)
 
 	/* codec detection */
 	if (!bus->codec_mask) {
-		dev_info(bus->dev, "no hda codecs found!\n");
+		dev_err(bus->dev, "no hda codecs found!\n");
 	} else {
-		dev_info(bus->dev, "hda codecs found, mask %lx\n",
+		dev_err(bus->dev, "hda codecs found, mask %lx\n",
 			 bus->codec_mask);
 
 		for (i = 0; i < HDA_MAX_CODECS; i++) {
@@ -319,7 +332,7 @@ static int hda_init_caps(struct snd_sof_dev *sdev)
 				mach = pdata->desc->machines;
 				pdata->fw_filename = mach->sof_fw_filename;
 
-				dev_info(bus->dev, "using HDA machine driver %s now\n",
+				dev_dbg(bus->dev, "using HDA machine driver %s now\n",
 					 hda_mach->drv_name);
 			}
 
@@ -366,6 +379,8 @@ out:
 
 static int hda_init_caps(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/*
 	 * set CGCTL.MISCBDCGE to 0 during reset and set back to 1
 	 * when reset finished.
@@ -403,6 +418,8 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 	const struct sof_intel_dsp_desc *chip;
 	int sd_offset, ret = 0;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/*
 	 * detect DSP by checking class/subclass/prog-id information
 	 * class=04 subclass 03 prog-if 00: no DSP, legacy driver is required
@@ -417,7 +434,7 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 		dev_err(sdev->dev, "error: unknown PCI class/subclass/prog-if 0x%06x found, aborting probe\n", pci->class);
 		return -ENODEV;
 	}
-	dev_info(sdev->dev, "DSP detected with PCI class/subclass/prog-if 0x%06x\n", pci->class);
+	dev_err(sdev->dev, "DSP detected with PCI class/subclass/prog-if 0x%06x\n", pci->class);
 
 	chip = get_chip_info(sdev->pdata);
 	if (!chip) {
@@ -498,7 +515,7 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 	 */
 	ret = pci_alloc_irq_vectors(pci, 1, 1, PCI_IRQ_MSI);
 	if (ret < 0) {
-		dev_info(sdev->dev, "use legacy interrupt mode\n");
+		dev_err(sdev->dev, "use legacy interrupt mode\n");
 		/*
 		 * in IO-APIC mode, hda->irq and ipc_irq are using the same
 		 * irq number of pci->irq
@@ -507,7 +524,7 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 		sdev->ipc_irq = pci->irq;
 		sdev->msi_enabled = 0;
 	} else {
-		dev_info(sdev->dev, "use msi interrupt mode\n");
+		dev_err(sdev->dev, "use msi interrupt mode\n");
 		hdev->irq = pci_irq_vector(pci, 0);
 		/* ipc irq number is the same of hda irq */
 		sdev->ipc_irq = hdev->irq;
@@ -631,6 +648,8 @@ int hda_dsp_remove(struct snd_sof_dev *sdev)
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	struct pci_dev *pci = to_pci_dev(sdev->dev);
 	const struct sof_intel_dsp_desc *chip = hda->desc;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
 	/* codec removal, invoke bus_device_remove */

@@ -27,6 +27,7 @@ struct snd_sof_pcm *snd_sof_find_spcm_dai(struct snd_sof_dev *sdev,
 					  struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_sof_pcm *spcm = NULL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
 		if (le32_to_cpu(spcm->pcm.dai_id) == rtd->dai_link->id)
@@ -40,6 +41,7 @@ struct snd_sof_pcm *snd_sof_find_spcm_name(struct snd_sof_dev *sdev,
 					   char *name)
 {
 	struct snd_sof_pcm *spcm = NULL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
 		if (strcmp(spcm->pcm.dai_name, name) == 0)
@@ -60,6 +62,7 @@ struct snd_sof_pcm *snd_sof_find_spcm_comp(struct snd_sof_dev *sdev,
 					   int *direction)
 {
 	struct snd_sof_pcm *spcm = NULL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
 		if (spcm->stream[SNDRV_PCM_STREAM_PLAYBACK].comp_id ==
@@ -80,6 +83,7 @@ struct snd_sof_pcm *snd_sof_find_spcm_pcm_id(struct snd_sof_dev *sdev,
 					     unsigned int pcm_id)
 {
 	struct snd_sof_pcm *spcm = NULL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
 		if (le32_to_cpu(spcm->pcm.pcm_id) == pcm_id)
@@ -93,6 +97,7 @@ struct snd_sof_widget *snd_sof_find_swidget(struct snd_sof_dev *sdev,
 					    char *name)
 {
 	struct snd_sof_widget *swidget = NULL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
 		if (strcmp(name, swidget->widget->name) == 0)
@@ -106,6 +111,7 @@ struct snd_sof_dai *snd_sof_find_dai(struct snd_sof_dev *sdev,
 				     char *name)
 {
 	struct snd_sof_dai *dai = NULL;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(dai, &sdev->dai_list, list) {
 		if (dai->name && (strcmp(name, dai->name) == 0))
@@ -146,6 +152,7 @@ int snd_sof_get_status(struct snd_sof_dev *sdev, u32 panic_code,
 {
 	u32 code;
 	int i;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* is firmware dead ? */
 	if ((panic_code & SOF_IPC_PANIC_MAGIC_MASK) != SOF_IPC_PANIC_MAGIC) {
@@ -191,6 +198,8 @@ int snd_sof_create_page_table(struct snd_sof_dev *sdev,
 			      unsigned char *page_table, size_t size)
 {
 	int i, pages;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	pages = snd_sgbuf_aligned_pages(size);
 
@@ -262,6 +271,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	const void *mach;
 	int size;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* probe the DSP hardware */
 	ret = snd_sof_probe(sdev);
@@ -442,6 +452,8 @@ int snd_sof_device_remove(struct device *dev)
 {
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
 	struct snd_sof_pdata *pdata = sdev->pdata;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
 		cancel_work_sync(&sdev->probe_work);

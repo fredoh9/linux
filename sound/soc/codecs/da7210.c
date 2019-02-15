@@ -1063,7 +1063,7 @@ static int da7210_probe(struct snd_soc_component *component)
 {
 	struct da7210_priv *da7210 = snd_soc_component_get_drvdata(component);
 
-	dev_info(component->dev, "DA7210 Audio Codec %s\n", DA7210_VERSION);
+	dev_err(component->dev, "DA7210 Audio Codec %s\n", DA7210_VERSION);
 
 	da7210->mclk_rate       = 0;    /* This will be set from set_sysclk() */
 	da7210->master          = 0;    /* This will be set from set_fmt() */
@@ -1154,7 +1154,7 @@ static int da7210_probe(struct snd_soc_component *component)
 	/* Activate all enabled subsystem */
 	snd_soc_component_write(component, DA7210_STARTUP1, DA7210_SC_MST_EN);
 
-	dev_info(component->dev, "DA7210 Audio Codec %s\n", DA7210_VERSION);
+	dev_err(component->dev, "DA7210 Audio Codec %s\n", DA7210_VERSION);
 
 	return 0;
 }

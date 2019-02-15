@@ -3776,7 +3776,7 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
 
 	dmi_data = dmi_first_match(dmi_platform_data);
 	if (dmi_data) {
-		dev_info(&i2c->dev, "Detected %s platform\n", dmi_data->ident);
+		dev_err(&i2c->dev, "Detected %s platform\n", dmi_data->ident);
 		pdata = dmi_data->driver_data;
 	}
 
@@ -3800,7 +3800,7 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
 						       GPIOD_IN);
 
 	if (IS_ERR(rt5645->gpiod_hp_det)) {
-		dev_info(&i2c->dev, "failed to initialize gpiod\n");
+		dev_err(&i2c->dev, "failed to initialize gpiod\n");
 		ret = PTR_ERR(rt5645->gpiod_hp_det);
 		/*
 		 * Continue if optional gpiod is missing, bail for all other

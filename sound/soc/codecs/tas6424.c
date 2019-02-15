@@ -714,7 +714,7 @@ static int tas6424_i2c_probe(struct i2c_client *client,
 	if (IS_ERR(tas6424->standby_gpio)) {
 		if (PTR_ERR(tas6424->standby_gpio) == -EPROBE_DEFER)
 			return -EPROBE_DEFER;
-		dev_info(dev, "failed to get standby GPIO: %ld\n",
+		dev_err(dev, "failed to get standby GPIO: %ld\n",
 			PTR_ERR(tas6424->standby_gpio));
 		tas6424->standby_gpio = NULL;
 	}
@@ -730,7 +730,7 @@ static int tas6424_i2c_probe(struct i2c_client *client,
 	if (IS_ERR(tas6424->mute_gpio)) {
 		if (PTR_ERR(tas6424->mute_gpio) == -EPROBE_DEFER)
 			return -EPROBE_DEFER;
-		dev_info(dev, "failed to get nmute GPIO: %ld\n",
+		dev_err(dev, "failed to get nmute GPIO: %ld\n",
 			PTR_ERR(tas6424->mute_gpio));
 		tas6424->mute_gpio = NULL;
 	}

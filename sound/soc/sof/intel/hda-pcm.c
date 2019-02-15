@@ -93,6 +93,7 @@ int hda_dsp_pcm_hw_params(struct snd_sof_dev *sdev,
 	struct snd_dma_buffer *dmab;
 	int ret;
 	u32 size, rate, bits;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	size = params_buffer_bytes(params);
 	rate = get_mult_div(sdev, params_rate(params));
@@ -132,6 +133,7 @@ int hda_dsp_pcm_trigger(struct snd_sof_dev *sdev,
 {
 	struct hdac_stream *hstream = substream->runtime->private_data;
 	struct hdac_ext_stream *stream = stream_to_hdac_ext_stream(hstream);
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	return hda_dsp_stream_trigger(sdev, stream, cmd);
 }
@@ -145,6 +147,7 @@ snd_pcm_uframes_t hda_dsp_pcm_pointer(struct snd_sof_dev *sdev,
 		(struct sof_intel_hda_dev *)sdev->pdata->hw_pdata;
 	struct snd_sof_pcm *spcm = rtd->private;
 	snd_pcm_uframes_t pos = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (hda && !hda->no_ipc_position) {
 		/* read position from IPC position */
@@ -202,6 +205,7 @@ int hda_dsp_pcm_open(struct snd_sof_dev *sdev,
 {
 	struct hdac_ext_stream *dsp_stream;
 	int direction = substream->stream;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dsp_stream = hda_dsp_stream_get(sdev, direction);
 
@@ -221,6 +225,7 @@ int hda_dsp_pcm_close(struct snd_sof_dev *sdev,
 	struct hdac_stream *hstream = substream->runtime->private_data;
 	int direction = substream->stream;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
 

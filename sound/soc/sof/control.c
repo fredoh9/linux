@@ -43,6 +43,7 @@ int snd_sof_volume_get(struct snd_kcontrol *kcontrol,
 	struct sof_ipc_ctrl_data *cdata = scontrol->control_data;
 	unsigned int i, channels = scontrol->num_channels;
 	int err, ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = pm_runtime_get_sync(sdev->dev);
 	if (ret < 0) {
@@ -80,6 +81,7 @@ int snd_sof_volume_put(struct snd_kcontrol *kcontrol,
 	struct sof_ipc_ctrl_data *cdata = scontrol->control_data;
 	unsigned int i, channels = scontrol->num_channels;
 	int ret, err;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = pm_runtime_get_sync(sdev->dev);
 	if (ret < 0) {
@@ -120,6 +122,7 @@ int snd_sof_bytes_get(struct snd_kcontrol *kcontrol,
 	struct sof_abi_hdr *data = cdata->data;
 	size_t size;
 	int ret, err;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (be->max > sizeof(ucontrol->value.bytes.data)) {
 		dev_err_ratelimited(sdev->dev, "error: data max %d exceeds ucontrol data array size\n",
@@ -167,6 +170,7 @@ int snd_sof_bytes_put(struct snd_kcontrol *kcontrol,
 	struct sof_ipc_ctrl_data *cdata = scontrol->control_data;
 	struct sof_abi_hdr *data = cdata->data;
 	int ret, err;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (be->max > sizeof(ucontrol->value.bytes.data)) {
 		dev_err_ratelimited(sdev->dev, "error: data max %d exceeds ucontrol data array size\n",
@@ -218,6 +222,7 @@ int snd_sof_bytes_ext_put(struct snd_kcontrol *kcontrol,
 	int err;
 	int max_size = SOF_IPC_MSG_MAX_SIZE -
 		sizeof(const struct sof_ipc_ctrl_data);
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/*
 	 * The beginning of bytes data contains a header from where
@@ -303,6 +308,7 @@ int snd_sof_bytes_ext_get(struct snd_kcontrol *kcontrol,
 	int data_size;
 	int err;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = pm_runtime_get_sync(sdev->dev);
 	if (ret < 0) {

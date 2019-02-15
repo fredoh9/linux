@@ -496,7 +496,7 @@ static int max9867_i2c_probe(struct i2c_client *i2c,
 		dev_err(&i2c->dev, "Failed to read: %d\n", ret);
 		return ret;
 	}
-	dev_info(&i2c->dev, "device revision: %x\n", reg);
+	dev_err(&i2c->dev, "device revision: %x\n", reg);
 	ret = devm_snd_soc_register_component(&i2c->dev, &max9867_component,
 			max9867_dai, ARRAY_SIZE(max9867_dai));
 	if (ret < 0) {

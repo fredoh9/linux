@@ -29,6 +29,8 @@ int hda_dsp_core_reset_enter(struct snd_sof_dev *sdev, unsigned int core_mask)
 	u32 adspcs;
 	int ret;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* set reset bits for cores */
 	snd_sof_dsp_update_bits_unlocked(sdev, HDA_DSP_BAR,
 					 HDA_DSP_REG_ADSPCS,
@@ -62,6 +64,8 @@ int hda_dsp_core_reset_leave(struct snd_sof_dev *sdev, unsigned int core_mask)
 	u32 adspcs;
 	int ret;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* clear reset bits for cores */
 	snd_sof_dsp_update_bits_unlocked(sdev, HDA_DSP_BAR,
 					 HDA_DSP_REG_ADSPCS,
@@ -90,6 +94,8 @@ int hda_dsp_core_reset_leave(struct snd_sof_dev *sdev, unsigned int core_mask)
 
 int hda_dsp_core_stall_reset(struct snd_sof_dev *sdev, unsigned int core_mask)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* stall core */
 	snd_sof_dsp_update_bits_unlocked(sdev, HDA_DSP_BAR,
 					 HDA_DSP_REG_ADSPCS,
@@ -103,6 +109,8 @@ int hda_dsp_core_stall_reset(struct snd_sof_dev *sdev, unsigned int core_mask)
 int hda_dsp_core_run(struct snd_sof_dev *sdev, unsigned int core_mask)
 {
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* leave reset state */
 	ret = hda_dsp_core_reset_leave(sdev, core_mask);
@@ -136,6 +144,8 @@ int hda_dsp_core_power_up(struct snd_sof_dev *sdev, unsigned int core_mask)
 	u32 adspcs;
 	int ret;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* update bits */
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPCS,
 				HDA_DSP_ADSPCS_SPA_MASK(core_mask),
@@ -167,6 +177,8 @@ int hda_dsp_core_power_up(struct snd_sof_dev *sdev, unsigned int core_mask)
 
 int hda_dsp_core_power_down(struct snd_sof_dev *sdev, unsigned int core_mask)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* update bits */
 	snd_sof_dsp_update_bits_unlocked(sdev, HDA_DSP_BAR,
 					 HDA_DSP_REG_ADSPCS,
@@ -184,6 +196,7 @@ bool hda_dsp_core_is_enabled(struct snd_sof_dev *sdev,
 {
 	int val;
 	bool is_enable;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	val = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPCS);
 
@@ -201,6 +214,7 @@ bool hda_dsp_core_is_enabled(struct snd_sof_dev *sdev,
 int hda_dsp_enable_core(struct snd_sof_dev *sdev, unsigned int core_mask)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* return if core is already enabled */
 	if (hda_dsp_core_is_enabled(sdev, core_mask))
@@ -221,6 +235,7 @@ int hda_dsp_core_reset_power_down(struct snd_sof_dev *sdev,
 				  unsigned int core_mask)
 {
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* place core in reset prior to power down */
 	ret = hda_dsp_core_stall_reset(sdev, core_mask);
@@ -253,6 +268,7 @@ void hda_dsp_ipc_int_enable(struct snd_sof_dev *sdev)
 	struct sof_intel_hda_dev *hda =
 		(struct sof_intel_hda_dev *)sdev->pdata->hw_pdata;
 	const struct sof_intel_dsp_desc *chip = hda->desc;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* enable IPC DONE interrupt */
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, chip->ipc_ctl,
@@ -274,6 +290,8 @@ void hda_dsp_ipc_int_disable(struct snd_sof_dev *sdev)
 	struct sof_intel_hda_dev *hda =
 		(struct sof_intel_hda_dev *)sdev->pdata->hw_pdata;
 	const struct sof_intel_dsp_desc *chip = hda->desc;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* disable IPC interrupt */
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPIC,
@@ -297,6 +315,8 @@ static int hda_suspend(struct snd_sof_dev *sdev, int state)
 	struct hdac_bus *bus = sof_to_bus(sdev);
 #endif
 	int ret = 0;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* disable IPC interrupts */
 	hda_dsp_ipc_int_disable(sdev);
@@ -345,6 +365,8 @@ static int hda_resume(struct snd_sof_dev *sdev)
 	struct hdac_ext_link *hlink = NULL;
 #endif
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/*
 	 * clear TCSEL to clear playback on some HD Audio
@@ -408,18 +430,24 @@ static int hda_resume(struct snd_sof_dev *sdev)
 
 int hda_dsp_resume(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* init hda controller. DSP cores will be powered up during fw boot */
 	return hda_resume(sdev);
 }
 
 int hda_dsp_runtime_resume(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* init hda controller. DSP cores will be powered up during fw boot */
 	return hda_resume(sdev);
 }
 
 int hda_dsp_runtime_suspend(struct snd_sof_dev *sdev, int state)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* stop hda controller and power dsp off */
 	return hda_suspend(sdev, state);
 }
@@ -428,6 +456,8 @@ int hda_dsp_suspend(struct snd_sof_dev *sdev, int state)
 {
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* stop hda controller and power dsp off */
 	ret = hda_suspend(sdev, state);

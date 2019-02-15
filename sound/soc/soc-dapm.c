@@ -962,6 +962,7 @@ static int dapm_new_mixer(struct snd_soc_dapm_widget *w)
 	struct snd_soc_dapm_path *path;
 	struct dapm_kcontrol_data *data;
 
+	pr_debug("%s: entry\n", __func__);
 	/* add kcontrol */
 	for (i = 0; i < w->num_kcontrols; i++) {
 		/* match name */
@@ -999,6 +1000,7 @@ static int dapm_new_mux(struct snd_soc_dapm_widget *w)
 	const char *type;
 	int ret;
 
+	pr_debug("%s: entry\n", __func__);
 	switch (w->id) {
 	case snd_soc_dapm_mux:
 		dir = SND_SOC_DAPM_DIR_OUT;
@@ -1041,6 +1043,7 @@ static int dapm_new_pga(struct snd_soc_dapm_widget *w)
 {
 	int i, ret;
 
+	pr_debug("%s: entry\n", __func__);
 	for (i = 0; i < w->num_kcontrols; i++) {
 		ret = dapm_create_or_share_kcontrol(w, i);
 		if (ret < 0)
@@ -1059,6 +1062,7 @@ static int dapm_new_dai_link(struct snd_soc_dapm_widget *w)
 	struct snd_card *card = dapm->card->snd_card;
 	struct snd_soc_pcm_runtime *rtd = w->priv;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	/* create control for links with > 1 config */
 	if (rtd->dai_link->num_params <= 1)
 		return 0;
@@ -2152,6 +2156,7 @@ void snd_soc_dapm_debugfs_init(struct snd_soc_dapm_context *dapm,
 {
 	struct dentry *d;
 
+	dev_err(dapm->dev, "%s: entry, CONFIG_DEBUG_FS\n", __func__);
 	if (!parent)
 		return;
 
@@ -4042,6 +4047,7 @@ snd_soc_dapm_new_dai(struct snd_soc_card *card, struct snd_soc_pcm_runtime *rtd,
 	char *link_name;
 	int ret;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	link_name = devm_kasprintf(card->dev, GFP_KERNEL, "%s-%s",
 				   source->name, sink->name);
 	if (!link_name)
@@ -4652,6 +4658,7 @@ static void soc_dapm_shutdown_dapm(struct snd_soc_dapm_context *dapm)
 	LIST_HEAD(down_list);
 	int powerdown = 0;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	mutex_lock(&card->dapm_mutex);
 
 	list_for_each_entry(w, &dapm->card->widgets, list) {
@@ -4687,6 +4694,7 @@ void snd_soc_dapm_shutdown(struct snd_soc_card *card)
 {
 	struct snd_soc_dapm_context *dapm;
 
+	dev_err(card->dev, "%s: entry\n", __func__);
 	list_for_each_entry(dapm, &card->dapm_list, list) {
 		if (dapm != &card->dapm) {
 			soc_dapm_shutdown_dapm(dapm);

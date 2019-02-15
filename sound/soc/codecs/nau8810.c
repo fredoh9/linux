@@ -547,7 +547,7 @@ static int nau8810_set_pll(struct snd_soc_dai *codec_dai, int pll_id,
 		dev_err(nau8810->dev, "Unsupported input clock %d\n", freq_in);
 		return ret;
 	}
-	dev_info(nau8810->dev, "pll_int=%x pll_frac=%x mclk_scaler=%x pre_factor=%x\n",
+	dev_err(nau8810->dev, "pll_int=%x pll_frac=%x mclk_scaler=%x pre_factor=%x\n",
 		pll_param->pll_int, pll_param->pll_frac, pll_param->mclk_scaler,
 		pll_param->pre_factor);
 

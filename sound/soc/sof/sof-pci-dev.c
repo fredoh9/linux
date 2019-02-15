@@ -199,7 +199,8 @@ static int sof_pci_probe(struct pci_dev *pci,
 	struct snd_sof_pdata *sof_pdata;
 	const struct snd_sof_dsp_ops *ops;
 	int ret = 0;
-
+	
+	dev_err(&pci->dev, "%s: entry\n", __func__);
 	dev_dbg(&pci->dev, "PCI DSP detected");
 
 	/* get ops for platform */
@@ -289,6 +290,8 @@ release_regions:
 
 static void sof_pci_remove(struct pci_dev *pci)
 {
+	dev_err(&pci->dev, "%s: entry\n", __func__);
+	
 	/* call sof helper for DSP hardware remove */
 	snd_sof_device_remove(&pci->dev);
 
