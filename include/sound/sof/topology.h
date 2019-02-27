@@ -80,7 +80,6 @@ struct sof_ipc_comp_config {
 	struct sof_ipc_cmd_hdr hdr;
 	uint32_t periods_sink;	/**< 0 means variable */
 	uint32_t periods_source;	/**< 0 means variable */
-	uint32_t preload_count;	/**< how many periods to preload */
 	uint32_t frame_fmt;		/**< SOF_IPC_FRAME_ */
 	uint32_t xrun_action;
 
@@ -104,7 +103,6 @@ struct sof_ipc_comp_dai {
 	uint32_t direction;	/**< SOF_IPC_STREAM_ */
 	uint32_t dai_index; /**< index of this type dai */
 	uint32_t type;		/**< DAI type - SOF_DAI_ */
-	uint32_t dmac_config; /**< DMA engine specific */
 }  __packed;
 
 /* generic mixer component */

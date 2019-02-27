@@ -454,8 +454,6 @@ static const struct sof_topology_token buffer_tokens[] = {
 
 /* DAI */
 static const struct sof_topology_token dai_tokens[] = {
-	{SOF_TKN_DAI_DMAC_CONFIG, SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
-		offsetof(struct sof_ipc_comp_dai, dmac_config), 0},
 	{SOF_TKN_DAI_TYPE, SND_SOC_TPLG_TUPLE_TYPE_STRING, get_token_dai_type,
 		offsetof(struct sof_ipc_comp_dai, type), 0},
 	{SOF_TKN_DAI_INDEX, SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
@@ -533,32 +531,16 @@ static const struct sof_topology_token comp_tokens[] = {
 	{SOF_TKN_COMP_FORMAT,
 		SND_SOC_TPLG_TUPLE_TYPE_STRING, get_token_comp_format,
 		offsetof(struct sof_ipc_comp_config, frame_fmt), 0},
-	{SOF_TKN_COMP_PRELOAD_COUNT,
-		SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
-		offsetof(struct sof_ipc_comp_config, preload_count), 0},
 };
 
 /* SSP */
 static const struct sof_topology_token ssp_tokens[] = {
-	{SOF_TKN_INTEL_SSP_CLKS_CONTROL,
-		SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
-		offsetof(struct sof_ipc_dai_ssp_params, clks_control), 0},
 	{SOF_TKN_INTEL_SSP_MCLK_ID,
 		SND_SOC_TPLG_TUPLE_TYPE_SHORT, get_token_u16,
 		offsetof(struct sof_ipc_dai_ssp_params, mclk_id), 0},
 	{SOF_TKN_INTEL_SSP_SAMPLE_BITS, SND_SOC_TPLG_TUPLE_TYPE_WORD,
 		get_token_u32,
 		offsetof(struct sof_ipc_dai_ssp_params, sample_valid_bits), 0},
-	{SOF_TKN_INTEL_SSP_FRAME_PULSE_WIDTH, SND_SOC_TPLG_TUPLE_TYPE_SHORT,
-		get_token_u16,
-		offsetof(struct sof_ipc_dai_ssp_params, frame_pulse_width), 0},
-	{SOF_TKN_INTEL_SSP_QUIRKS, SND_SOC_TPLG_TUPLE_TYPE_WORD,
-		get_token_u32,
-		offsetof(struct sof_ipc_dai_ssp_params, quirks), 0},
-	{SOF_TKN_INTEL_SSP_TDM_PADDING_PER_SLOT, SND_SOC_TPLG_TUPLE_TYPE_BOOL,
-		get_token_u16,
-		offsetof(struct sof_ipc_dai_ssp_params,
-			 tdm_per_slot_padding_flag), 0},
 
 };
 
