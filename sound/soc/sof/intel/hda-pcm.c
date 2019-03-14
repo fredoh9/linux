@@ -118,8 +118,8 @@ int hda_dsp_pcm_hw_params(struct snd_sof_dev *sdev,
 	/* disable SPIB, to enable buffer wrap for stream */
 	hda_dsp_stream_spib_config(sdev, stream, HDA_DSP_SPIB_DISABLE, 0);
 
-	/* set host_period_bytes to 0 if no IPC position */
-	if (hda && hda->no_ipc_position)
+	/* set host_period_bytes to 0 if no irq mode */
+	if (hstream->no_period_wakeup)
 		ipc_params->host_period_bytes = 0;
 
 	ipc_params->stream_tag = hstream->stream_tag;
@@ -153,7 +153,7 @@ snd_pcm_uframes_t hda_dsp_pcm_pointer(struct snd_sof_dev *sdev,
 		return 0;
 	}
 
-	if (hda && !hda->no_ipc_position) {
+	if (!hstream->no_period_wakeup) {
 		/* read position from IPC position */
 		pos = spcm->stream[substream->stream].posn.host_posn;
 		goto found;
