@@ -117,12 +117,12 @@ config SND_SOC_SOF_DEBUG_VERBOSE_IPC
 	  if you are trying to debug IPC with the DSP firmware.
           If unsure select "N".
 
-config SND_SOC_SOF_DEBUG_FORCE_IPC_POSITION
-	bool "SOF force to use IPC for position update on SKL+"
+config SND_SOC_SOF_DEBUG_DISABLE_NOWAKEUP
+	bool "SOF to disable non-interrupt mode for position update on SKL+"
 	help
-	  This option force to handle stream position update IPCs and run pcm
-	  elapse to inform ALSA about that, on platforms (e.g. Intel SKL+) that
-	  with other approach (e.g. HDAC DPIB/posbuf) to elapse PCM.
+	  This option forces use of pcm position update from IPCs. IPC updates
+	  are used even on platforms where other mechanisms,
+	  (e.g. HDAC DPIB/posbuf), are available to query hardware position.
 	  On platforms (e.g. Intel SKL-) where position update IPC is the only
 	  one choice, this setting won't impact anything.
 	  if you are trying to debug pointer update with position IPCs or where
