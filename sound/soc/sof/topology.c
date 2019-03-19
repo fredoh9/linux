@@ -274,6 +274,8 @@ static int sof_control_load_volume(struct snd_soc_component *scomp,
 	unsigned int i;
 	int ret;
 
+	dev_err(sdev->dev, "\t%s: entry\n", __func__);
+
 	/* validate topology data */
 	if (le32_to_cpu(mc->num_channels) > SND_SOC_TPLG_MAX_CHAN)
 		return -EINVAL;
@@ -333,6 +335,8 @@ static int sof_control_load_enum(struct snd_soc_component *scomp,
 	struct snd_soc_tplg_enum_control *ec =
 		(struct snd_soc_tplg_enum_control *)hdr;
 
+	dev_err(sdev->dev, "\t%s: entry\n", __func__);
+
 	/* validate topology data */
 	if (le32_to_cpu(ec->num_channels) > SND_SOC_TPLG_MAX_CHAN)
 		return -EINVAL;
@@ -367,6 +371,8 @@ static int sof_control_load_bytes(struct snd_soc_component *scomp,
 		(struct snd_soc_tplg_bytes_control *)hdr;
 	const int max_size = SOF_IPC_MSG_MAX_SIZE -
 		sizeof(const struct sof_ipc_ctrl_data);
+
+	dev_err(sdev->dev, "\t%s: entry\n", __func__);
 
 	/* init the get/put bytes data */
 	scontrol->size = SOF_IPC_MSG_MAX_SIZE;
@@ -795,6 +801,8 @@ static int sof_parse_tokens(struct snd_soc_component *scomp,
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 	int asize;
 
+	dev_err(sdev->dev, "\t%s: entry, UUID STRING BYTE U16 U32...\n", __func__);
+
 	while (priv_size > 0) {
 		asize = le32_to_cpu(array->size);
 
@@ -865,6 +873,7 @@ static int sof_control_load(struct snd_soc_component *scomp, int index,
 	struct snd_soc_dobj *dobj = NULL;
 	struct snd_sof_control *scontrol;
 	int ret = -EINVAL;
+	dev_err(sdev->dev, "%s: entry ops.info\n", __func__);
 
 	dev_dbg(sdev->dev, "tplg: load control type %d name : %s\n",
 		hdr->type, hdr->name);
@@ -919,6 +928,7 @@ static int sof_control_unload(struct snd_soc_component *scomp,
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 	struct sof_ipc_free fcomp;
 	struct snd_sof_control *scontrol = dobj->private;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dev_dbg(sdev->dev, "tplg: unload control name : %s\n", scomp->name);
 
@@ -947,6 +957,7 @@ static int sof_connect_dai_widget(struct snd_soc_component *scomp,
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 	struct snd_soc_card *card = scomp->card;
 	struct snd_soc_pcm_runtime *rtd;
+	dev_err(sdev->dev, "%s: entry DAPM_DAI in/out\n", __func__);
 
 	list_for_each_entry(rtd, &card->rtd_list, list) {
 		dev_vdbg(sdev->dev, "tplg: check widget: %s stream: %s dai stream: %s\n",
@@ -999,6 +1010,7 @@ static int sof_widget_load_dai(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_dai comp_dai;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/* configure dai IPC message */
 	memset(&comp_dai, 0, sizeof(comp_dai));
@@ -1055,6 +1067,7 @@ static int sof_widget_load_buffer(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_buffer *buffer;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	buffer = kzalloc(sizeof(*buffer), GFP_KERNEL);
 	if (!buffer)
@@ -1126,6 +1139,7 @@ static int sof_widget_load_pcm(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_host *host;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	host = kzalloc(sizeof(*host), GFP_KERNEL);
 	if (!host)
@@ -1181,6 +1195,7 @@ int sof_load_pipeline_ipc(struct snd_sof_dev *sdev,
 {
 	struct sof_ipc_pm_core_config pm_core_config;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	ret = sof_ipc_tx_message(sdev->ipc, pipeline->hdr.cmd, pipeline,
 				 sizeof(*pipeline), r, sizeof(*r));
@@ -1231,6 +1246,7 @@ static int sof_widget_load_pipeline(struct snd_soc_component *scomp,
 	struct sof_ipc_pipe_new *pipeline;
 	struct snd_sof_widget *comp_swidget;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	pipeline = kzalloc(sizeof(*pipeline), GFP_KERNEL);
 	if (!pipeline)
@@ -1293,6 +1309,7 @@ static int sof_widget_load_mixer(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_mixer *mixer;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	mixer = kzalloc(sizeof(*mixer), GFP_KERNEL);
 	if (!mixer)
@@ -1341,6 +1358,7 @@ static int sof_widget_load_mux(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_comp_mux *mux;
 	int ret;
 
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 	mux = kzalloc(sizeof(*mux), GFP_KERNEL);
 	if (!mux)
 		return -ENOMEM;
@@ -1388,6 +1406,8 @@ static int sof_widget_load_pga(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_volume *volume;
 	int ret;
+
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	volume = kzalloc(sizeof(*volume), GFP_KERNEL);
 	if (!volume)
@@ -1451,6 +1471,7 @@ static int sof_widget_load_src(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_src *src;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	src = kzalloc(sizeof(*src), GFP_KERNEL);
 	if (!src)
@@ -1510,6 +1531,7 @@ static int sof_widget_load_siggen(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_tone *tone;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	tone = kzalloc(sizeof(*tone), GFP_KERNEL);
 	if (!tone)
@@ -1572,6 +1594,7 @@ static int sof_effect_fir_load(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_comp_eq_fir *fir;
 	size_t ipc_size = 0, fir_data_size = 0;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/* get possible eq controls */
 	kc = &widget->kcontrol_news[0];
@@ -1650,6 +1673,7 @@ static int sof_effect_iir_load(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_comp_eq_iir *iir;
 	size_t ipc_size = 0, iir_data_size = 0;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/* get possible eq controls */
 	kc = &widget->kcontrol_news[0];
@@ -1726,6 +1750,7 @@ static int sof_widget_load_effect(struct snd_soc_component *scomp, int index,
 	struct snd_soc_tplg_private *private = &tw->priv;
 	struct sof_ipc_comp_effect config;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/* check we have some tokens - we need at least effect type */
 	if (le32_to_cpu(private->size) == 0) {
@@ -1779,6 +1804,7 @@ static int sof_widget_ready(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_comp_reply reply;
 	struct snd_sof_control *scontrol = NULL;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	swidget = kzalloc(sizeof(*swidget), GFP_KERNEL);
 	if (!swidget)
@@ -1917,6 +1943,8 @@ static int sof_widget_unload(struct snd_soc_component *scomp,
 	int ret = 0;
 	int i;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	swidget = dobj->private;
 	if (!swidget)
 		return 0;
@@ -2001,6 +2029,7 @@ static int sof_dai_load(struct snd_soc_component *scomp, int index,
 	struct snd_sof_pcm *spcm;
 	int stream = SNDRV_PCM_STREAM_PLAYBACK;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* don't need to do anything for BEs atm */
 	if (!pcm)
@@ -2139,6 +2168,7 @@ static int sof_set_dai_config(struct snd_sof_dev *sdev, u32 size,
 {
 	struct snd_sof_dai *dai;
 	int found = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(dai, &sdev->dai_list, list) {
 		if (!dai->name)
@@ -2177,6 +2207,7 @@ static int sof_link_ssp_load(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_reply reply;
 	u32 size = sizeof(*config);
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/* handle master/slave and inverted clocks */
 	sof_dai_set_format(hw_config, config);
@@ -2202,6 +2233,8 @@ static int sof_link_ssp_load(struct snd_soc_component *scomp, int index,
 	config->ssp.mclk_direction = hw_config->mclk_direction;
 	config->ssp.rx_slots = le32_to_cpu(hw_config->rx_slots);
 	config->ssp.tx_slots = le32_to_cpu(hw_config->tx_slots);
+
+	//config->ssp.quirks = le32_to_cpu(1<<6); // SOF_DAI_INTEL_SSP_QUIRK_LBM, Fred Manually set LBM. Only only for SSP0, SSP1
 
 	dev_dbg(sdev->dev, "tplg: config SSP%d fmt 0x%x mclk %d bclk %d fclk %d width (%d)%d slots %d mclk id %d quirks %d\n",
 		config->dai_index, config->format,
@@ -2257,6 +2290,7 @@ static int sof_link_dmic_load(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_fw_version *v = &ready->version;
 	u32 size;
 	int ret, j;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/*
 	 * config is only used for the common params in dmic_params structure
@@ -2386,6 +2420,7 @@ static int sof_link_hda_process(struct snd_sof_dev *sdev,
 	struct snd_sof_dai *sof_dai;
 	int found = 0;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	list_for_each_entry(sof_dai, &sdev->dai_list, list) {
 		if (!sof_dai->name)
@@ -2457,6 +2492,7 @@ static int sof_link_hda_load(struct snd_soc_component *scomp, int index,
 	u32 rx_num = 0;
 	u32 rx_slot = 0;
 	int ret;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	/* init IPC */
 	memset(&dai_component, 0, sizeof(dai_component));
@@ -2514,6 +2550,7 @@ static int sof_link_load(struct snd_soc_component *scomp, int index,
 	struct sof_ipc_dai_config config;
 	struct snd_soc_tplg_hw_config *hw_config;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry, will parse_tokens\n", __func__);
 
 	link->platform_name = dev_name(sdev->dev);
 
@@ -2595,6 +2632,7 @@ static int sof_link_hda_unload(struct snd_sof_dev *sdev,
 	struct snd_soc_dai_link_component dai_component;
 	struct snd_soc_dai *dai;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	memset(&dai_component, 0, sizeof(dai_component));
 	dai_component.dai_name = link->cpu_dai_name;
@@ -2628,6 +2666,7 @@ static int sof_link_unload(struct snd_soc_component *scomp,
 
 	struct snd_sof_dai *sof_dai = NULL;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* only BE link is loaded by sof */
 	if (!link->no_pcm)
@@ -2675,6 +2714,7 @@ static int sof_route_load(struct snd_soc_component *scomp, int index,
 	struct snd_sof_route *sroute;
 	struct sof_ipc_reply reply;
 	int ret = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* allocate memory for sroute and connect */
 	sroute = kzalloc(sizeof(*sroute), GFP_KERNEL);
@@ -2778,6 +2818,7 @@ int snd_sof_complete_pipeline(struct snd_sof_dev *sdev,
 	struct sof_ipc_pipe_ready ready;
 	struct sof_ipc_reply reply;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dev_dbg(sdev->dev, "tplg: complete pipeline %s id %d\n",
 		swidget->widget->name, swidget->comp_id);
@@ -2800,6 +2841,7 @@ static void sof_complete(struct snd_soc_component *scomp)
 {
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 	struct snd_sof_widget *swidget;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* some widget types require completion notificattion */
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
@@ -2878,6 +2920,8 @@ static struct snd_soc_tplg_ops sof_tplg_ops = {
 int snd_sof_init_topology(struct snd_sof_dev *sdev,
 			  struct snd_soc_tplg_ops *ops)
 {
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	/* TODO: support linked list of topologies */
 	sdev->tplg_ops = ops;
 	return 0;
@@ -2888,6 +2932,7 @@ int snd_sof_load_topology(struct snd_sof_dev *sdev, const char *file)
 {
 	const struct firmware *fw;
 	int ret;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	dev_dbg(sdev->dev, "loading topology:%s\n", file);
 
