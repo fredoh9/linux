@@ -112,9 +112,9 @@ int hda_dsp_stream_setup_bdl(struct snd_sof_dev *sdev,
 	 * set IOC if don't use position IPC
 	 * and period_wakeup needed.
 	 */
-	ioc = hda->ipc_nowakeup ?
+	ioc = stream->ipc_nowakeup ?
 	      !stream->no_period_wakeup : 0;
-	dev_err(sdev->dev, "IOC=%d no_period_wakeup=%d ipc_nowakeup=%d\n", ioc, stream->no_period_wakeup, hda->ipc_nowakeup);
+	dev_err(sdev->dev, "IOC=%d no_period_wakeup=%d ipc_nowakeup=%d\n", ioc, stream->no_period_wakeup, stream->ipc_nowakeup);
 	for (i = 0; i < periods; i++) {
 		if (i == (periods - 1) && remain)
 			/* set the last small entry */
@@ -477,7 +477,7 @@ irqreturn_t hda_dsp_stream_threaded_handler(int irq, void *context)
 				continue;
 
 			/* Inform ALSA only in case not do that with IPC */
-			if (sof_hda->ipc_nowakeup) {
+			if (s->ipc_nowakeup) {
 				dev_err(bus->dev, ">>> update pcm period to alsa in irq threaded_h\n");
 				snd_pcm_period_elapsed(s->substream);
 			}
@@ -580,6 +580,12 @@ int hda_dsp_stream_init(struct snd_sof_dev *sdev)
 		hstream->running = false;
 		hstream->direction = SNDRV_PCM_STREAM_CAPTURE;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_DISABLE_NOWAKEUP)
+		hstream->ipc_nowakeup = 0;
+#else
+		hstream->ipc_nowakeup = sof_ops(sdev)->pcm_pointer ? 1 : 0;
+#endif
+
 		/* memory alloc for stream BDL */
 		ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, &pci->dev,
 					  HDA_DSP_BDL_SIZE, &hstream->bdl);
@@ -629,6 +635,12 @@ int hda_dsp_stream_init(struct snd_sof_dev *sdev)
 		hstream->opened = false;
 		hstream->running = false;
 		hstream->direction = SNDRV_PCM_STREAM_PLAYBACK;
+
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_DISABLE_NOWAKEUP)
+		hstream->ipc_nowakeup = 0;
+#else
+		hstream->ipc_nowakeup = sof_ops(sdev)->pcm_pointer ? 1 : 0;
+#endif
 
 		/* mem alloc for stream BDL */
 		ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, &pci->dev,

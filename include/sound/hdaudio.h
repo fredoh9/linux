@@ -514,6 +514,8 @@ struct hdac_stream {
 	/* DSP access mutex */
 	struct mutex dsp_mutex;
 #endif
+	/* if position update IPC needed */
+	u32 ipc_nowakeup;
 };
 
 void snd_hdac_stream_init(struct hdac_bus *bus, struct hdac_stream *azx_dev,

@@ -364,8 +364,8 @@ struct sof_intel_hda_dev {
 	/*trace */
 	struct hdac_ext_stream *dtrace_stream;
 
-	/* if position update IPC needed */
-	u32 ipc_nowakeup;
+	/* if position update IPC needed Fred, move this to hstream*/
+	//u32 ipc_nowakeup;
 
 	int irq;
 
