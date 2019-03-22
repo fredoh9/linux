@@ -445,10 +445,10 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 	 * use position update IPC if either it is forced
 	 * or we don't have other choice
 	 */
-#if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_FORCE_IPC_POSITION)
-	hdev->no_ipc_position = 0;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_DISABLE_NOWAKEUP)
+	hdev->ipc_nowakeup = 0;
 #else
-	hdev->no_ipc_position = sof_ops(sdev)->pcm_pointer ? 1 : 0;
+	hdev->ipc_nowakeup = sof_ops(sdev)->pcm_pointer ? 1 : 0;
 #endif
 
 	/* set up HDA base */

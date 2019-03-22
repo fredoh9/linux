@@ -539,8 +539,10 @@ static void ipc_period_elapsed(struct snd_sof_dev *sdev, u32 msg_id)
 	memcpy(&spcm->stream[direction].posn, &posn, sizeof(posn));
 
 	/* only inform ALSA for period_wakeup mode */
-	if (!spcm->stream[direction].substream->runtime->no_period_wakeup)
+	if (!spcm->stream[direction].substream->runtime->no_period_wakeup) {
+		dev_err(sdev->dev, ">>> update pcm period to alsa in IPC\n");
 		snd_pcm_period_elapsed(spcm->stream[direction].substream);
+	}
 }
 
 /* DSP notifies host of an XRUN within FW */
