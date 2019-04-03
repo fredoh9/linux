@@ -103,6 +103,8 @@ static int sof_pcm_hw_params(struct snd_pcm_substream *substream,
 	pcm.params.rate = params_rate(params);
 	pcm.params.channels = params_channels(params);
 	pcm.params.host_period_bytes = params_period_bytes(params);
+	dev_dbg(sdev->dev, "%s: >>>size=%d rate=%d ch=%d host_period_bytes=%d\n", __func__,
+		pcm.params.buffer.size,  pcm.params.rate , pcm.params.channels, pcm.params.host_period_bytes);
 
 	/* container size */
 	switch (params_width(params)) {
@@ -222,6 +224,7 @@ static int sof_restore_hw_params(struct snd_pcm_substream *substream,
 	u64 host_posn;
 	int ret;
 
+	dev_dbg(sdev->dev, "%s: entry\n", __func__);
 	/* resume stream */
 	host_posn = spcm->stream[substream->stream].posn.host_posn;
 	host = bytes_to_frames(substream->runtime, host_posn);
@@ -426,6 +429,7 @@ static int sof_pcm_open(struct snd_pcm_substream *substream)
 			  SNDRV_PCM_INFO_RESUME;
 
 #if !IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_DISABLE_NOWAKEUP)
+	dev_dbg(sdev->dev, "FRED: Dhw.info=%d EBUG_DISABLE_NOWAKEUP is not enabled!!!\n", runtime->hw.info);
 	/* set runtime config - enable no-interrupt mode */
 	runtime->hw.info |= SNDRV_PCM_INFO_NO_PERIOD_WAKEUP;
 #endif

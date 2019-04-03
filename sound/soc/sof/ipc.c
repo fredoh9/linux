@@ -427,6 +427,7 @@ static void ipc_period_elapsed(struct snd_sof_dev *sdev, u32 msg_id)
 	struct snd_sof_pcm *spcm;
 	u32 posn_offset;
 	int direction;
+	struct hdac_stream *hstream;
 
 	/* check if we have stream box */
 	if (sdev->stream_box.size == 0) {
@@ -461,9 +462,13 @@ static void ipc_period_elapsed(struct snd_sof_dev *sdev, u32 msg_id)
 
 	memcpy(&spcm->stream[direction].posn, &posn, sizeof(posn));
 
+	hstream = spcm->stream[direction].substream->runtime->private_data;
+	dev_err(sdev->dev, "%s: stream->no_period_wakeup=%d runtime->no_period_wakeup=%d\n", __func__, hstream->no_period_wakeup, spcm->stream[direction].substream->runtime->no_period_wakeup);
 	/* only inform ALSA for period_wakeup mode */
-	if (!spcm->stream[direction].substream->runtime->no_period_wakeup)
+	if (!spcm->stream[direction].substream->runtime->no_period_wakeup) {
+		dev_err(sdev->dev, "%s: no_period_wakeup=0 >>> update pcm period in ipc context\n", __func__);
 		snd_pcm_period_elapsed(spcm->stream[direction].substream);
+	}
 }
 
 /* DSP notifies host of an XRUN within FW */

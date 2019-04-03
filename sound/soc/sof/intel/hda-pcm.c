@@ -94,6 +94,8 @@ int hda_dsp_pcm_hw_params(struct snd_sof_dev *sdev,
 	int ret;
 	u32 size, rate, bits;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	size = params_buffer_bytes(params);
 	rate = get_mult_div(sdev, params_rate(params));
 	bits = get_bits(sdev, params_width(params));
@@ -108,6 +110,9 @@ int hda_dsp_pcm_hw_params(struct snd_sof_dev *sdev,
 	hstream->no_period_wakeup  =
 			(params->info & SNDRV_PCM_INFO_NO_PERIOD_WAKEUP) &&
 			(params->flags & SNDRV_PCM_HW_PARAMS_NO_PERIOD_WAKEUP);
+	dev_err(sdev->dev, ">>>info=%d flags=%d\n", params->info, params->flags);
+	dev_err(sdev->dev, ">>>size=%d rate=%d bits=%d, format_val=%d bufsize=%d period_bytes=%d no_period_wakeup=%d\n",
+		size, rate, bits, hstream->format_val, hstream->bufsize, hstream->period_bytes, hstream->no_period_wakeup);
 
 	ret = hda_dsp_stream_hw_params(sdev, stream, dmab, params);
 	if (ret < 0) {
@@ -118,9 +123,11 @@ int hda_dsp_pcm_hw_params(struct snd_sof_dev *sdev,
 	/* disable SPIB, to enable buffer wrap for stream */
 	hda_dsp_stream_spib_config(sdev, stream, HDA_DSP_SPIB_DISABLE, 0);
 
-	/* set host_period_bytes to 0 if no irq mode */
-	if (hstream->no_period_wakeup)
+	/* set host_period_bytes to 0 if no wakeup mode <== Fred to clarify why do we need this */
+	if (hstream->no_period_wakeup) {
 		ipc_params->host_period_bytes = 0;
+		dev_err(sdev->dev, "%s: no_period_wakeup is non-0 SET host_period_bytes=0\n", __func__);
+	}
 
 	ipc_params->stream_tag = hstream->stream_tag;
 
@@ -146,6 +153,8 @@ snd_pcm_uframes_t hda_dsp_pcm_pointer(struct snd_sof_dev *sdev,
 	struct snd_sof_pcm *spcm;
 	snd_pcm_uframes_t pos = 0;
 
+	//dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	spcm = snd_sof_find_spcm_dai(sdev, rtd);
 	if (!spcm) {
 		dev_warn_ratelimited(sdev->dev, "warn: can't find PCM with DAI ID %d\n",
@@ -155,6 +164,7 @@ snd_pcm_uframes_t hda_dsp_pcm_pointer(struct snd_sof_dev *sdev,
 
 	if (!hstream->no_period_wakeup) {
 		/* read position from IPC position */
+		dev_err(sdev->dev, "%s: read position from IPC position\n", __func__);
 		pos = spcm->stream[substream->stream].posn.host_posn;
 		goto found;
 	}
@@ -168,6 +178,7 @@ snd_pcm_uframes_t hda_dsp_pcm_pointer(struct snd_sof_dev *sdev,
 	 * earlier than the data written to DDR.
 	 */
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+		dev_err(sdev->dev, "%s: DPIB/posbuf dsp_read for pos\n", __func__);
 		pos = snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR,
 				       AZX_REG_VS_SDXDPIB_XBASE +
 				       (AZX_REG_VS_SDXDPIB_XINTERVAL *
