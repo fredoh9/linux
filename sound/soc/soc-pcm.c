@@ -156,6 +156,13 @@ int snd_soc_set_runtime_hwparams(struct snd_pcm_substream *substream,
 	const struct snd_pcm_hardware *hw)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
+
+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+
+	dev_err(cpu_dai->dev, "%s: setting runtime hwparams\n", __func__);
+	dump_stack();
+	
 	runtime->hw.info = hw->info;
 	runtime->hw.formats = hw->formats;
 	runtime->hw.period_bytes_min = hw->period_bytes_min;
@@ -385,6 +392,8 @@ static void soc_pcm_init_runtime_hw(struct snd_pcm_substream *substream)
 	u64 formats = ULLONG_MAX;
 	int i;
 
+	dev_err(rtd->cpu_dai->dev, "%s: entry\n", __func__);
+
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		cpu_stream = &cpu_dai_drv->playback;
 	else
@@ -484,6 +493,8 @@ static int soc_pcm_open(struct snd_pcm_substream *substream)
 	const char *codec_dai_name = "multicodec";
 	int i, ret = 0;
 
+	dev_err(cpu_dai->dev, "%s: runtime rate=%d ch=%d hw.info=%d\n", __func__, runtime->rate, runtime->channels, runtime->hw.info);
+				
 	pinctrl_pm_select_default_state(cpu_dai->dev);
 	for_each_rtd_codec_dai(rtd, i, codec_dai)
 		pinctrl_pm_select_default_state(codec_dai->dev);
@@ -773,6 +784,8 @@ static int soc_pcm_prepare(struct snd_pcm_substream *substream)
 	struct snd_soc_dai *codec_dai;
 	int i, ret = 0;
 
+	dev_err(cpu_dai->dev, "%s: entry\n", __func__);
+
 	mutex_lock_nested(&rtd->pcm_mutex, rtd->pcm_subclass);
 
 	if (rtd->dai_link->ops->prepare) {
@@ -859,6 +872,8 @@ int soc_dai_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	int ret;
 
+	dev_err(rtd->cpu_dai->dev, "%s: entry\n", __func__);
+
 	/* perform any topology hw_params fixups before DAI  */
 	if (rtd->dai_link->be_hw_params_fixup) {
 		ret = rtd->dai_link->be_hw_params_fixup(rtd, params);
@@ -919,6 +934,8 @@ static int soc_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai;
 	int i, ret = 0;
+
+	dev_err(cpu_dai->dev, "%s: entry\n", __func__);
 
 	mutex_lock_nested(&rtd->pcm_mutex, rtd->pcm_subclass);
 	if (rtd->dai_link->ops->hw_params) {
@@ -1099,6 +1116,8 @@ static int soc_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai;
 	int i, ret;
+
+	dev_err(cpu_dai->dev, "%s: entry\n", __func__);
 
 	for_each_rtd_codec_dai(rtd, i, codec_dai) {
 		if (codec_dai->driver->ops->trigger) {
