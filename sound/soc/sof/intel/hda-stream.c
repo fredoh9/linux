@@ -34,6 +34,8 @@ static int hda_setup_bdle(struct snd_sof_dev *sdev,
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	struct sof_intel_dsp_bdl *bdl = *bdlp;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	while (size > 0) {
 		dma_addr_t addr;
 		int chunk;
@@ -86,6 +88,8 @@ int hda_dsp_stream_setup_bdl(struct snd_sof_dev *sdev,
 	int i, offset, period_bytes, periods;
 	int remain, ioc;
 
+	dev_err(sdev->dev, "%s: entry\n", __func__);
+
 	period_bytes = stream->period_bytes;
 	dev_dbg(sdev->dev, "period_bytes:0x%x\n", period_bytes);
 	if (!period_bytes)
@@ -110,7 +114,7 @@ int hda_dsp_stream_setup_bdl(struct snd_sof_dev *sdev,
 	 */
 	ioc = hda->no_ipc_position ?
 	      !stream->no_period_wakeup : 0;
-
+	dev_err(sdev->dev, "IOC=%d no_period_wakeup=%d hda->no_ipc_position=%d\n", ioc, stream->no_period_wakeup, hda->no_ipc_position);
 	for (i = 0; i < periods; i++) {
 		if (i == (periods - 1) && remain)
 			/* set the last small entry */
@@ -132,6 +136,7 @@ int hda_dsp_stream_spib_config(struct snd_sof_dev *sdev,
 {
 	struct hdac_stream *hstream = &stream->hstream;
 	u32 mask = 0;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (!sdev->bar[HDA_DSP_SPIB_BAR]) {
 		dev_err(sdev->dev, "error: address of spib capability is NULL\n");
@@ -158,6 +163,7 @@ hda_dsp_stream_get(struct snd_sof_dev *sdev, int direction)
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	struct hdac_ext_stream *stream = NULL;
 	struct hdac_stream *s;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	spin_lock_irq(&bus->reg_lock);
 
@@ -186,6 +192,7 @@ int hda_dsp_stream_put(struct snd_sof_dev *sdev, int direction, int stream_tag)
 {
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	struct hdac_stream *s;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	spin_lock_irq(&bus->reg_lock);
 
@@ -210,6 +217,7 @@ int hda_dsp_stream_trigger(struct snd_sof_dev *sdev,
 {
 	struct hdac_stream *hstream = &stream->hstream;
 	int sd_offset = SOF_STREAM_SD_OFFSET(hstream);
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* cmd must be for audio stream */
 	switch (cmd) {
@@ -267,6 +275,7 @@ int hda_dsp_stream_hw_params(struct snd_sof_dev *sdev,
 	int sd_offset = SOF_STREAM_SD_OFFSET(hstream);
 	int ret, timeout = HDA_DSP_STREAM_RESET_TIMEOUT;
 	u32 val, mask;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	if (!stream) {
 		dev_err(sdev->dev, "error: no stream available\n");
@@ -469,6 +478,7 @@ irqreturn_t hda_dsp_stream_threaded_handler(int irq, void *context)
 	struct hdac_stream *s;
 	u32 status = snd_hdac_chip_readl(bus, INTSTS);
 	u32 sd_status;
+	dev_err(bus->dev, "%s: entry\n", __func__);
 
 	/* check streams */
 	list_for_each_entry(s, &bus->stream_list, list) {
@@ -486,8 +496,10 @@ irqreturn_t hda_dsp_stream_threaded_handler(int irq, void *context)
 				continue;
 
 			/* Inform ALSA only in case not do that with IPC */
-			if (sof_hda->no_ipc_position)
+			if (sof_hda->no_ipc_position) {
+				dev_err(bus->dev, "%s: >>> update pcm period to alsa in irq threaded_h\n", __func__);
 				snd_pcm_period_elapsed(s->substream);
+			}
 
 		}
 	}
@@ -586,6 +598,7 @@ int hda_dsp_stream_init(struct snd_sof_dev *sdev)
 		hstream->running = false;
 		hstream->direction = SNDRV_PCM_STREAM_CAPTURE;
 
+		dev_err(sdev->dev, "%s: pcm_pointer=%p\n", __func__, sof_ops(sdev)->pcm_pointer );
 		/* memory alloc for stream BDL */
 		ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, &pci->dev,
 					  HDA_DSP_BDL_SIZE, &hstream->bdl);
@@ -658,6 +671,7 @@ void hda_dsp_stream_free(struct snd_sof_dev *sdev)
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	struct hdac_stream *s, *_s;
 	struct hdac_ext_stream *stream;
+	dev_err(sdev->dev, "%s: entry\n", __func__);
 
 	/* free position buffer */
 	if (bus->posbuf.area)

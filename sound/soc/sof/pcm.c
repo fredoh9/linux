@@ -103,6 +103,8 @@ static int sof_pcm_hw_params(struct snd_pcm_substream *substream,
 	pcm.params.rate = params_rate(params);
 	pcm.params.channels = params_channels(params);
 	pcm.params.host_period_bytes = params_period_bytes(params);
+	dev_dbg(sdev->dev, "%s: >>>size=%d rate=%d ch=%d host_period_bytes=%d\n", __func__,
+		pcm.params.buffer.size,  pcm.params.rate , pcm.params.channels, pcm.params.host_period_bytes);
 
 	/* container size */
 	switch (params_width(params)) {
@@ -428,6 +430,9 @@ static int sof_pcm_open(struct snd_pcm_substream *substream)
 			  SNDRV_PCM_INFO_PAUSE |
 			  SNDRV_PCM_INFO_RESUME |
 			  SNDRV_PCM_INFO_NO_PERIOD_WAKEUP;
+
+	dev_dbg(sdev->dev, "FRED: hw.info=%d\n", runtime->hw.info);
+
 	runtime->hw.formats = le64_to_cpu(caps->formats);
 	runtime->hw.period_bytes_min = le32_to_cpu(caps->period_size_min);
 	runtime->hw.period_bytes_max = le32_to_cpu(caps->period_size_max);
