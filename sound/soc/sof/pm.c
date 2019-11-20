@@ -136,6 +136,9 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
 		if (!sof_ops(sdev)->suspend)
 			return 0;
 
+	/* remove pipelines */
+	sof_destroy_pipelines(dev);
+
 	/* release trace */
 	snd_sof_release_trace(sdev);
 

@@ -53,6 +53,52 @@ int sof_set_hw_params_upon_resume(struct device *dev)
 	return snd_sof_dsp_hw_params_upon_resume(sdev);
 }
 
+int sof_destroy_pipelines(struct device *dev)
+{
+	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+	struct snd_sof_widget *swidget;
+	struct sof_ipc_free ipc_free;
+	struct sof_ipc_reply reply;
+	int ret = 0;
+
+	list_for_each_entry_reverse(swidget, &sdev->widget_list, list) {
+		memset(&ipc_free, 0, sizeof(ipc_free));
+
+		/* skip if there is no private data */
+		if (!swidget->private)
+			continue;
+
+		/* configure ipc free message */
+		ipc_free.hdr.size = sizeof(ipc_free);
+		ipc_free.hdr.cmd = SOF_IPC_GLB_TPLG_MSG;
+		ipc_free.id = swidget->comp_id;
+
+		switch (swidget->id) {
+		case snd_soc_dapm_scheduler:
+			ipc_free.hdr.cmd |= SOF_IPC_TPLG_PIPE_FREE;
+			break;
+		case snd_soc_dapm_buffer:
+			ipc_free.hdr.cmd |= SOF_IPC_TPLG_BUFFER_FREE;
+			break;
+		default:
+			ipc_free.hdr.cmd |= SOF_IPC_TPLG_COMP_FREE;
+			break;
+		}
+		ret = sof_ipc_tx_message(sdev->ipc, ipc_free.hdr.cmd,
+					 &ipc_free, sizeof(ipc_free), &reply,
+					 sizeof(reply));
+		if (ret < 0) {
+			dev_err(sdev->dev,
+				"error: failed to free widget type %d with ID: %d\n",
+				swidget->widget->id, swidget->comp_id);
+
+			return ret;
+		}
+	}
+
+	return ret;
+}
+
 static int sof_restore_kcontrols(struct device *dev)
 {
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
