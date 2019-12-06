@@ -852,8 +852,6 @@ const struct snd_sof_dsp_ops sof_cht_ops = {
 	/* PM */
 	.suspend = byt_suspend,
 	.resume = byt_resume,
-	.runtime_suspend = byt_suspend,
-	.runtime_resume = byt_resume,
 
 	/* DAI drivers */
 	.drv = byt_dai,
