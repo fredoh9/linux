@@ -235,6 +235,12 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 		goto fw_trace_err;
 
 	/*
+	 * Register client devices. This can fail but errors cannot be
+	 * propagated.
+	 */
+	snd_sof_register_clients(sdev);
+
+	/*
 	 * Some platforms in SOF, ex: BYT, may not have their platform PM
 	 * callbacks set. Increment the usage count so as to
 	 * prevent the device from entering runtime suspend.
@@ -355,6 +361,8 @@ int snd_sof_device_remove(struct device *dev)
 		snd_sof_free_trace(sdev);
 	}
 
+	snd_sof_unregister_clients(sdev);
+
 	/*
 	 * Unregister machine driver. This will unbind the snd_card which
 	 * will remove the component driver and unload the topology
@@ -382,4 +390,5 @@ EXPORT_SYMBOL(snd_sof_device_remove);
 MODULE_AUTHOR("Liam Girdwood");
 MODULE_DESCRIPTION("Sound Open Firmware (SOF) Core");
 MODULE_LICENSE("Dual BSD/GPL");
+MODULE_IMPORT_NS(SND_SOC_SOF_CLIENT);
 MODULE_ALIAS("platform:sof-audio");
