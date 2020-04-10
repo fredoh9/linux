@@ -11,7 +11,7 @@ snd-sof-pci-objs := sof-pci-dev.o
 snd-sof-acpi-objs := sof-acpi-dev.o
 snd-sof-of-objs := sof-of-dev.o
 
-snd-sof-ipc-test-objs := sof-ipc-test.o
+snd-sof-$(CONFIG_SND_SOC_SOF_DEBUG_IPC_FLOOD_TEST) += sof-ipc-test-client.o
 
 snd-sof-nocodec-objs := nocodec.o
 
