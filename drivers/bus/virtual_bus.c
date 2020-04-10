@@ -77,6 +77,16 @@ static int virtbus_resume(struct device *dev)
 	return dev->driver->resume(dev);
 }
 
+static int virtbus_uevent(struct device *dev, struct kobj_uevent_env *env)
+{
+	struct virtbus_device *vdev = to_virtbus_dev(dev);
+
+	if (add_uevent_var(env, "MODALIAS=%s%s", "virtbus:", vdev->match_name))
+		return -ENOMEM;
+
+	return 0;
+}
+
 struct bus_type virtual_bus_type = {
 	.name = "virtbus",
 	.match = virtbus_match,
@@ -85,6 +95,7 @@ struct bus_type virtual_bus_type = {
 	.shutdown = virtbus_shutdown,
 	.suspend = virtbus_suspend,
 	.resume = virtbus_resume,
+	.uevent = virtbus_uevent,
 };
 
 /**
