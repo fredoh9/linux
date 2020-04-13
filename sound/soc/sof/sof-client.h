@@ -4,6 +4,7 @@
 #define __SOUND_SOC_SOF_CLIENT_H
 
 #include <linux/completion.h>
+#include <linux/debugfs.h>
 #include <linux/device.h>
 #include <linux/device/driver.h>
 #include <linux/kernel.h>
@@ -61,6 +62,12 @@ static inline void sof_client_dev_unregister(struct sof_client_dev *cdev)
 {
 	virtbus_unregister_device(&cdev->vdev);
 }
+
+int sof_client_ipc_tx_message(struct sof_client_dev *cdev, u32 header,
+			      void *msg_data, size_t msg_bytes,
+			      void *reply_data, size_t reply_bytes);
+
+struct dentry *sof_client_get_debugfs_root(struct sof_client_dev *cdev);
 
 /**
  * module_sof_client_driver() - Helper macro for registering an SOF Client
