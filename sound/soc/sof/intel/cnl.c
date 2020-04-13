@@ -247,6 +247,10 @@ static void cnl_register_clients(struct snd_sof_dev *sdev)
 	sof_client_dev_register(sdev, "sof-ipc-test");
 	sof_client_dev_register(sdev, "sof-ipc-test");
 #endif
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_PROBES_CLIENT)
+	/* this can fail but errors cannot be propagated */
+	sof_client_dev_register(sdev, "sof-probes");
+#endif
 }
 #else
 static void cnl_register_clients(struct snd_sof_dev *sdev) {}

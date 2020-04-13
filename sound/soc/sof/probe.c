@@ -8,8 +8,11 @@
 // Author: Cezary Rojewski <cezary.rojewski@intel.com>
 //
 
-#include "sof-priv.h"
+#include <linux/slab.h>
+#include <sound/sof/header.h>
 #include "probe.h"
+#include "sof-client.h"
+
 
 /**
  * sof_ipc_probe_init - initialize data probing
@@ -25,8 +28,8 @@
  * Probing is initialized only once and each INIT request must be
  * matched by DEINIT call.
  */
-int sof_ipc_probe_init(struct snd_sof_dev *sdev,
-		u32 stream_tag, size_t buffer_size)
+int sof_ipc_probe_init(struct sof_client_dev *cdev, u32 stream_tag,
+		       size_t buffer_size)
 {
 	struct sof_ipc_probe_dma_add_params *msg;
 	struct sof_ipc_reply reply;
@@ -42,8 +45,8 @@ int sof_ipc_probe_init(struct snd_sof_dev *sdev,
 	msg->dma[0].stream_tag = stream_tag;
 	msg->dma[0].dma_buffer_size = buffer_size;
 
-	ret = sof_ipc_tx_message(sdev->ipc, msg->hdr.cmd, msg, msg->hdr.size,
-			&reply, sizeof(reply));
+	ret = sof_client_ipc_tx_message(cdev, msg->hdr.cmd, msg, msg->hdr.size,
+					&reply, sizeof(reply));
 	kfree(msg);
 	return ret;
 }
@@ -57,7 +60,7 @@ EXPORT_SYMBOL(sof_ipc_probe_init);
  * on DSP side once it is no longer needed. DEINIT only when there
  * are no probes connected and with all injectors detached.
  */
-int sof_ipc_probe_deinit(struct snd_sof_dev *sdev)
+int sof_ipc_probe_deinit(struct sof_client_dev *cdev)
 {
 	struct sof_ipc_cmd_hdr msg;
 	struct sof_ipc_reply reply;
@@ -65,13 +68,13 @@ int sof_ipc_probe_deinit(struct snd_sof_dev *sdev)
 	msg.size = sizeof(msg);
 	msg.cmd = SOF_IPC_GLB_PROBE | SOF_IPC_PROBE_DEINIT;
 
-	return sof_ipc_tx_message(sdev->ipc, msg.cmd, &msg, msg.size,
-			&reply, sizeof(reply));
+	return sof_client_ipc_tx_message(cdev, msg.cmd, &msg, msg.size,
+					 &reply, sizeof(reply));
 }
 EXPORT_SYMBOL(sof_ipc_probe_deinit);
 
-static int sof_ipc_probe_info(struct snd_sof_dev *sdev, unsigned int cmd,
-		void **params, size_t *num_params)
+static int sof_ipc_probe_info(struct sof_client_dev *cdev, unsigned int cmd,
+			      void **params, size_t *num_params)
 {
 	struct sof_ipc_probe_info_params msg = {{{0}}};
 	struct sof_ipc_probe_info_params *reply;
@@ -87,8 +90,9 @@ static int sof_ipc_probe_info(struct snd_sof_dev *sdev, unsigned int cmd,
 	msg.rhdr.hdr.size = sizeof(msg);
 	msg.rhdr.hdr.cmd = SOF_IPC_GLB_PROBE | cmd;
 
-	ret = sof_ipc_tx_message(sdev->ipc, msg.rhdr.hdr.cmd, &msg,
-			msg.rhdr.hdr.size, reply, SOF_IPC_MSG_MAX_SIZE);
+	ret = sof_client_ipc_tx_message(cdev, msg.rhdr.hdr.cmd, &msg,
+					msg.rhdr.hdr.size, reply,
+					SOF_IPC_MSG_MAX_SIZE);
 	if (ret < 0 || reply->rhdr.error < 0)
 		goto exit;
 
@@ -127,11 +131,11 @@ exit:
  * which is not the case for injection where multiple streams
  * could be engaged.
  */
-int sof_ipc_probe_dma_info(struct snd_sof_dev *sdev,
-		struct sof_probe_dma **dma, size_t *num_dma)
+int sof_ipc_probe_dma_info(struct sof_client_dev *cdev,
+			   struct sof_probe_dma **dma, size_t *num_dma)
 {
-	return sof_ipc_probe_info(sdev, SOF_IPC_PROBE_DMA_INFO,
-			(void **)dma, num_dma);
+	return sof_ipc_probe_info(cdev, SOF_IPC_PROBE_DMA_INFO,
+				  (void **)dma, num_dma);
 }
 EXPORT_SYMBOL(sof_ipc_probe_dma_info);
 
@@ -146,8 +150,8 @@ EXPORT_SYMBOL(sof_ipc_probe_dma_info);
  * for specifying streams which will be later used to transfer data
  * to connected probe points.
  */
-int sof_ipc_probe_dma_add(struct snd_sof_dev *sdev,
-		struct sof_probe_dma *dma, size_t num_dma)
+int sof_ipc_probe_dma_add(struct sof_client_dev *cdev,
+			  struct sof_probe_dma *dma, size_t num_dma)
 {
 	struct sof_ipc_probe_dma_add_params *msg;
 	struct sof_ipc_reply reply;
@@ -162,8 +166,8 @@ int sof_ipc_probe_dma_add(struct snd_sof_dev *sdev,
 	msg->hdr.cmd = SOF_IPC_GLB_PROBE | SOF_IPC_PROBE_DMA_ADD;
 	memcpy(&msg->dma[0], dma, size - sizeof(*msg));
 
-	ret = sof_ipc_tx_message(sdev->ipc, msg->hdr.cmd, msg, msg->hdr.size,
-			&reply, sizeof(reply));
+	ret = sof_client_ipc_tx_message(cdev, msg->hdr.cmd, msg, msg->hdr.size,
+					&reply, sizeof(reply));
 	kfree(msg);
 	return ret;
 }
@@ -180,8 +184,8 @@ EXPORT_SYMBOL(sof_ipc_probe_dma_add);
  * match equivalent DMA_ADD. Detach only when all probes tied to
  * given stream have been disconnected.
  */
-int sof_ipc_probe_dma_remove(struct snd_sof_dev *sdev,
-		unsigned int *stream_tag, size_t num_stream_tag)
+int sof_ipc_probe_dma_remove(struct sof_client_dev *cdev,
+			     unsigned int *stream_tag, size_t num_stream_tag)
 {
 	struct sof_ipc_probe_dma_remove_params *msg;
 	struct sof_ipc_reply reply;
@@ -196,8 +200,8 @@ int sof_ipc_probe_dma_remove(struct snd_sof_dev *sdev,
 	msg->hdr.cmd = SOF_IPC_GLB_PROBE | SOF_IPC_PROBE_DMA_REMOVE;
 	memcpy(&msg->stream_tag[0], stream_tag, size - sizeof(*msg));
 
-	ret = sof_ipc_tx_message(sdev->ipc, msg->hdr.cmd, msg, msg->hdr.size,
-			&reply, sizeof(reply));
+	ret = sof_client_ipc_tx_message(cdev, msg->hdr.cmd, msg, msg->hdr.size,
+					&reply, sizeof(reply));
 	kfree(msg);
 	return ret;
 }
@@ -213,10 +217,11 @@ EXPORT_SYMBOL(sof_ipc_probe_dma_remove);
  * points, valid for disconnection when given probe is no longer
  * required.
  */
-int sof_ipc_probe_points_info(struct snd_sof_dev *sdev,
-		struct sof_probe_point_desc **desc, size_t *num_desc)
+int sof_ipc_probe_points_info(struct sof_client_dev *cdev,
+			      struct sof_probe_point_desc **desc,
+			      size_t *num_desc)
 {
-	return sof_ipc_probe_info(sdev, SOF_IPC_PROBE_POINT_INFO,
+	return sof_ipc_probe_info(cdev, SOF_IPC_PROBE_POINT_INFO,
 				 (void **)desc, num_desc);
 }
 EXPORT_SYMBOL(sof_ipc_probe_points_info);
@@ -234,8 +239,9 @@ EXPORT_SYMBOL(sof_ipc_probe_points_info);
  * Each probe point should be removed using PROBE_POINT_REMOVE
  * request when no longer needed.
  */
-int sof_ipc_probe_points_add(struct snd_sof_dev *sdev,
-		struct sof_probe_point_desc *desc, size_t num_desc)
+int sof_ipc_probe_points_add(struct sof_client_dev *cdev,
+			     struct sof_probe_point_desc *desc,
+			     size_t num_desc)
 {
 	struct sof_ipc_probe_point_add_params *msg;
 	struct sof_ipc_reply reply;
@@ -250,8 +256,8 @@ int sof_ipc_probe_points_add(struct snd_sof_dev *sdev,
 	msg->hdr.cmd = SOF_IPC_GLB_PROBE | SOF_IPC_PROBE_POINT_ADD;
 	memcpy(&msg->desc[0], desc, size - sizeof(*msg));
 
-	ret = sof_ipc_tx_message(sdev->ipc, msg->hdr.cmd, msg, msg->hdr.size,
-			&reply, sizeof(reply));
+	ret = sof_client_ipc_tx_message(cdev, msg->hdr.cmd, msg, msg->hdr.size,
+					&reply, sizeof(reply));
 	kfree(msg);
 	return ret;
 }
@@ -266,8 +272,8 @@ EXPORT_SYMBOL(sof_ipc_probe_points_add);
  * Removes previously connected probes from list of active probe
  * points and frees all resources on DSP side.
  */
-int sof_ipc_probe_points_remove(struct snd_sof_dev *sdev,
-		unsigned int *buffer_id, size_t num_buffer_id)
+int sof_ipc_probe_points_remove(struct sof_client_dev *cdev,
+				unsigned int *buffer_id, size_t num_buffer_id)
 {
 	struct sof_ipc_probe_point_remove_params *msg;
 	struct sof_ipc_reply reply;
@@ -282,8 +288,8 @@ int sof_ipc_probe_points_remove(struct snd_sof_dev *sdev,
 	msg->hdr.cmd = SOF_IPC_GLB_PROBE | SOF_IPC_PROBE_POINT_REMOVE;
 	memcpy(&msg->buffer_id[0], buffer_id, size - sizeof(*msg));
 
-	ret = sof_ipc_tx_message(sdev->ipc, msg->hdr.cmd, msg, msg->hdr.size,
-			&reply, sizeof(reply));
+	ret = sof_client_ipc_tx_message(cdev, msg->hdr.cmd, msg, msg->hdr.size,
+					&reply, sizeof(reply));
 	kfree(msg);
 	return ret;
 }
