@@ -250,9 +250,11 @@ static int sof_ipc_test_probe(struct virtbus_device *vdev)
 
 	cdev->data = ipc_client_data;
 
-	/* create ipc-test-client debugfs dir under parent SOF dir */
+	/* create debugfs dir under parent SOF dir
+	   set dfs_root as device name, sof-ipc-client.0 sof-ipc-client.1 etc
+	*/
 	ipc_client_data->dfs_root =
-		debugfs_create_dir("ipc-flood-test",
+		debugfs_create_dir(dev_name(&vdev->dev),
 				   sof_client_get_debugfs_root(cdev));
 
 	/* create read-write ipc_flood_count debugfs entry */
