@@ -34,6 +34,14 @@ static void apl_register_clients(struct snd_sof_dev *sdev)
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_IPC_FLOOD_TEST_CLIENT)
 	/* this can fail but errors cannot be propagated */
 	sof_client_dev_register(sdev, "sof-ipc-test");
+
+	/* create 2nd sof-ipc-test client. virtbus_register_device() will
+	   add unique id at the end of the name.
+	   For exmample, first client's nameis sof-ipc-client.0 and 2nd one
+	   is sof-ipc-client.1.
+	*/
+	sof_client_dev_register(sdev, "sof-ipc-test");
+
 #endif
 }
 #else
