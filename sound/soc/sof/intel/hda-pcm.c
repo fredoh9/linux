@@ -220,6 +220,8 @@ int hda_dsp_pcm_open(struct snd_sof_dev *sdev,
 
 	dsp_stream = hda_dsp_stream_get(sdev, direction);
 
+	dev_dbg(sdev->dev, "%s: HOST pcm open\n", __func__);
+
 	if (!dsp_stream) {
 		dev_err(sdev->dev, "error: no stream available\n");
 		return -ENODEV;

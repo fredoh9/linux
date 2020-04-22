@@ -140,6 +140,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	struct snd_sof_pdata *plat_data = sdev->pdata;
 	int ret;
 
+	dev_dbg(sdev->dev, "%s: probe the DSP hardware\n", __func__);
 	/* probe the DSP hardware */
 	ret = snd_sof_probe(sdev);
 	if (ret < 0) {
@@ -150,6 +151,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	sdev->fw_state = SOF_FW_BOOT_PREPARE;
 
 	/* check machine info */
+	dev_dbg(sdev->dev, "%s: check machine info, dev_name=%s\n", __func__, dev_name(sdev->dev));
 	ret = sof_machine_check(sdev);
 	if (ret < 0) {
 		dev_err(sdev->dev, "error: failed to get machine info %d\n",
@@ -158,9 +160,11 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	}
 
 	/* set up platform component driver */
+	dev_dbg(sdev->dev, "%s: set up platform component driver\n", __func__);
 	snd_sof_new_platform_drv(sdev);
 
 	/* register any debug/trace capabilities */
+	dev_dbg(sdev->dev, "%s: register any debug/trace capabilities, snd_sof_dbg_init()\n", __func__);
 	ret = snd_sof_dbg_init(sdev);
 	if (ret < 0) {
 		/*
@@ -174,6 +178,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	}
 
 	/* init the IPC */
+	dev_dbg(sdev->dev, "%s: init the IPC, snd_sof_ipc_init()\n", __func__);
 	sdev->ipc = snd_sof_ipc_init(sdev);
 	if (!sdev->ipc) {
 		dev_err(sdev->dev, "error: failed to init DSP IPC %d\n", ret);
@@ -181,6 +186,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	}
 
 	/* load the firmware */
+	dev_dbg(sdev->dev, "%s: load the firmware, snd_sof_load_firmware()\n", __func__);
 	ret = snd_sof_load_firmware(sdev);
 	if (ret < 0) {
 		dev_err(sdev->dev, "error: failed to load DSP firmware %d\n",
@@ -194,6 +200,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	 * Boot the firmware. The FW boot status will be modified
 	 * in snd_sof_run_firmware() depending on the outcome.
 	 */
+	dev_dbg(sdev->dev, "%s: Boot the firmware, snd_sof_run_firmware()\n", __func__);
 	ret = snd_sof_run_firmware(sdev);
 	if (ret < 0) {
 		dev_err(sdev->dev, "error: failed to boot DSP firmware %d\n",
@@ -206,6 +213,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 		sdev->dtrace_is_supported = true;
 
 		/* init DMA trace */
+		dev_dbg(sdev->dev, "%s: init DMA trace, snd_sof_init_trace()\n", __func__);
 		ret = snd_sof_init_trace(sdev);
 		if (ret < 0) {
 			/* non fatal */
@@ -221,6 +229,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	sdev->first_boot = false;
 
 	/* now register audio DSP platform driver and dai */
+	dev_dbg(sdev->dev, "%s: now register audio DSP platform driver and dai\n", __func__);
 	ret = devm_snd_soc_register_component(sdev->dev, &sdev->plat_drv,
 					      sof_ops(sdev)->drv,
 					      sof_ops(sdev)->num_drv);
@@ -230,6 +239,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 		goto fw_trace_err;
 	}
 
+	dev_dbg(sdev->dev, "%s: snd_sof_machine_register()\n", __func__);
 	ret = snd_sof_machine_register(sdev, plat_data);
 	if (ret < 0)
 		goto fw_trace_err;
@@ -242,13 +252,16 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	if (!sof_ops(sdev)->runtime_suspend || !sof_ops(sdev)->runtime_resume)
 		pm_runtime_get_noresume(sdev->dev);
 
-	if (plat_data->sof_probe_complete)
+	if (plat_data->sof_probe_complete) {
+		dev_dbg(sdev->dev, "%s: call sof_probe_complete()\n", __func__);
 		plat_data->sof_probe_complete(sdev->dev);
+	}
 
 	/*
 	 * Register client devices. This can fail but errors cannot be
 	 * propagated.
 	 */
+	dev_dbg(sdev->dev, "%s: Register client devices, snd_sof_register_clients()\n", __func__);
 	snd_sof_register_clients(sdev);
 
 	return 0;
@@ -292,6 +305,8 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
 	if (!sdev)
 		return -ENOMEM;
 
+	dev_dbg(dev, "%s: initialize sof device\n", __func__);
+
 	/* initialize sof device */
 	sdev->dev = dev;
 
@@ -324,8 +339,10 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
 	spin_lock_init(&sdev->hw_lock);
 	mutex_init(&sdev->client_mutex);
 
-	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)) {
+		dev_dbg(dev, "%s: INIT_WORK sof_probe_work\n", __func__);
 		INIT_WORK(&sdev->probe_work, sof_probe_work);
+	}
 
 	/* set default timeouts if none provided */
 	if (plat_data->desc->ipc_timeout == 0)

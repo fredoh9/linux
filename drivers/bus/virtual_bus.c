@@ -42,26 +42,36 @@ static int virtbus_match(struct device *dev, struct device_driver *drv)
 	struct virtbus_driver *vdrv = to_virtbus_drv(drv);
 	struct virtbus_device *vdev = to_virtbus_dev(dev);
 
+	dev_dbg(dev, "%s: look for name in id_table\n", __func__);
+
 	return virtbus_match_id(vdrv->id_table, vdev) != NULL;
 }
 
 static int virtbus_probe(struct device *dev)
 {
+	dev_dbg(dev, "%s: call driver probe\n", __func__);
+
 	return dev->driver->probe(dev);
 }
 
 static int virtbus_remove(struct device *dev)
 {
+	dev_dbg(dev, "%s: call driver remove\n", __func__);
+
 	return dev->driver->remove(dev);
 }
 
 static void virtbus_shutdown(struct device *dev)
 {
+	dev_dbg(dev, "%s: call driver shutdown\n", __func__);
+
 	dev->driver->shutdown(dev);
 }
 
 static int virtbus_suspend(struct device *dev, pm_message_t state)
 {
+	dev_dbg(dev, "%s: call driver suspend\n", __func__);
+
 	if (dev->driver->suspend)
 		return dev->driver->suspend(dev, state);
 
@@ -70,6 +80,8 @@ static int virtbus_suspend(struct device *dev, pm_message_t state)
 
 static int virtbus_resume(struct device *dev)
 {
+	dev_dbg(dev, "%s: call driver resume\n", __func__);
+
 	if (dev->driver->resume)
 		return dev->driver->resume(dev);
 
@@ -79,6 +91,9 @@ static int virtbus_resume(struct device *dev)
 static int virtbus_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct virtbus_device *vdev = to_virtbus_dev(dev);
+
+	//Fred: too verbose before probe timeout
+	//dev_dbg(dev, "%s: add_uevent_var name=%s\n", __func__, vdev->name);
 
 	if (add_uevent_var(env, "MODALIAS=%s%s", "virtbus:", vdev->name))
 		return -ENOMEM;
@@ -114,6 +129,8 @@ static void virtbus_release_device(struct device *_dev)
 {
 	struct virtbus_device *vdev = to_virtbus_dev(_dev);
 
+	dev_dbg(_dev, "%s: Destroy a virtbus device\n", __func__);
+
 	ida_simple_remove(&virtbus_dev_ida, vdev->id);
 	vdev->release(vdev);
 }
@@ -128,6 +145,8 @@ int virtbus_register_device(struct virtbus_device *vdev)
 
 	/* Do this first so that all error paths perform a put_device */
 	device_initialize(&vdev->dev);
+
+	dev_dbg(&vdev->dev, "%s: add a virtual bus device, ida_simple_get for device ID\n", __func__);
 
 	if (!vdev->release) {
 		ret = -EINVAL;
@@ -186,6 +205,8 @@ static int virtbus_probe_driver(struct device *_dev)
 	struct virtbus_device *vdev = to_virtbus_dev(_dev);
 	int ret;
 
+	dev_dbg(_dev, "%s: pm_domain_attach and vdrv->probe\n", __func__);
+
 	ret = dev_pm_domain_attach(_dev, true);
 	if (ret) {
 		dev_warn(_dev, "Failed to attatch to PM Domain : %d\n", ret);
@@ -207,6 +228,8 @@ static int virtbus_remove_driver(struct device *_dev)
 	struct virtbus_device *vdev = to_virtbus_dev(_dev);
 	int ret = 0;
 
+	dev_dbg(_dev, "%s: call vdrv remove\n", __func__);
+
 	ret = vdrv->remove(vdev);
 	dev_pm_domain_detach(_dev, true);
 
@@ -218,6 +241,8 @@ static void virtbus_shutdown_driver(struct device *_dev)
 	struct virtbus_driver *vdrv = to_virtbus_drv(_dev->driver);
 	struct virtbus_device *vdev = to_virtbus_dev(_dev);
 
+	dev_dbg(_dev, "%s: call vdrv shutdown\n", __func__);
+
 	vdrv->shutdown(vdev);
 }
 
@@ -225,6 +250,8 @@ static int virtbus_suspend_driver(struct device *_dev, pm_message_t state)
 {
 	struct virtbus_driver *vdrv = to_virtbus_drv(_dev->driver);
 	struct virtbus_device *vdev = to_virtbus_dev(_dev);
+
+	dev_dbg(_dev, "%s: call vdrv suspend\n", __func__);
 
 	if (vdrv->suspend)
 		return vdrv->suspend(vdev, state);
@@ -236,6 +263,8 @@ static int virtbus_resume_driver(struct device *_dev)
 {
 	struct virtbus_driver *vdrv = to_virtbus_drv(_dev->driver);
 	struct virtbus_device *vdev = to_virtbus_dev(_dev);
+
+	dev_dbg(_dev, "%s: call vdrv resume\n", __func__);
 
 	if (vdrv->resume)
 		return vdrv->resume(vdev);
@@ -277,11 +306,13 @@ EXPORT_SYMBOL_GPL(virtbus_unregister_driver);
 
 static int __init virtual_bus_init(void)
 {
+	printk("%s: call bus_register\n", __func__);
 	return bus_register(&virtual_bus_type);
 }
 
 static void __exit virtual_bus_exit(void)
 {
+	printk("%s: call bus_unregister, ida_destroy\n", __func__);
 	bus_unregister(&virtual_bus_type);
 	ida_destroy(&virtbus_dev_ida);
 }

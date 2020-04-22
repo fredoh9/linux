@@ -31,6 +31,8 @@ int sof_client_dev_register(struct snd_sof_dev *sdev,
 	struct virtbus_device *vdev;
 	int ret;
 
+	dev_err(sdev->dev, "%s: Register virtbus device for the client\n", __func__);
+
 	cdev = kzalloc(sizeof(*cdev), GFP_KERNEL);
 	if (!cdev)
 		return -ENOMEM;

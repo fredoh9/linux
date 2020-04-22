@@ -1286,7 +1286,7 @@ static int sof_connect_dai_widget(struct snd_soc_component *scomp,
 	int i;
 
 	list_for_each_entry(rtd, &card->rtd_list, list) {
-		dev_vdbg(scomp->dev, "tplg: check widget: %s stream: %s dai stream: %s\n",
+		dev_dbg(scomp->dev, "tplg: check widget: %s stream: %s dai stream: %s\n",
 			 w->name,  w->sname, rtd->dai_link->stream_name);
 
 		if (!w->sname || !rtd->dai_link->stream_name)
@@ -3198,6 +3198,8 @@ static int sof_link_load(struct snd_soc_component *scomp, int index,
 		return -EINVAL;
 	}
 	link->platforms->name = dev_name(scomp->dev);
+
+	dev_dbg(scomp->dev, "%s: link->platforms->name %s\n", __func__, link->platforms->name);
 
 	/*
 	 * Set nonatomic property for FE dai links as their trigger action
