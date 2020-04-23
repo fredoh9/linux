@@ -403,7 +403,7 @@ int sof_machine_check(struct snd_sof_dev *sdev)
 	struct snd_sof_pdata *sof_pdata = sdev->pdata;
 	const struct sof_dev_desc *desc = sof_pdata->desc;
 	struct snd_soc_acpi_mach *mach;
-	int ret;
+	//int ret;
 
 	dev_dbg(sdev->dev, "%s: codec or nocodec mode\n", __func__);
 
@@ -428,18 +428,22 @@ int sof_machine_check(struct snd_sof_dev *sdev)
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_FORCE_NOCODEC_MODE)
 nocodec:
 #endif
+	//dev_err(sdev->dev, "MOVE to all in nocodec client probe()\n");
+	// Fred: Nope, without mach,it will crash in snd_sof_new_platform_drv()
+
 	/* select nocodec mode */
 	dev_warn(sdev->dev, "Using nocodec machine driver\n");
 	mach = devm_kzalloc(sdev->dev, sizeof(*mach), GFP_KERNEL);
 	if (!mach)
 		return -ENOMEM;
 
-	mach->drv_name = "sof-nocodec";// Fred: hard coded for now
+	mach->drv_name = "sof-nocodec";//"sof-nocodec-client.2"; //Fred: hard coded for now, nope! sysfs crash
+//[    1.771384] sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:0e.0/sof-nocodec-client.2'
 	sof_pdata->tplg_filename = desc->nocodec_tplg_filename;
 
-	ret = sof_nocodec_setup(sdev->dev, desc->ops);
-	if (ret < 0)
-		return ret;
+	//ret = sof_nocodec_setup(sdev->dev, desc->ops);
+	//if (ret < 0)
+	//	return ret;
 
 	sof_pdata->machine = mach;
 	snd_sof_set_mach_params(sof_pdata->machine, sdev->dev);
