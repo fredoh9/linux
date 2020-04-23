@@ -229,7 +229,12 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	sdev->first_boot = false;
 
 	/* now register audio DSP platform driver and dai */
+	// TODO: write client APIs to get 3 params below
 	dev_dbg(sdev->dev, "%s: now register audio DSP platform driver and dai\n", __func__);
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	// HACK: override ignore_machine
+	sdev->plat_drv.ignore_machine = "sof-nocodec-client.2";
+#endif
 	ret = devm_snd_soc_register_component(sdev->dev, &sdev->plat_drv,
 					      sof_ops(sdev)->drv,
 					      sof_ops(sdev)->num_drv);
