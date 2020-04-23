@@ -101,4 +101,7 @@ struct sof_dev_desc {
 // Fred: move it to nocodec client
 //int sof_nocodec_setup(struct device *dev,
 //		      const struct snd_sof_dsp_ops *ops);
+int sof_nocodec_save_component_setup(struct snd_soc_component_driver *cmpnt_drv,
+			 struct snd_soc_dai_driver *dai_drv, int num_dai);
+
 #endif

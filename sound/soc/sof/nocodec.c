@@ -23,6 +23,20 @@ static struct snd_soc_card sof_nocodec_card = {
 	.name = "nocodec", /* the sof- prefix is added by the core */
 };
 
+static struct snd_soc_component_driver *gcmpnt_drv;
+static struct snd_soc_dai_driver *gdai_drv;
+static int gnum_dai;
+int sof_nocodec_save_component_setup(struct snd_soc_component_driver *cmpnt_drv,
+			 struct snd_soc_dai_driver *dai_drv, int num_dai)
+{
+	printk(">>> Fred: save component/dia drivers %p, %p, %d", cmpnt_drv, dai_drv, num_dai);
+	gcmpnt_drv = cmpnt_drv;
+	gdai_drv = dai_drv;
+	gnum_dai = num_dai;
+	return 0;
+}
+EXPORT_SYMBOL(sof_nocodec_save_component_setup);
+
 static int sof_nocodec_bes_setup(struct virtbus_device *vdev,
 				 const struct snd_sof_dsp_ops *ops,
 				 struct snd_soc_dai_link *links,
@@ -80,7 +94,7 @@ static int sof_nocodec_setup(struct virtbus_device *vdev,
 {
 	struct snd_soc_dai_link *links;
 
-	dev_dbg(&vdev->dev, "%s: (call from sof-audio) allocate links\n", __func__);
+	dev_dbg(&vdev->dev, "%s: (internal function call) allocate links\n", __func__);
 
 	/* create dummy BE dai_links */
 	links = devm_kzalloc(&vdev->dev, sizeof(struct snd_soc_dai_link) *
@@ -119,12 +133,24 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 	 */
 	pm_runtime_get_noresume(&vdev->dev);
 
-#if 0
+#if 1
+	// TODO: create client API to register component
+	// Fred: can be used devm API directly???
+	if ((!gcmpnt_drv) || (!gdai_drv)) {
+		dev_err(&vdev->dev, "Either component or dai driver is NULL\n");
+		return -1;
+	}
+	// HACK: override ignore_machine
+	if (sdev->plat_drv) {
+		dev_dbg(&vdev->dev, "HACK: override ignore_machine\n");
+        	sdev->plat_drv.ignore_machine = "sof-nocodec-client.2";
+	}
+	dev_dbg(&vdev->dev, "%s: register nocodec component driver and dai\n", __func__);
 	/* register nocodec component driver and dai */
 	ret = devm_snd_soc_register_component(&vdev->dev,
-					      &sof_nocodec_component,
-					      sof_ops(sdev)->drv,
-					      sof_ops(sdev)->num_drv);
+					      gcmpnt_drv,
+					      gdai_drv,
+					      gnum_dai);
 	if (ret < 0) {
 		dev_err(&vdev->dev,
 			"error: failed to register SOF probes DAI driver %d\n",

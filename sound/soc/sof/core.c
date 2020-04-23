@@ -233,8 +233,18 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	dev_dbg(sdev->dev, "%s: now register audio DSP platform driver and dai\n", __func__);
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
 	// HACK: override ignore_machine
-	sdev->plat_drv.ignore_machine = "sof-nocodec-client.2";
+	// sdev->plat_drv.ignore_machine = "sof-nocodec-client.2";
+	// save platform driver
+	ret = sof_nocodec_save_component_setup(&sdev->plat_drv,
+				      sof_ops(sdev)->drv,
+				      sof_ops(sdev)->num_drv);
+	if (ret < 0) {
+		dev_err(sdev->dev,
+			"error: failed to save component, dai setup %d\n", ret);
+		goto fw_trace_err;
+	}
 #endif
+/*
 	ret = devm_snd_soc_register_component(sdev->dev, &sdev->plat_drv,
 					      sof_ops(sdev)->drv,
 					      sof_ops(sdev)->num_drv);
@@ -243,12 +253,13 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 			"error: failed to register DSP DAI driver %d\n", ret);
 		goto fw_trace_err;
 	}
-
+*/
+/*
 	dev_dbg(sdev->dev, "%s: snd_sof_machine_register()\n", __func__);
 	ret = snd_sof_machine_register(sdev, plat_data);
 	if (ret < 0)
 		goto fw_trace_err;
-
+*/
 	/*
 	 * Some platforms in SOF, ex: BYT, may not have their platform PM
 	 * callbacks set. Increment the usage count so as to
