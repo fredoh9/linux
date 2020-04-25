@@ -441,10 +441,12 @@ nocodec:
 //[    1.771384] sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:0e.0/sof-nocodec-client.2'
 	sof_pdata->tplg_filename = desc->nocodec_tplg_filename;
 
-	//ret = sof_nocodec_setup(sdev->dev, desc->ops);
-	//if (ret < 0)
-	//	return ret;
-
+#if 0
+	ret = sof_nocodec_setup(sdev->dev, desc->ops);
+	if (ret < 0)
+		return ret;
+#endif
+	// Fred: Is this required?
 	sof_pdata->machine = mach;
 	snd_sof_set_mach_params(sof_pdata->machine, sdev->dev);
 

@@ -2268,6 +2268,7 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	if (!card->name || !card->dev)
 		return -EINVAL;
 
+	dev_dbg(card->dev, "%s: start\n", __func__);
 	dev_set_drvdata(card->dev, card);
 
 	INIT_LIST_HEAD(&card->widgets);
@@ -2465,6 +2466,7 @@ static int snd_soc_register_dais(struct snd_soc_component *component,
 	unsigned int i;
 	int ret;
 
+	dev_dbg(component->dev, "%s: start\n", __func__);
 	for (i = 0; i < count; i++) {
 		dai = snd_soc_register_dai(component, dai_drv + i, count == 1 &&
 				  !component->driver->non_legacy_dai_naming);
@@ -2477,6 +2479,7 @@ static int snd_soc_register_dais(struct snd_soc_component *component,
 	return 0;
 
 err:
+	dev_dbg(component->dev, "%s: error! unregister DAIs\n", __func__);
 	snd_soc_unregister_dais(component);
 
 	return ret;
@@ -2490,6 +2493,7 @@ static int snd_soc_component_initialize(struct snd_soc_component *component,
 	INIT_LIST_HEAD(&component->card_list);
 	mutex_init(&component->io_mutex);
 
+	dev_dbg(dev, "%s: start\n", __func__);
 	component->name = fmt_single_name(dev, &component->id);
 	if (!component->name) {
 		dev_err(dev, "ASoC: Failed to allocate name\n");
@@ -2617,6 +2621,7 @@ int snd_soc_add_component(struct device *dev,
 	int ret;
 	int i;
 
+	dev_dbg(dev, "%s: start\n", __func__);
 	mutex_lock(&client_mutex);
 
 	ret = snd_soc_component_initialize(component, component_driver, dev);
@@ -2667,6 +2672,7 @@ int snd_soc_register_component(struct device *dev,
 {
 	struct snd_soc_component *component;
 
+	dev_dbg(dev, "%s: start\n", __func__);
 	component = devm_kzalloc(dev, sizeof(*component), GFP_KERNEL);
 	if (!component)
 		return -ENOMEM;

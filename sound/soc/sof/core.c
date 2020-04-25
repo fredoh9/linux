@@ -160,8 +160,8 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	}
 
 	/* set up platform component driver */
-	dev_dbg(sdev->dev, "%s: set up platform component driver\n", __func__);
-	snd_sof_new_platform_drv(sdev);
+	//dev_dbg(sdev->dev, "%s: set up platform component driver\n", __func__);
+	//snd_sof_new_platform_drv(sdev);
 
 	/* register any debug/trace capabilities */
 	dev_dbg(sdev->dev, "%s: register any debug/trace capabilities, snd_sof_dbg_init()\n", __func__);
@@ -235,6 +235,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	// HACK: override ignore_machine
 	// sdev->plat_drv.ignore_machine = "sof-nocodec-client.2";
 	// save platform driver
+/*
 	ret = sof_nocodec_save_component_setup(&sdev->plat_drv,
 				      sof_ops(sdev)->drv,
 				      sof_ops(sdev)->num_drv);
@@ -243,8 +244,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 			"error: failed to save component, dai setup %d\n", ret);
 		goto fw_trace_err;
 	}
+*/
 #endif
-/*
+
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
 	ret = devm_snd_soc_register_component(sdev->dev, &sdev->plat_drv,
 					      sof_ops(sdev)->drv,
 					      sof_ops(sdev)->num_drv);
@@ -253,13 +256,14 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 			"error: failed to register DSP DAI driver %d\n", ret);
 		goto fw_trace_err;
 	}
-*/
-/*
+
+
 	dev_dbg(sdev->dev, "%s: snd_sof_machine_register()\n", __func__);
 	ret = snd_sof_machine_register(sdev, plat_data);
 	if (ret < 0)
 		goto fw_trace_err;
-*/
+#endif
+
 	/*
 	 * Some platforms in SOF, ex: BYT, may not have their platform PM
 	 * callbacks set. Increment the usage count so as to
@@ -282,7 +286,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 
 	return 0;
 
-fw_trace_err:
+//fw_trace_err:
 	snd_sof_free_trace(sdev);
 fw_run_err:
 	snd_sof_fw_unload(sdev);

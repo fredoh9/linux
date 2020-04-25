@@ -16,6 +16,7 @@
 #include "sof-client.h"
 #include "sof-priv.h"
 #include "ops.h"
+#include "sof-audio.h"
 
 #define SOF_NOCODEC_CLIENT_SUSPEND_DELAY_MS 3000
 
@@ -23,9 +24,11 @@ static struct snd_soc_card sof_nocodec_card = {
 	.name = "nocodec", /* the sof- prefix is added by the core */
 };
 
+#if 0
 static struct snd_soc_component_driver *gcmpnt_drv;
 static struct snd_soc_dai_driver *gdai_drv;
 static int gnum_dai;
+
 int sof_nocodec_save_component_setup(struct snd_soc_component_driver *cmpnt_drv,
 			 struct snd_soc_dai_driver *dai_drv, int num_dai)
 {
@@ -36,7 +39,7 @@ int sof_nocodec_save_component_setup(struct snd_soc_component_driver *cmpnt_drv,
 	return 0;
 }
 EXPORT_SYMBOL(sof_nocodec_save_component_setup);
-
+#endif
 static int sof_nocodec_bes_setup(struct virtbus_device *vdev,
 				 const struct snd_sof_dsp_ops *ops,
 				 struct snd_soc_dai_link *links,
@@ -112,6 +115,63 @@ static const struct snd_soc_component_driver sof_nocodec_component = {
 	.module_get_upon_open = 1,
 };
 */
+/* Fred: TODO: export in somewhere */
+int sof_pcm_hw_params(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream,
+			     struct snd_pcm_hw_params *params);
+int sof_pcm_hw_free(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream);
+int sof_pcm_prepare(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream);
+int sof_pcm_trigger(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream, int cmd);
+snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
+					 struct snd_pcm_substream *substream);
+int sof_pcm_open(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream);
+int sof_pcm_close(struct snd_soc_component *component,
+			 struct snd_pcm_substream *substream);
+int sof_pcm_new(struct snd_soc_component *component,
+		       struct snd_soc_pcm_runtime *rtd);
+int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
+				  struct snd_pcm_hw_params *params);
+int sof_pcm_probe(struct snd_soc_component *component);
+void sof_pcm_remove(struct snd_soc_component *component);
+
+
+void snd_sof_nocodec_platform_drv(struct virtbus_device *vdev)
+{
+	struct sof_client_dev *cdev = virtbus_dev_to_sof_client_dev(vdev);
+	struct snd_sof_dev *sdev = cdev->sdev;
+	struct snd_soc_component_driver *pd = &sdev->plat_drv;
+	struct snd_sof_pdata *plat_data = sdev->pdata;
+	const char *drv_name;
+
+	//drv_name = plat_data->machine->drv_name;
+	drv_name = dev_name(&vdev->dev);
+	dev_dbg(sdev->dev, "%s: drv_name=%s \n", __func__, drv_name);
+
+	pd->name = "sof-audio-component";
+	pd->probe = sof_pcm_probe;
+	pd->remove = sof_pcm_remove;
+	pd->open = sof_pcm_open;
+	pd->close = sof_pcm_close;
+	pd->hw_params = sof_pcm_hw_params;
+	pd->prepare = sof_pcm_prepare;
+	pd->hw_free = sof_pcm_hw_free;
+	pd->trigger = sof_pcm_trigger;
+	pd->pointer = sof_pcm_pointer;
+
+	pd->pcm_construct = sof_pcm_new;
+	pd->ignore_machine = drv_name;
+	pd->be_hw_params_fixup = sof_pcm_dai_link_fixup;
+	pd->be_pcm_base = SOF_BE_PCM_BASE;
+	pd->use_dai_pcm_id = true;
+	pd->topology_name_prefix = "sof";
+
+	 /* increment module refcount when a pcm is opened */
+	pd->module_get_upon_open = 1;
+}
 
 static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 {
@@ -119,9 +179,9 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 	struct snd_sof_dev *sdev = cdev->sdev;
 	struct snd_sof_pdata *sof_pdata = sdev->pdata;
 	const struct sof_dev_desc *desc = sof_pdata->desc;
-	struct snd_soc_acpi_mach *mach;
-	//struct sof_nocodec_client_data *nocodec_client_data;
 	struct snd_soc_card *card = &sof_nocodec_card;
+	//struct snd_soc_acpi_mach *mach;
+	//struct sof_nocodec_client_data *nocodec_client_data;
 	int ret;
 
 	dev_dbg(&vdev->dev, "%s: nocodec client start!\n", __func__);
@@ -133,32 +193,22 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 	 */
 	pm_runtime_get_noresume(&vdev->dev);
 
-#if 1
-	// TODO: create client API to register component
-	// Fred: can be used devm API directly???
-	if ((!gcmpnt_drv) || (!gdai_drv)) {
-		dev_err(&vdev->dev, "Either component or dai driver is NULL\n");
-		return -1;
-	}
-	// HACK: override ignore_machine
-	if (sdev->plat_drv) {
-		dev_dbg(&vdev->dev, "HACK: override ignore_machine\n");
-        	sdev->plat_drv.ignore_machine = "sof-nocodec-client.2";
-	}
-	dev_dbg(&vdev->dev, "%s: register nocodec component driver and dai\n", __func__);
-	/* register nocodec component driver and dai */
-	ret = devm_snd_soc_register_component(&vdev->dev,
-					      gcmpnt_drv,
-					      gdai_drv,
-					      gnum_dai);
-	if (ret < 0) {
-		dev_err(&vdev->dev,
-			"error: failed to register SOF probes DAI driver %d\n",
-			ret);
-		return ret;
-	}
-#endif
+	/* set up platform component driver for nocodec*/
+	dev_dbg(&vdev->dev, "%s: set up platform component driver for nocodec\n", __func__);
+	snd_sof_nocodec_platform_drv(vdev);
 
+	/* now register audio DSP platform driver and dai */
+	dev_dbg(&vdev->dev, "%s: now register audio DSP platform driver and dai\n", __func__);
+	dev_dbg(&vdev->dev, "%s: plat_drv=%p drv=%p num_drv=%d\n", __func__, &sdev->plat_drv,
+					      sof_ops(sdev)->drv,
+					      sof_ops(sdev)->num_drv);
+	ret = devm_snd_soc_register_component(sdev->dev, &sdev->plat_drv,
+					      sof_ops(sdev)->drv,
+					      sof_ops(sdev)->num_drv);
+	if (ret < 0) {
+		dev_err(&vdev->dev, "%s: error: failed to register SOF probes DAI driver %d\n",
+			__func__, ret);
+	}	return ret;
 
 //TODO:
 // Current DEV name is sof-nocodec-client.2
@@ -166,11 +216,13 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 //----------------
 	dev_dbg(&vdev->dev, "%s: to setup DAI links\n", __func__);
 	ret = sof_nocodec_setup(vdev, desc->ops);
-	if (ret < 0)
+	if (ret < 0) {
+		dev_err(&vdev->dev, "%s: sof_nocodec_setup failed, %d\n", __func__, ret);
 		return ret;
+	}
 //----------------
 
-	// Register nocodec sound card
+	/* Register nocodec sound card */
 	dev_dbg(&vdev->dev, "%s: to register_card\n", __func__);
 	card->dev = &vdev->dev;
 

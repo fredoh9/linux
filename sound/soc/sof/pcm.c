@@ -116,7 +116,7 @@ static int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream,
 	return ret;
 }
 
-static int sof_pcm_hw_params(struct snd_soc_component *component,
+int sof_pcm_hw_params(struct snd_soc_component *component,
 			     struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
@@ -233,8 +233,9 @@ static int sof_pcm_hw_params(struct snd_soc_component *component,
 
 	return ret;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_hw_params);
 
-static int sof_pcm_hw_free(struct snd_soc_component *component,
+int sof_pcm_hw_free(struct snd_soc_component *component,
 			   struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -269,8 +270,9 @@ static int sof_pcm_hw_free(struct snd_soc_component *component,
 
 	return err;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_hw_free);
 
-static int sof_pcm_prepare(struct snd_soc_component *component,
+int sof_pcm_prepare(struct snd_soc_component *component,
 			   struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -302,12 +304,13 @@ static int sof_pcm_prepare(struct snd_soc_component *component,
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_prepare);
 
 /*
  * FE dai link trigger actions are always executed in non-atomic context because
  * they involve IPC's.
  */
-static int sof_pcm_trigger(struct snd_soc_component *component,
+int sof_pcm_trigger(struct snd_soc_component *component,
 			   struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -419,8 +422,9 @@ static int sof_pcm_trigger(struct snd_soc_component *component,
 
 	return ret;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_trigger);
 
-static snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
+snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
 					 struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -452,8 +456,9 @@ static snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
 
 	return host;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_pointer);
 
-static int sof_pcm_open(struct snd_soc_component *component,
+int sof_pcm_open(struct snd_soc_component *component,
 			struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -524,8 +529,9 @@ static int sof_pcm_open(struct snd_soc_component *component,
 
 	return ret;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_open);
 
-static int sof_pcm_close(struct snd_soc_component *component,
+int sof_pcm_close(struct snd_soc_component *component,
 			 struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -556,13 +562,14 @@ static int sof_pcm_close(struct snd_soc_component *component,
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_close);
 
 /*
  * Pre-allocate playback/capture audio buffer pages.
  * no need to explicitly release memory preallocated by sof_pcm_new in pcm_free
  * snd_pcm_lib_preallocate_free_for_all() is called by the core.
  */
-static int sof_pcm_new(struct snd_soc_component *component,
+int sof_pcm_new(struct snd_soc_component *component,
 		       struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
@@ -625,9 +632,10 @@ capture:
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_new);
 
 /* fixup the BE DAI link to match any values from topology */
-static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
+int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 				  struct snd_pcm_hw_params *params)
 {
 	struct snd_interval *rate = hw_param_interval(params,
@@ -731,8 +739,9 @@ static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_dai_link_fixup);
 
-static int sof_pcm_probe(struct snd_soc_component *component)
+int sof_pcm_probe(struct snd_soc_component *component)
 {
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
 	struct snd_sof_pdata *plat_data = sdev->pdata;
@@ -758,12 +767,14 @@ static int sof_pcm_probe(struct snd_soc_component *component)
 
 	return ret;
 }
+EXPORT_SYMBOL_GPL(sof_pcm_probe);
 
-static void sof_pcm_remove(struct snd_soc_component *component)
+void sof_pcm_remove(struct snd_soc_component *component)
 {
 	/* remove topology */
 	snd_soc_tplg_component_remove(component, SND_SOC_TPLG_INDEX_ALL);
 }
+EXPORT_SYMBOL_GPL(sof_pcm_remove);
 
 void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 {
