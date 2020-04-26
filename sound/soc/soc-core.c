@@ -1193,6 +1193,7 @@ static int soc_probe_component(struct snd_soc_card *card,
 	int probed = 0;
 	int ret;
 
+	//dev_dbg(component->dev,"%s: component=%p component->dev=%p\n", __func__, component, component->dev);
 	if (!strcmp(component->name, "snd-soc-dummy"))
 		return 0;
 
@@ -1877,14 +1878,17 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	snd_soc_dapm_init(&card->dapm, card, NULL);
 
 	/* check whether any platform is ignore machine FE and using topology */
+	dev_dbg(card->dev, "%s: call soc_check_tplg_fes()\n", __func__);
 	soc_check_tplg_fes(card);
 
 	/* bind aux_devs too */
+	dev_dbg(card->dev, "%s: call soc_check_tplg_fes()\n", __func__);
 	ret = soc_bind_aux_dev(card);
 	if (ret < 0)
 		goto probe_end;
 
 	/* add predefined DAI links to the list */
+	dev_dbg(card->dev, "%s: call add predefined DAI links to the list()\n", __func__);
 	card->num_rtd = 0;
 	for_each_card_prelinks(card, i, dai_link) {
 		ret = snd_soc_add_pcm_runtime(card, dai_link);
@@ -1893,6 +1897,7 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	}
 
 	/* card bind complete so register a sound card */
+	dev_dbg(card->dev, "%s: call snd_card_new()\n", __func__);
 	ret = snd_card_new(card->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
 			card->owner, 0, &card->snd_card);
 	if (ret < 0) {
@@ -1902,9 +1907,12 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 		goto probe_end;
 	}
 
+	dev_dbg(card->dev, "%s: call soc_init_card_debugfs()\n", __func__);
 	soc_init_card_debugfs(card);
 
 	soc_resume_init(card);
+
+	dev_dbg(card->dev, "%s: call snd_soc_dapm_new_controls()\n", __func__);
 
 	ret = snd_soc_dapm_new_controls(&card->dapm, card->dapm_widgets,
 					card->num_dapm_widgets);
@@ -1918,6 +1926,7 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 
 	/* initialise the sound card only once */
 	if (card->probe) {
+		dev_dbg(card->dev, "%s: call ONLY once card->probe()\n", __func__);
 		ret = card->probe(card);
 		if (ret < 0)
 			goto probe_end;
@@ -1925,6 +1934,7 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	}
 
 	/* probe all components used by DAI links on this card */
+	dev_dbg(card->dev, "%s: call soc_probe_link_components()\n", __func__);
 	ret = soc_probe_link_components(card);
 	if (ret < 0) {
 		dev_err(card->dev,
@@ -1933,6 +1943,7 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	}
 
 	/* probe auxiliary components */
+	dev_dbg(card->dev, "%s: call soc_probe_aux_devices()\n", __func__);
 	ret = soc_probe_aux_devices(card);
 	if (ret < 0) {
 		dev_err(card->dev,
@@ -1941,6 +1952,7 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	}
 
 	/* probe all DAI links on this card */
+	dev_dbg(card->dev, "%s: call soc_probe_link_dais()\n", __func__);
 	ret = soc_probe_link_dais(card);
 	if (ret < 0) {
 		dev_err(card->dev,
@@ -1948,11 +1960,14 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 		goto probe_end;
 	}
 
+	dev_dbg(card->dev, "%s: init each card soc_init_pcm_runtime()\n", __func__);
 	for_each_card_rtds(card, rtd) {
 		ret = soc_init_pcm_runtime(card, rtd);
 		if (ret < 0)
 			goto probe_end;
 	}
+
+	dev_dbg(card->dev, "%s: connect dai/dai link widgets\n", __func__);
 
 	snd_soc_dapm_link_dai_widgets(card);
 	snd_soc_dapm_connect_dai_link_widgets(card);
@@ -2268,8 +2283,9 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	if (!card->name || !card->dev)
 		return -EINVAL;
 
-	dev_dbg(card->dev, "%s: start\n", __func__);
-	dev_set_drvdata(card->dev, card);
+	dev_dbg(card->dev, "%s: start, HACK! removed dev_set_devdata()\n", __func__);
+	dev_dbg(card->dev, "card=%p card->dev=%p", card, card->dev);
+	//dev_set_drvdata(card->dev, card);
 
 	INIT_LIST_HEAD(&card->widgets);
 	INIT_LIST_HEAD(&card->paths);

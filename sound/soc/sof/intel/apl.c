@@ -41,6 +41,11 @@ static void apl_register_clients(struct snd_sof_dev *sdev)
 	sof_client_dev_register(sdev, "sof-ipc-test");
 	sof_client_dev_register(sdev, "sof-ipc-test");
 #endif
+
+// TODO: Need to define Kconfig for this client
+//#if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_NOCODEC_CLIENT)
+	sof_client_dev_register(sdev, "sof-nocodec-client");
+//#endif
 }
 #else
 static void apl_register_clients(struct snd_sof_dev *sdev) {}

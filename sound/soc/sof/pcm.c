@@ -739,8 +739,12 @@ static int sof_pcm_probe(struct snd_soc_component *component)
 	const char *tplg_filename;
 	int ret;
 
+	printk("sof_pcm_probe start! sdev=%p pdata=%p component=%p\n", sdev, sdev->pdata, component);
+	//dev_dbg(component->dev, "%s: tplg_filename=%s \n", __func__, plat_data->tplg_filename);
+
 	/* load the default topology */
 	sdev->component = component;
+	printk("sof_pcm_probe start!\n");
 
 	tplg_filename = devm_kasprintf(sdev->dev, GFP_KERNEL,
 				       "%s/%s",
@@ -772,7 +776,7 @@ void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 	const char *drv_name;
 
 	drv_name = plat_data->machine->drv_name;
-	dev_dbg(sdev->dev, "%s: drv_name=%s \n", __func__, drv_name);
+	dev_dbg(sdev->dev, "%s: drv_name=%s sdev=%p pdata=%p\n", __func__, drv_name, sdev, plat_data);
 
 	pd->name = "sof-audio-component";
 	pd->probe = sof_pcm_probe;
