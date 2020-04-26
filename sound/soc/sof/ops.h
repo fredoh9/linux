@@ -470,6 +470,7 @@ snd_sof_set_mach_params(const struct snd_soc_acpi_mach *mach,
 			struct device *dev)
 {
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+	dev_dbg(sdev->dev, "%s: call set_mach_params, dev_name=%s\n", __func__, dev_name(dev));
 
 	if (sof_ops(sdev) && sof_ops(sdev)->set_mach_params)
 		sof_ops(sdev)->set_mach_params(mach, dev);
@@ -479,6 +480,8 @@ snd_sof_set_mach_params(const struct snd_soc_acpi_mach *mach,
 static inline void
 snd_sof_register_clients(struct snd_sof_dev *sdev)
 {
+	dev_dbg(sdev->dev, "%s: register_client()\n", __func__);
+
 	if (sof_ops(sdev) && sof_ops(sdev)->register_clients)
 		sof_ops(sdev)->register_clients(sdev);
 }
@@ -487,6 +490,8 @@ static inline void
 snd_sof_unregister_clients(struct snd_sof_dev *sdev)
 {
 	struct sof_client_dev *cdev, *_cdev;
+
+	dev_dbg(sdev->dev, "%s: sof_client_dev_unregister()\n", __func__);
 
 	/* unregister client devices */
 	mutex_lock(&sdev->client_mutex);

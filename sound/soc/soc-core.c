@@ -16,6 +16,7 @@
 //   o More testing with other codecs/machines.
 //   o Add more codecs and platforms to ensure good API coverage.
 //   o Support TDM on PCM and I2S
+#define DEBUG
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -264,6 +265,8 @@ static int snd_soc_rtd_add_component(struct snd_soc_pcm_runtime *rtd,
 	struct snd_soc_component *comp;
 	int i;
 
+	dev_dbg(rtd->dev, "%s: start\n", __func__);
+
 	for_each_rtd_components(rtd, i, comp) {
 		/* already connected */
 		if (comp == component)
@@ -440,6 +443,8 @@ static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
 	dev = kzalloc(sizeof(struct device), GFP_KERNEL);
 	if (!dev)
 		return NULL;
+
+	dev_dbg(card->dev, "%s: start\n", __func__);
 
 	dev->parent	= card->dev;
 	dev->release	= soc_release_rtd_dev;
@@ -978,6 +983,8 @@ int snd_soc_add_pcm_runtime(struct snd_soc_card *card,
 	struct snd_soc_component *component;
 	int i, ret;
 
+	dev_dbg(card->dev, "%s: start\n", __func__);
+
 	lockdep_assert_held(&client_mutex);
 
 	/*
@@ -999,10 +1006,11 @@ int snd_soc_add_pcm_runtime(struct snd_soc_card *card,
 	if (!rtd)
 		return -ENOMEM;
 
+	dev_dbg(card->dev, "ASoC: asoc_rtd_to_cpu\n");
 	for_each_link_cpus(dai_link, i, cpu) {
 		asoc_rtd_to_cpu(rtd, i) = snd_soc_find_dai(cpu);
 		if (!asoc_rtd_to_cpu(rtd, i)) {
-			dev_info(card->dev, "ASoC: CPU DAI %s not registered\n",
+			dev_dbg(card->dev, "ASoC: CPU DAI %s not registered\n",
 				 cpu->dai_name);
 			goto _err_defer;
 		}
@@ -1010,10 +1018,11 @@ int snd_soc_add_pcm_runtime(struct snd_soc_card *card,
 	}
 
 	/* Find CODEC from registered CODECs */
+	dev_dbg(card->dev, "ASoC: asoc_rtd_to_codec\n");
 	for_each_link_codecs(dai_link, i, codec) {
 		asoc_rtd_to_codec(rtd, i) = snd_soc_find_dai(codec);
 		if (!asoc_rtd_to_codec(rtd, i)) {
-			dev_info(card->dev, "ASoC: CODEC DAI %s not registered\n",
+			dev_dbg(card->dev, "ASoC: CODEC DAI %s not registered\n",
 				 codec->dai_name);
 			goto _err_defer;
 		}
@@ -1022,6 +1031,7 @@ int snd_soc_add_pcm_runtime(struct snd_soc_card *card,
 	}
 
 	/* Find PLATFORM from registered PLATFORMs */
+	dev_dbg(card->dev, "ASoC: Find PLATFORM from registered PLATFORMs\n");
 	for_each_link_platforms(dai_link, i, platform) {
 		for_each_component(component) {
 			if (!snd_soc_is_matching_component(platform, component))
@@ -1688,30 +1698,36 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 	struct snd_soc_dai_link *dai_link;
 	int i;
 
+	dev_dbg(card->dev, "%s: loop for each component\n", __func__);
+
 	for_each_component(component) {
 
 		/* does this component override BEs ? */
-		if (!component->driver->ignore_machine)
+		if (!component->driver->ignore_machine) {
+			dev_err(card->dev, "1. ignore_machine continue\n");
 			continue;
+		}
 
 		/* for this machine ? */
 		if (!strcmp(component->driver->ignore_machine,
 			    card->dev->driver->name))
 			goto match;
 		if (strcmp(component->driver->ignore_machine,
-			   dev_name(card->dev)))
+			   dev_name(card->dev))) {
+			dev_err(card->dev, "2. ignore_machine [%s] [%s] continue\n", component->driver->ignore_machine, dev_name(card->dev));
 			continue;
+		}
 match:
 		/* machine matches, so override the rtd data */
 		for_each_card_prelinks(card, i, dai_link) {
-
+			dev_dbg(card->dev, "%s: loop for prelinks\n", __func__);
 			/* ignore this FE */
 			if (dai_link->dynamic) {
 				dai_link->ignore = true;
 				continue;
 			}
 
-			dev_info(card->dev, "info: override BE DAI link %s\n",
+			dev_dbg(card->dev, "info: override BE DAI link %s\n",
 				 card->dai_link[i].name);
 
 			/* override platform component */
@@ -1734,8 +1750,10 @@ match:
 			 * most BE links don't set stream name, so set it to
 			 * dai link name if it's NULL to help bind widgets.
 			 */
-			if (!dai_link->stream_name)
+			if (!dai_link->stream_name) {
+				dev_err(card->dev, "Set BE stream_name with name, %s", dai_link->name);
 				dai_link->stream_name = dai_link->name;
+			}
 		}
 
 		/* Inform userspace we are using alternate topology */
@@ -1850,6 +1868,8 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
 	struct snd_soc_component *component;
 	struct snd_soc_dai_link *dai_link;
 	int ret, i, card_probed = 0;
+
+	dev_err(card->dev, "%s: start\n", __func__);
 
 	mutex_lock(&client_mutex);
 	mutex_lock_nested(&card->mutex, SND_SOC_CARD_CLASS_INIT);
@@ -2248,6 +2268,7 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	if (!card->name || !card->dev)
 		return -EINVAL;
 
+	dev_dbg(card->dev, "%s: start\n", __func__);
 	dev_set_drvdata(card->dev, card);
 
 	INIT_LIST_HEAD(&card->widgets);
@@ -2445,6 +2466,7 @@ static int snd_soc_register_dais(struct snd_soc_component *component,
 	unsigned int i;
 	int ret;
 
+	dev_dbg(component->dev, "%s: start\n", __func__);
 	for (i = 0; i < count; i++) {
 		dai = snd_soc_register_dai(component, dai_drv + i, count == 1 &&
 				  !component->driver->non_legacy_dai_naming);
@@ -2457,6 +2479,7 @@ static int snd_soc_register_dais(struct snd_soc_component *component,
 	return 0;
 
 err:
+	dev_dbg(component->dev, "%s: error! unregister DAIs\n", __func__);
 	snd_soc_unregister_dais(component);
 
 	return ret;
@@ -2470,6 +2493,7 @@ static int snd_soc_component_initialize(struct snd_soc_component *component,
 	INIT_LIST_HEAD(&component->card_list);
 	mutex_init(&component->io_mutex);
 
+	dev_dbg(dev, "%s: start\n", __func__);
 	component->name = fmt_single_name(dev, &component->id);
 	if (!component->name) {
 		dev_err(dev, "ASoC: Failed to allocate name\n");
@@ -2597,6 +2621,7 @@ int snd_soc_add_component(struct device *dev,
 	int ret;
 	int i;
 
+	dev_dbg(dev, "%s: start\n", __func__);
 	mutex_lock(&client_mutex);
 
 	ret = snd_soc_component_initialize(component, component_driver, dev);
@@ -2647,6 +2672,7 @@ int snd_soc_register_component(struct device *dev,
 {
 	struct snd_soc_component *component;
 
+	dev_dbg(dev, "%s: start\n", __func__);
 	component = devm_kzalloc(dev, sizeof(*component), GFP_KERNEL);
 	if (!component)
 		return -ENOMEM;

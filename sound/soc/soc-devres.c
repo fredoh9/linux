@@ -3,6 +3,7 @@
 // soc-devres.c  --  ALSA SoC Audio Layer devres functions
 //
 // Copyright (C) 2013 Linaro Ltd
+#define DEBUG
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -31,15 +32,18 @@ int devm_snd_soc_register_component(struct device *dev,
 	struct device **ptr;
 	int ret;
 
+	dev_dbg(dev, "%s: start num_dai=%d\n", __func__, num_dai);
 	ptr = devres_alloc(devm_component_release, sizeof(*ptr), GFP_KERNEL);
 	if (!ptr)
 		return -ENOMEM;
 
 	ret = snd_soc_register_component(dev, cmpnt_drv, dai_drv, num_dai);
 	if (ret == 0) {
+		dev_dbg(dev, "%s: good case: devres_add\n", __func__);
 		*ptr = dev;
 		devres_add(dev, ptr);
 	} else {
+		dev_dbg(dev, "%s: error case: devres_free\n", __func__);
 		devres_free(ptr);
 	}
 
@@ -65,15 +69,18 @@ int devm_snd_soc_register_card(struct device *dev, struct snd_soc_card *card)
 	struct snd_soc_card **ptr;
 	int ret;
 
+	dev_dbg(dev, "%s: start card_name=%s\n", __func__, card->name);
 	ptr = devres_alloc(devm_card_release, sizeof(*ptr), GFP_KERNEL);
 	if (!ptr)
 		return -ENOMEM;
 
 	ret = snd_soc_register_card(card);
 	if (ret == 0) {
+		dev_dbg(dev, "%s: good case: devres_add\n", __func__);
 		*ptr = card;
 		devres_add(dev, ptr);
 	} else {
+		dev_dbg(dev, "%s: error case: devres_free\n", __func__);
 		devres_free(ptr);
 	}
 

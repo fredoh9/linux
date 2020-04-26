@@ -772,6 +772,7 @@ void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 	const char *drv_name;
 
 	drv_name = plat_data->machine->drv_name;
+	dev_dbg(sdev->dev, "%s: drv_name=%s \n", __func__, drv_name);
 
 	pd->name = "sof-audio-component";
 	pd->probe = sof_pcm_probe;

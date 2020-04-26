@@ -44,6 +44,8 @@ static int sof_debug_ipc_flood_test(struct sof_client_dev *cdev,
 	int i = 0;
 	int ret;
 
+	dev_dbg(dev, "%s: ipc test send TX message\n", __func__);
+
 	/* configure test IPC */
 	hdr.cmd = SOF_IPC_GLB_TEST_MSG | SOF_IPC_TEST_IPC_FLOOD;
 	hdr.size = sizeof(hdr);
@@ -229,6 +231,8 @@ static int sof_ipc_test_probe(struct virtbus_device *vdev)
 	struct sof_client_dev *cdev = virtbus_dev_to_sof_client_dev(vdev);
 	struct sof_ipc_client_data *ipc_client_data;
 
+	dev_dbg(&vdev->dev, "%s: ipc test client allocation\n", __func__);
+
 	/*
 	 * The virtbus device has a usage count of 0 even before runtime PM
 	 * is enabled. So, increment the usage count to let the device
@@ -292,11 +296,15 @@ static int sof_ipc_test_cleanup(struct virtbus_device *vdev)
 
 static int sof_ipc_test_remove(struct virtbus_device *vdev)
 {
+	dev_dbg(&vdev->dev, "%s: call cleanup\n", __func__);
+
 	return sof_ipc_test_cleanup(vdev);
 }
 
 static void sof_ipc_test_shutdown(struct virtbus_device *vdev)
 {
+	dev_dbg(&vdev->dev, "%s: call cleanup\n", __func__);
+
 	sof_ipc_test_cleanup(vdev);
 }
 

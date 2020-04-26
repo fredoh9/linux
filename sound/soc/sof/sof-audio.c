@@ -405,6 +405,8 @@ int sof_machine_check(struct snd_sof_dev *sdev)
 	struct snd_soc_acpi_mach *mach;
 	int ret;
 
+	dev_dbg(sdev->dev, "%s: codec or nocodec mode\n", __func__);
+	
 	/* force nocodec mode */
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_FORCE_NOCODEC_MODE)
 		dev_warn(sdev->dev, "Force to use nocodec mode\n");
@@ -412,6 +414,7 @@ int sof_machine_check(struct snd_sof_dev *sdev)
 #endif
 
 	/* find machine */
+	dev_dbg(sdev->dev, "%s: codec mode!, find machine\n", __func__);
 	snd_sof_machine_select(sdev);
 	if (sof_pdata->machine) {
 		snd_sof_set_mach_params(sof_pdata->machine, sdev->dev);
@@ -452,6 +455,8 @@ int sof_machine_register(struct snd_sof_dev *sdev, void *pdata)
 	const void *mach;
 	int size;
 
+	dev_dbg(sdev->dev, "%s: register machine driver, pass machine info as pdata\n", __func__);
+
 	drv_name = plat_data->machine->drv_name;
 	mach = (const void *)plat_data->machine;
 	size = sizeof(*plat_data->machine);
@@ -473,6 +478,8 @@ EXPORT_SYMBOL(sof_machine_register);
 void sof_machine_unregister(struct snd_sof_dev *sdev, void *pdata)
 {
 	struct snd_sof_pdata *plat_data = (struct snd_sof_pdata *)pdata;
+
+	dev_dbg(sdev->dev, "%s: EVER this called?\n", __func__);
 
 	if (!IS_ERR_OR_NULL(plat_data->pdev_mach))
 		platform_device_unregister(plat_data->pdev_mach);
