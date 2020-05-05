@@ -71,6 +71,11 @@ int sof_client_ipc_tx_message(struct sof_client_dev *cdev, u32 header,
 
 struct dentry *sof_client_get_debugfs_root(struct sof_client_dev *cdev);
 
+struct snd_soc_component_driver
+	*sof_client_get_platform_drv(struct sof_client_dev *cdev);
+struct snd_soc_dai_driver *sof_client_get_dai_drv(struct sof_client_dev *cdev);
+int sof_client_get_num_dai_drv(struct sof_client_dev *cdev);
+
 /**
  * module_sof_client_driver() - Helper macro for registering an SOF Client
  * driver
