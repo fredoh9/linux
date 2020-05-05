@@ -42,7 +42,14 @@ static int sof_pcm_dsp_params(struct snd_sof_pcm *spcm, struct snd_pcm_substream
 			      const struct sof_ipc_pcm_params_reply *reply)
 {
 	struct snd_soc_component *scomp = spcm->scomp;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
+
 
 	/* validate offset */
 	int ret = snd_sof_ipc_pcm_params(sdev, substream, reply);
@@ -122,7 +129,13 @@ static int sof_pcm_hw_params(struct snd_soc_component *component,
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pcm *spcm;
 	struct sof_ipc_pcm_params pcm;
 	struct sof_ipc_pcm_params_reply ipc_params_reply;
@@ -238,7 +251,13 @@ static int sof_pcm_hw_free(struct snd_soc_component *component,
 			   struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pcm *spcm;
 	int ret, err = 0;
 
@@ -311,7 +330,13 @@ static int sof_pcm_trigger(struct snd_soc_component *component,
 			   struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pcm *spcm;
 	struct sof_ipc_stream stream;
 	struct sof_ipc_reply reply;
@@ -424,7 +449,13 @@ static snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
 					 struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pcm *spcm;
 	snd_pcm_uframes_t host, dai;
 
@@ -458,7 +489,13 @@ static int sof_pcm_open(struct snd_soc_component *component,
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	const struct snd_sof_dsp_ops *ops = sof_ops(sdev);
 	struct snd_sof_pcm *spcm;
 	struct snd_soc_tplg_stream_caps *caps;
@@ -529,7 +566,13 @@ static int sof_pcm_close(struct snd_soc_component *component,
 			 struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+		struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+		struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+		struct snd_sof_dev *sdev = cdev->sdev;
+#else
+		struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pcm *spcm;
 	int err;
 
@@ -565,7 +608,13 @@ static int sof_pcm_close(struct snd_soc_component *component,
 static int sof_pcm_new(struct snd_soc_component *component,
 		       struct snd_soc_pcm_runtime *rtd)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pcm *spcm;
 	struct snd_pcm *pcm = rtd->pcm;
 	struct snd_soc_tplg_stream_caps *caps;
@@ -734,13 +783,19 @@ static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 
 static int sof_pcm_probe(struct snd_soc_component *component)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev, card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
+#endif
 	struct snd_sof_pdata *plat_data = sdev->pdata;
 	const char *tplg_filename;
 	int ret;
 
 	printk("sof_pcm_probe start! sdev=%p pdata=%p component=%p\n", sdev, sdev->pdata, component);
-	//dev_dbg(component->dev, "%s: tplg_filename=%s \n", __func__, plat_data->tplg_filename);
+	dev_dbg(component->dev, "%s: tplg_filename=%s \n", __func__, plat_data->tplg_filename);
 
 	/* load the default topology */
 	sdev->component = component;

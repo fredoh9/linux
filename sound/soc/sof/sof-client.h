@@ -10,6 +10,7 @@
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/virtual_bus.h>
+#include <sound/soc.h>
 
 #define SOF_CLIENT_PROBE_TIMEOUT_MS 2000
 
@@ -26,6 +27,7 @@ struct sof_client_dev {
 	struct snd_sof_dev *sdev;
 	struct list_head list;	/* item in SOF core client drv list */
 	struct completion probe_complete;
+	struct snd_soc_card card;
 	void *data;
 };
 

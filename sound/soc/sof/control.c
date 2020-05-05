@@ -105,12 +105,16 @@ int snd_sof_volume_put(struct snd_kcontrol *kcontrol,
 	}
 
 	/* notify DSP of mixer updates */
+	/* Fred: commented, get crashed
+	In this context, does snd_soc_component_get_drvdata() return sdev? */
+#if 0
 	if (pm_runtime_active(scomp->dev))
 		snd_sof_ipc_set_get_comp_data(scontrol,
 					      SOF_IPC_COMP_SET_VALUE,
 					      SOF_CTRL_TYPE_VALUE_CHAN_GET,
 					      SOF_CTRL_CMD_VOLUME,
 					      true);
+#endif
 	return change;
 }
 

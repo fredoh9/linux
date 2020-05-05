@@ -20,9 +20,11 @@
 
 #define SOF_NOCODEC_CLIENT_SUSPEND_DELAY_MS 3000
 
+#if 0
 static struct snd_soc_card sof_nocodec_card = {
 	.name = "nocodec", /* the sof- prefix is added by the core */
 };
+#endif
 
 static int sof_nocodec_bes_setup(struct virtbus_device *vdev,
 				 const struct snd_sof_dsp_ops *ops,
@@ -34,6 +36,9 @@ static int sof_nocodec_bes_setup(struct virtbus_device *vdev,
 
 	if (!ops || !links || !card)
 		return -EINVAL;
+
+	// set sound card name
+	card->name = devm_kasprintf(&vdev->dev, GFP_KERNEL, "nocodec");
 
 	dev_dbg(&vdev->dev, "%s: BE dai links %d dev_name=%s\n", __func__, link_num, dev_name(&vdev->dev));
 
@@ -80,7 +85,7 @@ static int sof_nocodec_setup(struct virtbus_device *vdev,
 		      const struct snd_sof_dsp_ops *ops)
 {
 	struct snd_soc_dai_link *links;
-	//struct sof_client_dev *cdev = virtbus_dev_to_sof_client_dev(vdev);
+	struct sof_client_dev *cdev = virtbus_dev_to_sof_client_dev(vdev);
 
 	dev_dbg(&vdev->dev, "%s: (internal function call) allocate links\n", __func__);
 
@@ -91,7 +96,7 @@ static int sof_nocodec_setup(struct virtbus_device *vdev,
 		return -ENOMEM;
 
 	return sof_nocodec_bes_setup(vdev, ops, links, ops->num_drv,
-				     &sof_nocodec_card);
+				     &cdev->card);
 }
 
 // Fred: static const is required?
@@ -104,8 +109,7 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 {
 	struct sof_client_dev *cdev = virtbus_dev_to_sof_client_dev(vdev);
 	const struct sof_dev_desc *desc;
-	struct snd_soc_card *card = &sof_nocodec_card;
-	//struct sof_nocodec_client_data *nocodec_client_data;
+	struct snd_soc_card *card = &cdev->card;
 	struct snd_soc_component_driver *plat_drv;
 	struct snd_soc_dai_driver *dai_drv;
 	int num_dai_drv;
@@ -153,7 +157,7 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 	/* Register nocodec sound card */
 	dev_dbg(&vdev->dev, "%s: to register_card\n", __func__);
 	card->dev = &vdev->dev;
-	dev_set_drvdata(&vdev->dev, cdev->sdev); // HACK!!!, card expect sdev
+	//dev_set_drvdata(&vdev->dev, cdev->sdev); // HACK!!!, card expect sdev
 
 	ret = devm_snd_soc_register_card(&vdev->dev, card);
 	if (ret < 0) {
@@ -165,7 +169,7 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 	 * Override the drvdata for the device set by the core to point to the
 	 * client device pointer. platform drv is expecting sdev.
 	 */
-	//dev_set_drvdata(&vdev->dev, cdev->sdev);
+	dev_set_drvdata(&vdev->dev, cdev->sdev);
 
 	/* enable runtime PM */
 	pm_runtime_set_autosuspend_delay(&vdev->dev,

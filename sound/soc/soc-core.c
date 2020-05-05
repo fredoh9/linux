@@ -2283,9 +2283,8 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	if (!card->name || !card->dev)
 		return -EINVAL;
 
-	dev_dbg(card->dev, "%s: start, HACK! removed dev_set_devdata()\n", __func__);
 	dev_dbg(card->dev, "card=%p card->dev=%p", card, card->dev);
-	//dev_set_drvdata(card->dev, card);
+	dev_set_drvdata(card->dev, card);
 
 	INIT_LIST_HEAD(&card->widgets);
 	INIT_LIST_HEAD(&card->paths);
