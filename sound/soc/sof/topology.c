@@ -1693,14 +1693,6 @@ int sof_load_pipeline_ipc(struct device *dev,
 #endif
 	int ret = sof_core_enable(sdev, pipeline->core);
 	struct sof_ipc_pm_core_config pm_core_config;
-	int ret;
-
-	ret = sof_ipc_tx_message(sdev->ipc, pipeline->hdr.cmd, pipeline,
-				 sizeof(*pipeline), r, sizeof(*r));
-	if (ret < 0) {
-		dev_err(dev, "error: load pipeline ipc failure\n");
-		return ret;
-	}
 
 	if (ret < 0)
 		return ret;

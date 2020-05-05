@@ -795,6 +795,10 @@ static void byt_register_clients(struct snd_sof_dev *sdev)
 	sof_client_dev_register(sdev, "sof-ipc-test");
 	sof_client_dev_register(sdev, "sof-ipc-test");
 #endif
+
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	sof_client_dev_register(sdev, "sof-nocodec-client");
+#endif
 }
 #else
 static void byt_register_clients(struct snd_sof_dev *sdev) {}

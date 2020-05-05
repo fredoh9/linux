@@ -72,6 +72,8 @@ int sof_client_ipc_tx_message(struct sof_client_dev *cdev, u32 header,
 struct dentry *sof_client_get_debugfs_root(struct sof_client_dev *cdev);
 
 /* SOF client host PCM ops */
+#define SOF_CLIENT_BE_PCM_BASE 16
+
 int sof_client_pcm_hw_params(struct snd_soc_component *component,
 			     struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params);

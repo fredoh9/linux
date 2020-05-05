@@ -157,8 +157,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 		goto dbg_err;
 	}
 
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	/* set up platform component driver */
 	snd_sof_new_platform_drv(sdev);
+#endif
 
 	/* register any debug/trace capabilities */
 	ret = snd_sof_dbg_init(sdev);
@@ -219,7 +221,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 
 	/* hereafter all FW boot flows are for PM reasons */
 	sdev->first_boot = false;
-
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	/* now register audio DSP platform driver and dai */
 	ret = devm_snd_soc_register_component(sdev->dev, &sdev->plat_drv,
 					      sof_ops(sdev)->drv,
@@ -233,6 +235,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	ret = snd_sof_machine_register(sdev, plat_data);
 	if (ret < 0)
 		goto fw_trace_err;
+#endif
 
 	/*
 	 * Some platforms in SOF, ex: BYT, may not have their platform PM
@@ -253,8 +256,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 
 	return 0;
 
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 fw_trace_err:
 	snd_sof_free_trace(sdev);
+#endif
 fw_run_err:
 	snd_sof_fw_unload(sdev);
 fw_load_err:

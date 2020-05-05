@@ -14,7 +14,7 @@ snd-sof-ipc-test-objs := sof-ipc-test-client.o
 snd-sof-nocodec-objs := nocodec.o
 
 obj-$(CONFIG_SND_SOC_SOF) += snd-sof.o
-obj-$(CONFIG_SND_SOC_SOF_NOCODEC) += snd-sof-nocodec.o
+obj-$(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT) += snd-sof-nocodec.o
 
 obj-$(CONFIG_SND_SOC_SOF_ACPI) += snd-sof-acpi.o
 obj-$(CONFIG_SND_SOC_SOF_OF) += snd-sof-of.o
