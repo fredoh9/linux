@@ -17,6 +17,7 @@
 #include <linux/virtual_bus.h>
 #include "sof-client.h"
 #include "sof-priv.h"
+#include "ops.h"
 
 static void sof_client_virtdev_release(struct virtbus_device *vdev)
 {
@@ -86,6 +87,29 @@ struct dentry *sof_client_get_debugfs_root(struct sof_client_dev *cdev)
 	return cdev->sdev->debugfs_root;
 }
 EXPORT_SYMBOL_NS_GPL(sof_client_get_debugfs_root, SND_SOC_SOF_CLIENT);
+
+struct snd_soc_component_driver
+	*sof_client_get_platform_drv(struct sof_client_dev *cdev)
+{
+	return &cdev->sdev->plat_drv;
+}
+EXPORT_SYMBOL_NS_GPL(sof_client_get_platform_drv, SND_SOC_SOF_CLIENT);
+
+struct snd_soc_dai_driver *sof_client_get_dai_drv(struct sof_client_dev *cdev)
+{
+	struct snd_sof_dev *sdev = cdev->sdev;
+
+	return sof_ops(sdev)->drv;
+}
+EXPORT_SYMBOL_NS_GPL(sof_client_get_dai_drv, SND_SOC_SOF_CLIENT);
+
+int sof_client_get_num_dai_drv(struct sof_client_dev *cdev)
+{
+	struct snd_sof_dev *sdev = cdev->sdev;
+
+	return sof_ops(sdev)->num_drv;
+}
+EXPORT_SYMBOL_NS_GPL(sof_client_get_num_dai_drv, SND_SOC_SOF_CLIENT);
 
 MODULE_AUTHOR("Ranjani Sridharan <ranjani.sridharan@linux.intel.com>");
 MODULE_LICENSE("GPL v2");
