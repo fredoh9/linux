@@ -347,7 +347,14 @@ struct snd_sof_pcm *snd_sof_find_spcm_pcm_id(struct snd_soc_component *scomp,
 struct snd_sof_widget *snd_sof_find_swidget(struct snd_soc_component *scomp,
 					    const char *name)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct snd_sof_widget *swidget;
 
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
@@ -363,7 +370,14 @@ struct snd_sof_widget *
 snd_sof_find_swidget_sname(struct snd_soc_component *scomp,
 			   const char *pcm_name, int dir)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct snd_sof_widget *swidget;
 	enum snd_soc_dapm_type type;
 
@@ -384,7 +398,14 @@ snd_sof_find_swidget_sname(struct snd_soc_component *scomp,
 struct snd_sof_dai *snd_sof_find_dai(struct snd_soc_component *scomp,
 				     const char *name)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct snd_sof_dai *dai;
 
 	list_for_each_entry(dai, &sdev->dai_list, list) {

@@ -20,6 +20,7 @@
 #include <sound/sof/dai.h>
 #include <sound/sof/topology.h>
 #include "sof-priv.h"
+#include "sof-client.h"
 
 #define SOF_AUDIO_PCM_DRV_NAME	"sof-audio-component"
 
@@ -171,8 +172,14 @@ static inline
 struct snd_sof_pcm *snd_sof_find_spcm_dai(struct snd_soc_component *scomp,
 					  struct snd_soc_pcm_runtime *rtd)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
-
+#endif
 	struct snd_sof_pcm *spcm = NULL;
 
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
