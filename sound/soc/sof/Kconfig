@@ -82,9 +82,6 @@ config SND_SOC_SOF_DEVELOPER_SUPPORT
 
 if SND_SOC_SOF_DEVELOPER_SUPPORT
 
-config SND_SOC_SOF_NOCODEC
-	tristate
-
 config SND_SOC_SOF_NOCODEC_SUPPORT
 	bool "SOF nocodec mode support"
 	help
@@ -193,6 +190,15 @@ config SND_SOC_SOF_DEBUG_IPC_FLOOD_TEST_CLIENT
 	  Say Y if you want to enable IPC flood test.
 	  If unsure, select "N".
 
+config SND_SOC_SOF_NOCODEC_CLIENT
+	tristate "SOF enable nocodec audio client"
+	depends on SND_SOC_SOF_CLIENT
+	help
+	  This option enables a client device for nocodec audio test
+	  which adds component and dummy dai, registers nocodec sound card.
+	  Say Y if you want to enable nocodec audio client.
+	  If unsure, select "N".
+
 config SND_SOC_SOF_DEBUG_RETAIN_DSP_CONTEXT
 	bool "SOF retain DSP context on any FW exceptions"
 	help
@@ -209,7 +215,7 @@ config SND_SOC_SOF
 	tristate
 	select SND_SOC_SOF_CLIENT if SND_SOC_SOF_CLIENT_SUPPORT
 	select SND_SOC_TOPOLOGY
-	select SND_SOC_SOF_NOCODEC if SND_SOC_SOF_NOCODEC_SUPPORT
+	select SND_SOC_SOF_NOCODEC_CLIENT if SND_SOC_SOF_NOCODEC_SUPPORT
 	help
 	  This option is not user-selectable but automagically handled by
 	  'select' statements at a higher level
