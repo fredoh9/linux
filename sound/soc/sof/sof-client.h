@@ -10,6 +10,7 @@
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/virtual_bus.h>
+#include <sound/soc.h>
 
 #define SOF_CLIENT_PROBE_TIMEOUT_MS 2000
 
