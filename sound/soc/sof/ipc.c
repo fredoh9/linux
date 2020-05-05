@@ -515,7 +515,14 @@ int snd_sof_ipc_stream_posn(struct snd_soc_component *scomp,
 			    struct snd_sof_pcm *spcm, int direction,
 			    struct sof_ipc_stream_posn *posn)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct sof_ipc_stream stream;
 	int err;
 
@@ -652,7 +659,14 @@ int snd_sof_ipc_set_get_comp_data(struct snd_sof_control *scontrol,
 {
 	struct snd_soc_component *scomp = scontrol->scomp;
 	struct sof_ipc_ctrl_data *cdata = scontrol->control_data;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct sof_ipc_fw_ready *ready = &sdev->fw_ready;
 	struct sof_ipc_fw_version *v = &ready->version;
 	struct sof_ipc_ctrl_data_params sparams;
