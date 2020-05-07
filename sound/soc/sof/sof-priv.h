@@ -461,6 +461,29 @@ int snd_sof_suspend(struct device *dev);
 int snd_sof_prepare(struct device *dev);
 void snd_sof_complete(struct device *dev);
 
+/* SOF PCM ops */
+int sof_pcm_hw_params(struct snd_soc_component *component,
+		      struct snd_pcm_substream *substream,
+		      struct snd_pcm_hw_params *params);
+int sof_pcm_hw_free(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream);
+int sof_pcm_prepare(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream);
+int sof_pcm_trigger(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream, int cmd);
+snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
+				  struct snd_pcm_substream *substream);
+int sof_pcm_open(struct snd_soc_component *component,
+		 struct snd_pcm_substream *substream);
+int sof_pcm_close(struct snd_soc_component *component,
+		  struct snd_pcm_substream *substream);
+int sof_pcm_new(struct snd_soc_component *component,
+		struct snd_soc_pcm_runtime *rtd);
+int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
+			   struct snd_pcm_hw_params *params);
+int sof_pcm_probe(struct snd_soc_component *component);
+void sof_pcm_remove(struct snd_soc_component *component);
+
 void snd_sof_new_platform_drv(struct snd_sof_dev *sdev);
 
 int snd_sof_create_page_table(struct device *dev,

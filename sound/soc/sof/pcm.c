@@ -103,9 +103,9 @@ void snd_sof_pcm_period_elapsed(struct snd_pcm_substream *substream)
 }
 EXPORT_SYMBOL(snd_sof_pcm_period_elapsed);
 
-static int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream,
-				struct snd_sof_dev *sdev,
-				struct snd_sof_pcm *spcm)
+int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream,
+			 struct snd_sof_dev *sdev,
+			 struct snd_sof_pcm *spcm)
 {
 	struct sof_ipc_stream stream;
 	struct sof_ipc_reply reply;
@@ -124,9 +124,9 @@ static int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream,
 	return ret;
 }
 
-static int sof_pcm_hw_params(struct snd_soc_component *component,
-			     struct snd_pcm_substream *substream,
-			     struct snd_pcm_hw_params *params)
+int sof_pcm_hw_params(struct snd_soc_component *component,
+		      struct snd_pcm_substream *substream,
+		      struct snd_pcm_hw_params *params)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -249,8 +249,8 @@ static int sof_pcm_hw_params(struct snd_soc_component *component,
 	return ret;
 }
 
-static int sof_pcm_hw_free(struct snd_soc_component *component,
-			   struct snd_pcm_substream *substream)
+int sof_pcm_hw_free(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
@@ -292,8 +292,8 @@ static int sof_pcm_hw_free(struct snd_soc_component *component,
 	return err;
 }
 
-static int sof_pcm_prepare(struct snd_soc_component *component,
-			   struct snd_pcm_substream *substream)
+int sof_pcm_prepare(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_sof_pcm *spcm;
@@ -329,8 +329,8 @@ static int sof_pcm_prepare(struct snd_soc_component *component,
  * FE dai link trigger actions are always executed in non-atomic context because
  * they involve IPC's.
  */
-static int sof_pcm_trigger(struct snd_soc_component *component,
-			   struct snd_pcm_substream *substream, int cmd)
+int sof_pcm_trigger(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
@@ -449,8 +449,8 @@ static int sof_pcm_trigger(struct snd_soc_component *component,
 	return ret;
 }
 
-static snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
-					 struct snd_pcm_substream *substream)
+snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
+				  struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
@@ -489,8 +489,8 @@ static snd_pcm_uframes_t sof_pcm_pointer(struct snd_soc_component *component,
 	return host;
 }
 
-static int sof_pcm_open(struct snd_soc_component *component,
-			struct snd_pcm_substream *substream)
+int sof_pcm_open(struct snd_soc_component *component,
+		 struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -568,8 +568,8 @@ static int sof_pcm_open(struct snd_soc_component *component,
 	return ret;
 }
 
-static int sof_pcm_close(struct snd_soc_component *component,
-			 struct snd_pcm_substream *substream)
+int sof_pcm_close(struct snd_soc_component *component,
+		  struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
@@ -612,8 +612,8 @@ static int sof_pcm_close(struct snd_soc_component *component,
  * no need to explicitly release memory preallocated by sof_pcm_new in pcm_free
  * snd_pcm_lib_preallocate_free_for_all() is called by the core.
  */
-static int sof_pcm_new(struct snd_soc_component *component,
-		       struct snd_soc_pcm_runtime *rtd)
+int sof_pcm_new(struct snd_soc_component *component,
+		struct snd_soc_pcm_runtime *rtd)
 {
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
@@ -684,16 +684,24 @@ capture:
 }
 
 /* fixup the BE DAI link to match any values from topology */
-static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
-				  struct snd_pcm_hw_params *params)
+int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
+			   struct snd_pcm_hw_params *params)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = rtd->card;
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	char *audio_drv_name = cdev->drv_name;
+#else
+	char *audio_drv_name = SOF_AUDIO_PCM_DRV_NAME;
+#endif
 	struct snd_interval *rate = hw_param_interval(params,
 			SNDRV_PCM_HW_PARAM_RATE);
 	struct snd_interval *channels = hw_param_interval(params,
 						SNDRV_PCM_HW_PARAM_CHANNELS);
 	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
 	struct snd_soc_component *component =
-		snd_soc_rtdcom_lookup(rtd, SOF_AUDIO_PCM_DRV_NAME);
+		snd_soc_rtdcom_lookup(rtd, audio_drv_name);
 	struct snd_sof_dai *dai =
 		snd_sof_find_dai(component, (char *)rtd->dai_link->name);
 
@@ -789,7 +797,7 @@ static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 	return 0;
 }
 
-static int sof_pcm_probe(struct snd_soc_component *component)
+int sof_pcm_probe(struct snd_soc_component *component)
 {
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	struct snd_soc_card *card = snd_soc_component_get_drvdata(component);
@@ -823,7 +831,7 @@ static int sof_pcm_probe(struct snd_soc_component *component)
 	return ret;
 }
 
-static void sof_pcm_remove(struct snd_soc_component *component)
+void sof_pcm_remove(struct snd_soc_component *component)
 {
 	/* remove topology */
 	snd_soc_tplg_component_remove(component, SND_SOC_TPLG_INDEX_ALL);
@@ -837,7 +845,7 @@ void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 
 	drv_name = plat_data->machine->drv_name;
 
-	pd->name = "sof-audio-component";
+	pd->name = devm_kstrdup(sdev->dev, SOF_AUDIO_PCM_DRV_NAME, GFP_KERNEL);
 	pd->probe = sof_pcm_probe;
 	pd->remove = sof_pcm_remove;
 	pd->open = sof_pcm_open;

@@ -28,6 +28,7 @@ struct sof_client_dev {
 	struct list_head list;	/* item in SOF core client drv list */
 	struct completion probe_complete;
 	struct snd_soc_card card;
+	char *drv_name;		/* platform drv name */
 	void *data;
 };
 
@@ -71,8 +72,29 @@ int sof_client_ipc_tx_message(struct sof_client_dev *cdev, u32 header,
 
 struct dentry *sof_client_get_debugfs_root(struct sof_client_dev *cdev);
 
-struct snd_soc_component_driver
-	*sof_client_get_platform_drv(struct sof_client_dev *cdev);
+/* SOF client host PCM ops */
+int sof_client_pcm_hw_params(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream,
+			     struct snd_pcm_hw_params *params);
+int sof_client_pcm_hw_free(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream);
+int sof_client_pcm_prepare(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream);
+int sof_client_pcm_trigger(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream, int cmd);
+snd_pcm_uframes_t sof_client_pcm_pointer(struct snd_soc_component *component,
+					 struct snd_pcm_substream *substream);
+int sof_client_pcm_open(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream);
+int sof_client_pcm_close(struct snd_soc_component *component,
+			 struct snd_pcm_substream *substream);
+int sof_client_pcm_new(struct snd_soc_component *component,
+		       struct snd_soc_pcm_runtime *rtd);
+int sof_client_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
+				  struct snd_pcm_hw_params *params);
+int sof_client_pcm_probe(struct snd_soc_component *component);
+void sof_client_pcm_remove(struct snd_soc_component *component);
+
 struct snd_soc_dai_driver *sof_client_get_dai_drv(struct sof_client_dev *cdev);
 int sof_client_get_num_dai_drv(struct sof_client_dev *cdev);
 
