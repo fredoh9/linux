@@ -28,13 +28,14 @@ struct sof_client_dev {
 	struct list_head list;	/* item in SOF core client drv list */
 	struct completion probe_complete;
 	struct snd_soc_card card;
-	char *drv_name;		/* platform drv name */
 	void *data;
 };
 
 /* client-specific ops, all optional */
 struct sof_client_ops {
 	int (*client_ipc_rx)(struct sof_client_dev *cdev, u32 msg_cmd);
+	/* get component driver name */
+	const char *(*get_component_drv_name)(struct sof_client_dev *cdev);
 };
 
 struct sof_client_drv {

@@ -691,7 +691,19 @@ int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 	struct snd_soc_card *card = rtd->card;
 	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
 						   card);
-	char *audio_drv_name = cdev->drv_name;
+	//struct sof_client_ops *cops = get_client_ops(cdev);
+	//char *audio_drv_name = cops->get_component_drv_name(cdev);
+	struct virtbus_device *vdev = &cdev->vdev;
+	struct virtbus_driver *vdrv = to_virtbus_drv(vdev->dev.driver);
+	struct sof_client_drv *cdrv = container_of(vdrv, struct sof_client_drv,
+							   virtbus_drv);
+
+	// Fred: TODO: need a utility function to get cdrv from cdev 
+	//struct sof_client_drv *cdrv = to_client_drv(cdev);
+	char *audio_drv_name;
+
+	if (cdrv->ops.get_component_drv_name)
+		audio_drv_name = cdrv->ops.get_component_drv_name(cdev);
 #else
 	char *audio_drv_name = SOF_AUDIO_PCM_DRV_NAME;
 #endif
