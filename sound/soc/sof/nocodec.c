@@ -19,6 +19,7 @@
 
 struct sof_nocodec_client_data {
 	struct snd_soc_component_driver sof_nocodec_component;
+	char *component_drv_name;
 };
 
 static int sof_nocodec_bes_setup(struct virtbus_device *vdev,
@@ -88,9 +89,9 @@ void snd_sof_nocodec_platform_drv(struct virtbus_device *vdev)
 	const char *drv_name = dev_name(&vdev->dev);
 
 	/* platform driver name can be different per client */
-	cdev->drv_name = devm_kstrdup(&vdev->dev, SOF_NOCODEC_PCM_DRV_NAME,
-				      GFP_KERNEL);
-	pd->name = cdev->drv_name;
+	nocodec_client_data->component_drv_name =
+		devm_kstrdup(&vdev->dev, SOF_NOCODEC_PCM_DRV_NAME, GFP_KERNEL);
+	pd->name = nocodec_client_data->component_drv_name;
 	pd->probe = sof_client_pcm_probe;
 	pd->remove = sof_client_pcm_remove;
 	pd->open = sof_client_pcm_open;
@@ -205,6 +206,13 @@ static const struct virtbus_dev_id sof_nocodec_virtbus_id_table[] = {
 	{},
 };
 
+const char *nocodec_get_component_drv_name(struct sof_client_dev *cdev)
+{
+	struct sof_nocodec_client_data *data = cdev->data;
+
+	return data->component_drv_name;
+}
+
 static struct sof_client_drv sof_nocodec_client_drv = {
 	.name = "sof-nocodec-client-drv",
 	.type = SOF_CLIENT_AUDIO,
@@ -217,6 +225,9 @@ static struct sof_client_drv sof_nocodec_client_drv = {
 		.remove = sof_nocodec_client_remove,
 		.shutdown = sof_nocodec_client_shutdown,
 	},
+	.ops = {
+		.get_component_drv_name = nocodec_get_component_drv_name,
+	}
 };
 
 module_sof_client_driver(sof_nocodec_client_drv);

@@ -24,13 +24,14 @@ struct sof_client_dev {
 	void (*connect)(struct virtbus_device *vdev);
 	void (*disconnect)(struct virtbus_device *vdev);
 	struct snd_soc_card card;
-	char *drv_name;		/* platform drv name */
 	void *data;
 };
 
 /* client-specific ops, all optional */
 struct sof_client_ops {
 	int (*client_ipc_rx)(struct sof_client_dev *cdev, u32 msg_cmd);
+	/* get component driver name */
+	const char *(*get_component_drv_name)(struct sof_client_dev *cdev);
 };
 
 struct sof_client_drv {
