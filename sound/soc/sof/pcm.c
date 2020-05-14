@@ -80,10 +80,26 @@ void snd_sof_pcm_period_elapsed_work(struct work_struct *work)
 void snd_sof_pcm_period_elapsed(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	struct snd_soc_component *component =
-		snd_soc_rtdcom_lookup(rtd, SOF_AUDIO_PCM_DRV_NAME);
+	struct snd_soc_component *component;
+	char *audio_drv_name;
 	struct snd_sof_pcm *spcm;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = rtd->card;
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+	struct virtbus_device *vdev = &cdev->vdev;
+	struct virtbus_driver *vdrv = to_virtbus_drv(vdev->dev.driver);
+	struct sof_client_drv *cdrv = container_of(vdrv, struct sof_client_drv,
+						   virtbus_drv);
 
+	if (cdrv->ops.get_component_drv_name)
+		audio_drv_name = cdrv->ops.get_component_drv_name(cdev);
+#else
+	audio_drv_name = SOF_AUDIO_PCM_DRV_NAME;
+#endif
+	component = snd_soc_rtdcom_lookup(rtd, audio_drv_name);
+
+	printk("%s: start, call snd_sof_find_spcm_dai() drv_name=%s\n", __func__, audio_drv_name);
 	spcm = snd_sof_find_spcm_dai(component, rtd);
 	if (!spcm) {
 		dev_err(component->dev,
@@ -691,15 +707,18 @@ int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
 	struct snd_soc_card *card = rtd->card;
 	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
 						   card);
+	//Fred: got client drv's ops
 	//struct sof_client_ops *cops = get_client_ops(cdev);
 	//char *audio_drv_name = cops->get_component_drv_name(cdev);
+
+	// Fred: TODO: need a utility function to get cdrv from cdev
+	//struct sof_client_drv *cdrv = to_client_drv(cdev);
+
 	struct virtbus_device *vdev = &cdev->vdev;
 	struct virtbus_driver *vdrv = to_virtbus_drv(vdev->dev.driver);
 	struct sof_client_drv *cdrv = container_of(vdrv, struct sof_client_drv,
-							   virtbus_drv);
+						   virtbus_drv);
 
-	// Fred: TODO: need a utility function to get cdrv from cdev 
-	//struct sof_client_drv *cdrv = to_client_drv(cdev);
 	char *audio_drv_name;
 
 	if (cdrv->ops.get_component_drv_name)
@@ -859,6 +878,7 @@ void sof_pcm_remove(struct snd_soc_component *component)
 	snd_soc_tplg_component_remove(component, SND_SOC_TPLG_INDEX_ALL);
 }
 
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 {
 	struct snd_soc_component_driver *pd = &sdev->plat_drv;
@@ -895,3 +915,4 @@ void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
 	 /* increment module refcount when a pcm is opened */
 	pd->module_get_upon_open = 1;
 }
+#endif
