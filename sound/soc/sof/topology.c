@@ -1236,7 +1236,7 @@ static int sof_control_load(struct snd_soc_component *scomp, int index,
 	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
 	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
 						   card);
-	struct snd_sof_dev *sdev = cdev->sdev;
+	//struct snd_sof_dev *sdev = cdev->sdev;
 #else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 #endif
@@ -1292,7 +1292,11 @@ static int sof_control_load(struct snd_soc_component *scomp, int index,
 	}
 
 	dobj->private = scontrol;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_add(&scontrol->list, &cdev->kcontrol_list);
+#else
 	list_add(&scontrol->list, &sdev->kcontrol_list);
+#endif
 	return ret;
 }
 
@@ -1375,7 +1379,7 @@ int sof_pipeline_core_enable(struct snd_sof_dev *sdev,
 	if (swidget->id == snd_soc_dapm_scheduler) {
 		pipeline = swidget->private;
 	} else {
-		pipeline = snd_sof_pipeline_find(sdev, swidget->pipeline_id);
+		pipeline = snd_sof_pipeline_find(sdev->dev, swidget->pipeline_id);
 		if (!pipeline)
 			return -ENOENT;
 	}
@@ -1692,7 +1696,7 @@ int sof_load_pipeline_ipc(struct device *dev,
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
 #endif
 	int ret = sof_core_enable(sdev, pipeline->core);
-	struct sof_ipc_pm_core_config pm_core_config;
+	//struct sof_ipc_pm_core_config pm_core_config;
 
 	if (ret < 0)
 		return ret;
@@ -1939,7 +1943,11 @@ static int sof_widget_load_pga(struct snd_soc_component *scomp, int index,
 
 	swidget->private = volume;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(scontrol, &cdev->kcontrol_list, list) {
+#else
 	list_for_each_entry(scontrol, &sdev->kcontrol_list, list) {
+#endif
 		if (scontrol->comp_id == swidget->comp_id &&
 		    scontrol->volume_table) {
 			min_step = scontrol->min_volume_step;
@@ -2516,7 +2524,12 @@ static int sof_widget_ready(struct snd_soc_component *scomp, int index,
 					  tw, &reply, dai);
 		if (ret == 0) {
 			sof_connect_dai_widget(scomp, w, tw, dai);
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+			list_add(&dai->list, &cdev->dai_list);
+#else
 			list_add(&dai->list, &sdev->dai_list);
+#endif
+
 			swidget->private = dai;
 		} else {
 			kfree(dai);
@@ -2530,7 +2543,11 @@ static int sof_widget_ready(struct snd_soc_component *scomp, int index,
 		ret = sof_widget_load_pga(scomp, index, swidget, comp.core,
 					  tw, &reply);
 		/* Find scontrol for this pga and set readback offset*/
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+		list_for_each_entry(scontrol, &cdev->kcontrol_list, list) {
+#else
 		list_for_each_entry(scontrol, &sdev->kcontrol_list, list) {
+#endif
 			if (scontrol->comp_id == swidget->comp_id) {
 				scontrol->readback_offset = reply.offset;
 				break;
@@ -2607,7 +2624,11 @@ static int sof_widget_ready(struct snd_soc_component *scomp, int index,
 	}
 
 	w->dobj.private = swidget;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)	
+	list_add(&swidget->list, &cdev->widget_list);
+#else
 	list_add(&swidget->list, &sdev->widget_list);
+#endif
 	return ret;
 }
 
@@ -2764,7 +2785,15 @@ static int sof_dai_load(struct snd_soc_component *scomp, int index,
 	dev_dbg(scomp->dev, "tplg: load pcm %s\n", pcm->dai_name);
 
 	dai_drv->dobj.private = spcm;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+//Fred: WIP
+	//if (cdrv->ops.get_component_drv_name)
+	//		audio_drv_name = cdrv->ops.get_component_drv_name(cdev);
+
+	list_add(&spcm->list, &cdev->pcm_list);
+#else
 	list_add(&spcm->list, &sdev->pcm_list);
+#endif
 
 	ret = sof_parse_tokens(scomp, spcm, stream_tokens,
 			       ARRAY_SIZE(stream_tokens), private->array,
@@ -2899,14 +2928,28 @@ static void sof_dai_set_format(struct snd_soc_tplg_hw_config *hw_config,
  * name. Note that the function can only be used for the case that all DAIs
  * have a common DAI config for now.
  */
-static int sof_set_dai_config(struct snd_sof_dev *sdev, u32 size,
+static int sof_set_dai_config(struct sof_client_dev *cdev, u32 size,
 			      struct snd_soc_dai_link *link,
 			      struct sof_ipc_dai_config *config)
 {
 	struct snd_sof_dai *dai;
 	int found = 0;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	//struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	//struct virtbus_driver *vdev = container_of(dev, struct virtbus_driver,
+	//					   dev);
+	//struct sof_client_dev *cdev = vdev->cdev;
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
+	struct snd_sof_dev *sdev = container_of(dev, struct snd_sof_dev,
+						dev);
+#endif
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(dai, &cdev->dai_list, list) {
+#else
 	list_for_each_entry(dai, &sdev->dai_list, list) {
+#endif
 		if (!dai->name)
 			continue;
 
@@ -3020,7 +3063,7 @@ static int sof_link_ssp_load(struct snd_soc_component *scomp, int index,
 	}
 
 	/* set config for all DAI's with name matching the link name */
-	ret = sof_set_dai_config(sdev, size, link, config);
+	ret = sof_set_dai_config(cdev, size, link, config);
 	if (ret < 0)
 		dev_err(scomp->dev, "error: failed to save DAI config for SSP%d\n",
 			config->dai_index);
@@ -3083,7 +3126,7 @@ static int sof_link_sai_load(struct snd_soc_component *scomp, int index,
 	}
 
 	/* set config for all DAI's with name matching the link name */
-	ret = sof_set_dai_config(sdev, size, link, config);
+	ret = sof_set_dai_config(cdev, size, link, config);
 	if (ret < 0)
 		dev_err(scomp->dev, "error: failed to save DAI config for SAI%d\n",
 			config->dai_index);
@@ -3147,7 +3190,7 @@ static int sof_link_esai_load(struct snd_soc_component *scomp, int index,
 	}
 
 	/* set config for all DAI's with name matching the link name */
-	ret = sof_set_dai_config(sdev, size, link, config);
+	ret = sof_set_dai_config(cdev, size, link, config);
 	if (ret < 0)
 		dev_err(scomp->dev, "error: failed to save DAI config for ESAI%d\n",
 			config->dai_index);
@@ -3246,7 +3289,7 @@ static int sof_link_dmic_load(struct snd_soc_component *scomp, int index,
 		config->dmic.fifo_bits_b = config->dmic.fifo_bits;
 
 	/* set config for all DAI's with name matching the link name */
-	ret = sof_set_dai_config(sdev, size, link, config);
+	ret = sof_set_dai_config(cdev, size, link, config);
 	if (ret < 0)
 		dev_err(scomp->dev, "error: failed to save DAI config for DMIC%d\n",
 			config->dai_index);
@@ -3302,7 +3345,7 @@ static int sof_link_hda_load(struct snd_soc_component *scomp, int index,
 
 	config->hda.link_dma_ch = DMA_CHAN_INVALID;
 
-	ret = sof_set_dai_config(sdev, size, link, config);
+	ret = sof_set_dai_config(cdev, size, link, config);
 	if (ret < 0)
 		dev_err(scomp->dev, "error: failed to process hda dai link %s",
 			link->name);
@@ -3341,7 +3384,7 @@ static int sof_link_alh_load(struct snd_soc_component *scomp, int index,
 	config->hdr.size = size;
 
 	/* set config for all DAI's with name matching the link name */
-	ret = sof_set_dai_config(sdev, size, link, config);
+	ret = sof_set_dai_config(cdev, size, link, config);
 	if (ret < 0)
 		dev_err(scomp->dev, "error: failed to save DAI config for ALH %d\n",
 			config->dai_index);
@@ -3517,7 +3560,11 @@ static int sof_link_unload(struct snd_soc_component *scomp,
 	if (!link->no_pcm)
 		return 0;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(sof_dai, &cdev->dai_list, list) {
+#else
 	list_for_each_entry(sof_dai, &sdev->dai_list, list) {
+#endif
 		if (!sof_dai->name)
 			continue;
 
@@ -3672,8 +3719,11 @@ static int sof_route_load(struct snd_soc_component *scomp, int index,
 		sroute->private = connect;
 
 		/* add route to route list */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+		list_add(&sroute->list, &cdev->route_list);
+#else
 		list_add(&sroute->list, &sdev->route_list);
-
+#endif
 		return ret;
 	}
 
@@ -3692,7 +3742,7 @@ static int snd_sof_cache_kcontrol_val(struct snd_soc_component *scomp)
 	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
 	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
 						   card);
-	struct snd_sof_dev *sdev = cdev->sdev;
+	//struct snd_sof_dev *sdev = cdev->sdev;
 #else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 #endif
@@ -3700,8 +3750,11 @@ static int snd_sof_cache_kcontrol_val(struct snd_soc_component *scomp)
 	int ipc_cmd, ctrl_type;
 	int ret = 0;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(scontrol, &cdev->kcontrol_list, list) {
+#else
 	list_for_each_entry(scontrol, &sdev->kcontrol_list, list) {
-
+#endif
 		/* notify DSP of kcontrol values */
 		switch (scontrol->cmd) {
 		case SOF_CTRL_CMD_VOLUME:
@@ -3772,14 +3825,18 @@ static void sof_complete(struct snd_soc_component *scomp)
 	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
 	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
 						   card);
-	struct snd_sof_dev *sdev = cdev->sdev;
+	//struct snd_sof_dev *sdev = cdev->sdev;
 #else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 #endif
 	struct snd_sof_widget *swidget;
 
 	/* some widget types require completion notificattion */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(swidget, &cdev->widget_list, list) {
+#else
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
+#endif
 		if (swidget->complete)
 			continue;
 

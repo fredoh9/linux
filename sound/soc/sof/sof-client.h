@@ -28,7 +28,14 @@ struct sof_client_dev {
 	struct list_head list;	/* item in SOF core client drv list */
 	struct completion probe_complete;
 	struct snd_soc_card card;
-	void *data;
+	void *data;	// Fred: this is client data
+
+	// Moved from sof-priv.h
+	struct list_head pcm_list;
+	struct list_head kcontrol_list;
+	struct list_head widget_list;
+	struct list_head dai_list;
+	struct list_head route_list;
 };
 
 /* client-specific ops, all optional */

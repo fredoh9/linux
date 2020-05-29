@@ -15,14 +15,24 @@
  * helper to determine if there are only D0i3 compatible
  * streams active
  */
-bool snd_sof_dsp_only_d0i3_compatible_stream_active(struct snd_sof_dev *sdev)
+bool snd_sof_dsp_only_d0i3_compatible_stream_active(struct device *dev)
 {
 	struct snd_pcm_substream *substream;
 	struct snd_sof_pcm *spcm;
 	bool d0i3_compatible_active = false;
 	int dir;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct virtbus_device *vdev = container_of(dev, struct virtbus_device, dev);
+	struct sof_client_dev *cdev = container_of(vdev, struct sof_client_dev, vdev);
+#else
+	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+#endif
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		for_each_pcm_streams(dir) {
 			substream = spcm->stream[dir].substream;
 			if (!substream || !substream->runtime)
@@ -39,16 +49,25 @@ bool snd_sof_dsp_only_d0i3_compatible_stream_active(struct snd_sof_dev *sdev)
 			d0i3_compatible_active = true;
 		}
 	}
-
 	return d0i3_compatible_active;
 }
 EXPORT_SYMBOL(snd_sof_dsp_only_d0i3_compatible_stream_active);
 
-bool snd_sof_stream_suspend_ignored(struct snd_sof_dev *sdev)
+bool snd_sof_stream_suspend_ignored(struct device *dev)
 {
 	struct snd_sof_pcm *spcm;
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct virtbus_device *vdev = container_of(dev, struct virtbus_device, dev);
+	struct sof_client_dev *cdev = container_of(vdev, struct sof_client_dev, vdev);
+#else
+	struct snd_sof_dev *sdev = dev_get_drvdata(dev)
+#endif
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		if (spcm->stream[SNDRV_PCM_STREAM_PLAYBACK].suspend_ignored ||
 		    spcm->stream[SNDRV_PCM_STREAM_CAPTURE].suspend_ignored)
 			return true;
@@ -59,7 +78,13 @@ bool snd_sof_stream_suspend_ignored(struct snd_sof_dev *sdev)
 
 int sof_set_hw_params_upon_resume(struct device *dev)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct virtbus_device *vdev = container_of(dev, struct virtbus_device, dev);
+	struct sof_client_dev *cdev = container_of(vdev, struct sof_client_dev, vdev);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+#endif
 	struct snd_pcm_substream *substream;
 	struct snd_sof_pcm *spcm;
 	snd_pcm_state_t state;
@@ -70,7 +95,11 @@ int sof_set_hw_params_upon_resume(struct device *dev)
 	 * So, set the flag to indicate this for those streams that
 	 * have been suspended.
 	 */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		for_each_pcm_streams(dir) {
 			/*
 			 * do not reset hw_params upon resume for streams that
@@ -95,13 +124,23 @@ int sof_set_hw_params_upon_resume(struct device *dev)
 
 static int sof_restore_kcontrols(struct device *dev)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct virtbus_device *vdev = container_of(dev, struct virtbus_device, dev);
+	struct sof_client_dev *cdev = container_of(vdev, struct sof_client_dev, vdev);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+#endif
 	struct snd_sof_control *scontrol;
 	int ipc_cmd, ctrl_type;
 	int ret = 0;
 
 	/* restore kcontrol values */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(scontrol, &cdev->kcontrol_list, list) {
+#else
 	list_for_each_entry(scontrol, &sdev->kcontrol_list, list) {
+#endif
 		/* reset readback offset for scontrol after resuming */
 		scontrol->readback_offset = 0;
 
@@ -142,12 +181,23 @@ static int sof_restore_kcontrols(struct device *dev)
 	return 0;
 }
 
-const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct snd_sof_dev *sdev,
+const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct device *dev,
 						     int pipeline_id)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct virtbus_device *vdev = container_of(dev, struct virtbus_device, dev);
+	struct sof_client_dev *cdev = container_of(vdev, struct sof_client_dev, vdev);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
+	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+#endif
 	const struct snd_sof_widget *swidget;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(swidget, &cdev->widget_list, list)
+#else
 	list_for_each_entry(swidget, &sdev->widget_list, list)
+#endif
 		if (swidget->id == snd_soc_dapm_scheduler) {
 			const struct sof_ipc_pipe_new *pipeline =
 				swidget->private;
@@ -160,7 +210,13 @@ const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct snd_sof_dev *sdev,
 
 int sof_restore_pipelines(struct device *dev)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct virtbus_device *vdev = container_of(dev, struct virtbus_device, dev);
+	struct sof_client_dev *cdev = container_of(vdev, struct sof_client_dev, vdev);
+	struct snd_sof_dev *sdev = cdev->sdev;
+#else
 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+#endif
 	struct snd_sof_widget *swidget;
 	struct snd_sof_route *sroute;
 	struct sof_ipc_pipe_new *pipeline;
@@ -170,7 +226,11 @@ int sof_restore_pipelines(struct device *dev)
 	int ret;
 
 	/* restore pipeline components */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry_reverse(swidget, &cdev->widget_list, list) {
+#else
 	list_for_each_entry_reverse(swidget, &sdev->widget_list, list) {
+#endif
 		struct sof_ipc_comp_reply r;
 
 		/* skip if there is no private data */
@@ -224,7 +284,11 @@ int sof_restore_pipelines(struct device *dev)
 	}
 
 	/* restore pipeline connections */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry_reverse(sroute, &cdev->route_list, list) {
+#else
 	list_for_each_entry_reverse(sroute, &sdev->route_list, list) {
+#endif
 		struct sof_ipc_pipe_comp_connect *connect;
 		struct sof_ipc_reply reply;
 
@@ -252,7 +316,11 @@ int sof_restore_pipelines(struct device *dev)
 	}
 
 	/* restore dai links */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry_reverse(dai, &cdev->dai_list, list) {
+#else
 	list_for_each_entry_reverse(dai, &sdev->dai_list, list) {
+#endif
 		struct sof_ipc_reply reply;
 		struct sof_ipc_dai_config *config = dai->dai_config;
 
@@ -286,7 +354,11 @@ int sof_restore_pipelines(struct device *dev)
 	}
 
 	/* complete pipeline */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(swidget, &cdev->widget_list, list) {
+#else
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
+#endif
 		switch (swidget->id) {
 		case snd_soc_dapm_scheduler:
 			swidget->complete =
@@ -313,10 +385,20 @@ int sof_restore_pipelines(struct device *dev)
 struct snd_sof_pcm *snd_sof_find_spcm_name(struct snd_soc_component *scomp,
 					   const char *name)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+		struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+		struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+							   card);
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct snd_sof_pcm *spcm;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		/* match with PCM dai name */
 		if (strcmp(spcm->pcm.dai_name, name) == 0)
 			return spcm;
@@ -339,11 +421,21 @@ struct snd_sof_pcm *snd_sof_find_spcm_comp(struct snd_soc_component *scomp,
 					   unsigned int comp_id,
 					   int *direction)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct snd_sof_pcm *spcm;
 	int dir;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		for_each_pcm_streams(dir) {
 			if (spcm->stream[dir].comp_id == comp_id) {
 				*direction = dir;
@@ -358,10 +450,20 @@ struct snd_sof_pcm *snd_sof_find_spcm_comp(struct snd_soc_component *scomp,
 struct snd_sof_pcm *snd_sof_find_spcm_pcm_id(struct snd_soc_component *scomp,
 					     unsigned int pcm_id)
 {
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
+	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
+						   card);
+#else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+#endif
 	struct snd_sof_pcm *spcm;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		if (le32_to_cpu(spcm->pcm.pcm_id) == pcm_id)
 			return spcm;
 	}
@@ -382,7 +484,11 @@ struct snd_sof_widget *snd_sof_find_swidget(struct snd_soc_component *scomp,
 #endif
 	struct snd_sof_widget *swidget;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(swidget, &cdev->widget_list, list) {
+#else
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
+#endif
 		if (strcmp(name, swidget->widget->name) == 0)
 			return swidget;
 	}
@@ -411,7 +517,11 @@ snd_sof_find_swidget_sname(struct snd_soc_component *scomp,
 	else
 		type = snd_soc_dapm_aif_out;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(swidget, &cdev->widget_list, list) {
+#else
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
+#endif
 		if (!strcmp(pcm_name, swidget->widget->sname) &&
 		    swidget->id == type)
 			return swidget;
@@ -433,7 +543,11 @@ struct snd_sof_dai *snd_sof_find_dai(struct snd_soc_component *scomp,
 #endif
 	struct snd_sof_dai *dai;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(dai, &cdev->dai_list, list) {
+#else
 	list_for_each_entry(dai, &sdev->dai_list, list) {
+#endif
 		if (dai->name && (strcmp(name, dai->name) == 0))
 			return dai;
 	}

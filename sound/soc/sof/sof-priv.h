@@ -357,12 +357,13 @@ struct snd_sof_dev {
 	spinlock_t ipc_lock;	/* lock for IPC users */
 	spinlock_t hw_lock;	/* lock for HW IO access */
 
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	/*
 	 * ASoC components. plat_drv fields are set dynamically so
 	 * can't use const
 	 */
 	struct snd_soc_component_driver plat_drv;
-
+#endif
 	/* current DSP power state */
 	struct sof_dsp_power_state dsp_power_state;
 
@@ -387,6 +388,7 @@ struct snd_sof_dev {
 	struct snd_sof_mailbox stream_box;	/* Stream position update */
 	struct snd_sof_ipc_msg *msg;
 	int ipc_irq;
+	//Fred: this this in here
 	u32 next_comp_id; /* monotonic - reset during S3 */
 
 	/* memory bases for mmaped DSPs - set by dsp_init() */
@@ -407,12 +409,16 @@ struct snd_sof_dev {
 	struct sof_ipc_cc_version *cc_version;
 
 	/* topology */
-	struct snd_soc_tplg_ops *tplg_ops;
+	//struct snd_soc_tplg_ops *tplg_ops; Fred: we never set topology ops
+
+	// move list to nocodec client data
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	struct list_head pcm_list;
 	struct list_head kcontrol_list;
 	struct list_head widget_list;
 	struct list_head dai_list;
 	struct list_head route_list;
+#endif
 	struct snd_soc_component *component;
 	u32 enabled_cores_mask; /* keep track of enabled cores */
 

@@ -492,6 +492,8 @@ static void ipc_xrun(struct snd_sof_dev *sdev, u32 msg_id)
 /* stream notifications from DSP FW */
 static void ipc_stream_message(struct snd_sof_dev *sdev, u32 msg_cmd)
 {
+//#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+#if 1
 	/* get msg cmd type and msd id */
 	u32 msg_type = msg_cmd & SOF_CMD_TYPE_MASK;
 	u32 msg_id = SOF_IPC_MESSAGE_ID(msg_cmd);
@@ -508,6 +510,14 @@ static void ipc_stream_message(struct snd_sof_dev *sdev, u32 msg_cmd)
 			msg_id);
 		break;
 	}
+#else
+	//Fred: WIP
+	struct sof_client_dev *cdev = GET_CDEV();
+	struct sof_client_drv *cdrv = GET_CDRV();
+
+	if (cdrv->ops.client_ipc_rx)
+		cdrv->ops.client_ipc_rx(cdev);
+#endif
 }
 
 /* get stream position IPC - use faster MMIO method if available on platform */
