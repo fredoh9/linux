@@ -20,6 +20,18 @@
 struct sof_nocodec_client_data {
 	struct snd_soc_component_driver sof_nocodec_component;
 	char *component_drv_name;
+
+	// Fred: this is not good idea
+	//struct sof_client_drv cdrv;
+
+#if 0
+	// Moved from sof-priv.h
+	struct list_head pcm_list;
+	struct list_head kcontrol_list;
+	struct list_head widget_list;
+	struct list_head dai_list;
+	struct list_head route_list;
+#endif
 };
 
 static int sof_nocodec_bes_setup(struct virtbus_device *vdev,
@@ -138,6 +150,13 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 		return -ENOMEM;
 	cdev->data = nocodec_client_data;
 
+#if 1
+	INIT_LIST_HEAD(&cdev->pcm_list);
+	INIT_LIST_HEAD(&cdev->kcontrol_list);
+	INIT_LIST_HEAD(&cdev->widget_list);
+	INIT_LIST_HEAD(&cdev->dai_list);
+	INIT_LIST_HEAD(&cdev->route_list);
+#endif
 	/* set up platform component driver for nocodec */
 	snd_sof_nocodec_platform_drv(vdev);
 	plat_drv = &nocodec_client_data->sof_nocodec_component;
@@ -178,15 +197,19 @@ static int sof_nocodec_client_probe(struct virtbus_device *vdev)
 	pm_runtime_mark_last_busy(&vdev->dev);
 	pm_runtime_put_autosuspend(&vdev->dev);
 
-	/* complete client device registration */
-	complete(&cdev->probe_complete);
+	/* connect client dev with SOF core */
+	cdev->connect(vdev);
 
 	return 0;
 }
 
 static int sof_nocodec_client_cleanup(struct virtbus_device *vdev)
 {
+	struct sof_client_dev *cdev = virtbus_dev_to_sof_client_dev(vdev);
 	pm_runtime_disable(&vdev->dev);
+
+	/* disconnect client dev from SOF core */
+	cdev->disconnect(vdev);
 
 	return 0;
 }
@@ -201,7 +224,7 @@ static void sof_nocodec_client_shutdown(struct virtbus_device *vdev)
 	sof_nocodec_client_cleanup(vdev);
 }
 
-static const struct virtbus_dev_id sof_nocodec_virtbus_id_table[] = {
+static const struct virtbus_device_id sof_nocodec_virtbus_id_table[] = {
 	{"sof-nocodec-client"},
 	{},
 };
@@ -213,9 +236,34 @@ const char *nocodec_get_component_drv_name(struct sof_client_dev *cdev)
 	return data->component_drv_name;
 }
 
+/* stream notifications from DSP FW */
+int sof_nocodec_audio_ipc_rx(struct sof_client_dev *cdev, u32 msg_cmd)
+{
+//Fred: WIP
+#if 0
+	/* get msg cmd type and msd id */
+	u32 msg_type = msg_cmd & SOF_CMD_TYPE_MASK;
+	u32 msg_id = SOF_IPC_MESSAGE_ID(msg_cmd);
+
+	switch (msg_type) {
+	case SOF_IPC_STREAM_POSITION:
+		ipc_period_elapsed(sdev, msg_id);
+		break;
+	case SOF_IPC_STREAM_TRIG_XRUN:
+		ipc_xrun(sdev, msg_id);
+		break;
+	default:
+		dev_err(sdev->dev, "error: unhandled stream message %x\n",
+			msg_id);
+		break;
+	}
+#endif
+
+	return 0;
+}
+
 static struct sof_client_drv sof_nocodec_client_drv = {
 	.name = "sof-nocodec-client-drv",
-	.type = SOF_CLIENT_AUDIO,
 	.virtbus_drv = {
 		.driver = {
 			.name = "sof-nocodec-virtbus-drv",
@@ -226,6 +274,7 @@ static struct sof_client_drv sof_nocodec_client_drv = {
 		.shutdown = sof_nocodec_client_shutdown,
 	},
 	.ops = {
+		.client_ipc_rx = sof_nocodec_audio_ipc_rx,
 		.get_component_drv_name = nocodec_get_component_drv_name,
 	}
 };

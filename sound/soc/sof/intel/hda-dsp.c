@@ -879,7 +879,7 @@ void hda_dsp_d0i3_work(struct work_struct *work)
 	target_state.state = SOF_DSP_PM_D0;
 
 	/* DSP can enter D0I3 iff only D0I3-compatible streams are active */
-	if (snd_sof_dsp_only_d0i3_compatible_stream_active(sdev))
+	if (snd_sof_dsp_only_d0i3_compatible_stream_active(sdev->dev))
 		target_state.substate = SOF_HDA_DSP_PM_D0I3;
 	else
 		target_state.substate = SOF_HDA_DSP_PM_D0I0;

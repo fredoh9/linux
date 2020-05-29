@@ -179,13 +179,17 @@ struct snd_sof_pcm *snd_sof_find_spcm_dai(struct snd_soc_component *scomp,
 	struct snd_soc_card *card = snd_soc_component_get_drvdata(scomp);
 	struct sof_client_dev *cdev = container_of(card, struct sof_client_dev,
 						   card);
-	struct snd_sof_dev *sdev = cdev->sdev;
+	//struct snd_sof_dev *sdev = cdev->sdev;
 #else
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 #endif
 	struct snd_sof_pcm *spcm = NULL;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+	list_for_each_entry(spcm, &cdev->pcm_list, list) {
+#else
 	list_for_each_entry(spcm, &sdev->pcm_list, list) {
+#endif
 		if (le32_to_cpu(spcm->pcm.dai_id) == rtd->dai_link->id)
 			return spcm;
 	}
@@ -200,8 +204,11 @@ struct snd_sof_pcm *snd_sof_find_spcm_comp(struct snd_soc_component *scomp,
 					   int *direction);
 struct snd_sof_pcm *snd_sof_find_spcm_pcm_id(struct snd_soc_component *scomp,
 					     unsigned int pcm_id);
-const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct snd_sof_dev *sdev,
+//const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct snd_sof_dev *sdev,
+//						     int pipeline_id);
+const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct device *dev,
 						     int pipeline_id);
+
 void snd_sof_pcm_period_elapsed(struct snd_pcm_substream *substream);
 void snd_sof_pcm_period_elapsed_work(struct work_struct *work);
 
@@ -217,8 +224,11 @@ int snd_sof_ipc_set_get_comp_data(struct snd_sof_control *scontrol,
 /* PM */
 int sof_restore_pipelines(struct device *dev);
 int sof_set_hw_params_upon_resume(struct device *dev);
-bool snd_sof_stream_suspend_ignored(struct snd_sof_dev *sdev);
-bool snd_sof_dsp_only_d0i3_compatible_stream_active(struct snd_sof_dev *sdev);
+//bool snd_sof_stream_suspend_ignored(struct snd_sof_dev *sdev);
+bool snd_sof_stream_suspend_ignored(struct device *dev);
+//bool snd_sof_dsp_only_d0i3_compatible_stream_active(struct snd_sof_dev *sdev);
+bool snd_sof_dsp_only_d0i3_compatible_stream_active(struct device *dev);
+
 
 /* Machine driver enumeration */
 int sof_machine_register(struct snd_sof_dev *sdev, void *pdata);

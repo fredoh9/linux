@@ -596,6 +596,8 @@ static bool hda_dsp_stream_check(struct hdac_bus *bus, u32 status)
 	bool active = false;
 	u32 sd_status;
 
+	dev_err(bus->dev, "%s: start\n", __func__);
+
 	list_for_each_entry(s, &bus->stream_list, list) {
 		if (status & BIT(s->index) && s->opened) {
 			sd_status = snd_hdac_stream_readb(s, SD_STS);

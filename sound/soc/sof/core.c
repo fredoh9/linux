@@ -320,11 +320,13 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
 	    !sof_ops(sdev)->fw_ready)
 		return -EINVAL;
 
+#if !IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
 	INIT_LIST_HEAD(&sdev->pcm_list);
 	INIT_LIST_HEAD(&sdev->kcontrol_list);
 	INIT_LIST_HEAD(&sdev->widget_list);
 	INIT_LIST_HEAD(&sdev->dai_list);
 	INIT_LIST_HEAD(&sdev->route_list);
+#endif
 	INIT_LIST_HEAD(&sdev->client_list);
 	spin_lock_init(&sdev->ipc_lock);
 	spin_lock_init(&sdev->hw_lock);

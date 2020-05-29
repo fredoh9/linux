@@ -34,7 +34,11 @@ static u32 snd_sof_dsp_power_target(struct snd_sof_dev *sdev)
 		 * Additional criteria such Soundwire clock-stop mode and
 		 * device suspend latency considerations will be added later.
 		 */
+#if IS_ENABLED(CONFIG_SND_SOC_SOF_NOCODEC_CLIENT)
+		if (snd_sof_stream_suspend_ignored(sdev->dev))
+#else
 		if (snd_sof_stream_suspend_ignored(sdev))
+#endif
 			target_dsp_state = SOF_DSP_PM_D0;
 		else
 			target_dsp_state = SOF_DSP_PM_D3;
