@@ -376,10 +376,17 @@ SND_SOC_DAILINK_DEF(ssp0_codec,
 
 SND_SOC_DAILINK_DEF(ssp1_pin,
 	DAILINK_COMP_ARRAY(COMP_CPU("SSP1 Pin")));
-SND_SOC_DAILINK_DEF(ssp1_codec,
+SND_SOC_DAILINK_DEF(ssp1_codec_2spk,
 	DAILINK_COMP_ARRAY(
 	/* WL */ COMP_CODEC("i2c-10EC1011:00", CML_RT1011_CODEC_DAI),
 	/* WR */ COMP_CODEC("i2c-10EC1011:01", CML_RT1011_CODEC_DAI)));
+SND_SOC_DAILINK_DEF(ssp1_codec_4spk,
+	DAILINK_COMP_ARRAY(
+	/* WL */ COMP_CODEC("i2c-10EC1011:00", CML_RT1011_CODEC_DAI),
+	/* WR */ COMP_CODEC("i2c-10EC1011:01", CML_RT1011_CODEC_DAI),
+	/* TL */ COMP_CODEC("i2c-10EC1011:02", CML_RT1011_CODEC_DAI),
+	/* TR */ COMP_CODEC("i2c-10EC1011:03", CML_RT1011_CODEC_DAI)));
+
 
 SND_SOC_DAILINK_DEF(dmic_pin,
 	DAILINK_COMP_ARRAY(COMP_CPU("DMIC01 Pin")));
@@ -475,11 +482,11 @@ static struct snd_soc_dai_link cml_rt1011_rt5682_dailink[] = {
 		.no_pcm = 1,
 		.init = cml_rt1011_spk_init,
 		.ops = &cml_rt1011_ops,
-		SND_SOC_DAILINK_REG(ssp1_pin, ssp1_codec, platform),
+		SND_SOC_DAILINK_REG(ssp1_pin, ssp1_codec_2spk, platform),
 	},
 };
 
-static struct snd_soc_codec_conf rt1011_conf[] = {
+static struct snd_soc_codec_conf rt1011_conf_2spk[] = {
 	{
 		.dlc = COMP_CODEC_CONF("i2c-10EC1011:00"),
 		.name_prefix = "WL",
@@ -490,13 +497,32 @@ static struct snd_soc_codec_conf rt1011_conf[] = {
 	},
 };
 
+static struct snd_soc_codec_conf rt1011_conf_4spk[] = {
+	{
+		.dlc = COMP_CODEC_CONF("i2c-10EC1011:00"),
+		.name_prefix = "WL",
+	},
+	{
+		.dlc = COMP_CODEC_CONF("i2c-10EC1011:01"),
+		.name_prefix = "WR",
+	},
+	{
+		.dlc = COMP_CODEC_CONF("i2c-10EC1011:02"),
+		.name_prefix = "TL",
+	},
+	{
+		.dlc = COMP_CODEC_CONF("i2c-10EC1011:03"),
+		.name_prefix = "TR",
+	},
+};
+
 /* Cometlake audio machine driver for RT1011 and RT5682 */
 static struct snd_soc_card snd_soc_card_cml = {
 	.name = "cml_rt1011_rt5682",
 	.dai_link = cml_rt1011_rt5682_dailink,
 	.num_links = ARRAY_SIZE(cml_rt1011_rt5682_dailink),
-	.codec_conf = rt1011_conf,
-	.num_configs = ARRAY_SIZE(rt1011_conf),
+	.codec_conf = rt1011_conf_2spk,
+	.num_configs = ARRAY_SIZE(rt1011_conf_2spk),
 	.dapm_widgets = cml_rt1011_rt5682_widgets,
 	.num_dapm_widgets = ARRAY_SIZE(cml_rt1011_rt5682_widgets),
 	.dapm_routes = cml_rt1011_rt5682_map,
@@ -509,7 +535,7 @@ static struct snd_soc_card snd_soc_card_cml = {
 
 static int snd_cml_rt1011_probe(struct platform_device *pdev)
 {
-	struct snd_soc_dai_link_component *rt1011_dais_components;
+	//struct snd_soc_dai_link_component *rt1011_dais_components;
 	struct snd_soc_codec_conf *rt1011_dais_confs;
 	struct card_private *ctx;
 	struct snd_soc_acpi_mach *mach;
@@ -527,66 +553,18 @@ static int snd_cml_rt1011_probe(struct platform_device *pdev)
 
 	dmi_check_system(sof_rt1011_quirk_table);
 
-	dev_info(&pdev->dev, "sof_rt1011_quirk = %lx\n", sof_rt1011_quirk);
+	dev_dbg(&pdev->dev, "sof_rt1011_quirk = %lx\n", sof_rt1011_quirk);
 
+	/* when 4 speaker is available, update codec config */
 	if (sof_rt1011_quirk & (SOF_RT1011_SPEAKER_TL |
 				SOF_RT1011_SPEAKER_TR)) {
-		rt1011_dais_confs = devm_kzalloc(&pdev->dev,
-					sizeof(struct snd_soc_codec_conf) *
-					SPK_CH, GFP_KERNEL);
-
-		if (!rt1011_dais_confs)
-			return -ENOMEM;
-
-		rt1011_dais_components = devm_kzalloc(&pdev->dev,
-					sizeof(struct snd_soc_dai_link_component) *
-					SPK_CH, GFP_KERNEL);
-
-		if (!rt1011_dais_components)
-			return -ENOMEM;
-
-		for (i = 0; i < SPK_CH; i++) {
-			rt1011_dais_confs[i].dlc.name = devm_kasprintf(&pdev->dev,
-								GFP_KERNEL,
-								"i2c-10EC1011:0%d",
-								i);
-
-			if (!rt1011_dais_confs[i].dlc.name)
-				return -ENOMEM;
-
-			switch (i) {
-			case 0:
-				rt1011_dais_confs[i].name_prefix = "WL";
-				break;
-			case 1:
-				rt1011_dais_confs[i].name_prefix = "WR";
-				break;
-			case 2:
-				rt1011_dais_confs[i].name_prefix = "TL";
-				break;
-			case 3:
-				rt1011_dais_confs[i].name_prefix = "TR";
-				break;
-			default:
-				return -EINVAL;
-			}
-			rt1011_dais_components[i].name = devm_kasprintf(&pdev->dev,
-								GFP_KERNEL,
-								"i2c-10EC1011:0%d",
-								i);
-			if (!rt1011_dais_components[i].name)
-				return -ENOMEM;
-
-			rt1011_dais_components[i].dai_name = CML_RT1011_CODEC_DAI;
-		}
-
-		snd_soc_card_cml.codec_conf = rt1011_dais_confs;
+		snd_soc_card_cml.codec_conf = rt1011_conf_4spk;
 		snd_soc_card_cml.num_configs = SPK_CH;
 
 		for (i = 0; i < ARRAY_SIZE(cml_rt1011_rt5682_dailink); i++) {
 			if (!strcmp(cml_rt1011_rt5682_dailink[i].codecs->dai_name,
 					CML_RT1011_CODEC_DAI)) {
-				cml_rt1011_rt5682_dailink[i].codecs = rt1011_dais_components;
+				cml_rt1011_rt5682_dailink[i].codecs = ssp1_codec_4spk;
 				cml_rt1011_rt5682_dailink[i].num_codecs = SPK_CH;
 			}
 		}
