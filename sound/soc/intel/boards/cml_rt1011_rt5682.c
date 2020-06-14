@@ -128,11 +128,15 @@ static int cml_rt5682_codec_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_soc_jack *jack;
 	int ret;
 
+	dev_dbg(rtd->dev, "%s: speaker_init card=%s component=%s\n", __func__, rtd->card->name, component->name);
+	printk("\t");
+
 	/* need to enable ASRC function for 24MHz mclk rate */
 	rt5682_sel_asrc_clk_src(component, RT5682_DA_STEREO1_FILTER |
 					RT5682_AD_STEREO1_FILTER,
 					RT5682_CLK_SEL_I2S1_ASRC);
 
+	dev_dbg(rtd->dev, "%s: set JACK\n", __func__);
 	/*
 	 * Headset buttons map to the google Reference headset.
 	 * These can be configured by userspace.
@@ -164,6 +168,8 @@ static int cml_rt1011_spk_init(struct snd_soc_pcm_runtime *rtd)
 {
 	int ret = 0;
 	struct snd_soc_card *card = rtd->card;
+
+	dev_dbg(rtd->dev, "%s: speaker_init card=%s start\n", __func__, card->name);
 
 	if (sof_rt1011_quirk & (SOF_RT1011_SPEAKER_TL |
 				SOF_RT1011_SPEAKER_TR)) {
@@ -316,6 +322,8 @@ static int sof_card_late_probe(struct snd_soc_card *card)
 	struct hdmi_pcm *pcm;
 	int ret, i = 0;
 
+	dev_dbg(card->dev, "Fred: %s: card=%s start\n", __func__, card->name);
+
 	if (list_empty(&ctx->hdmi_pcm_list))
 		return -EINVAL;
 
@@ -352,6 +360,8 @@ static int hdmi_init(struct snd_soc_pcm_runtime *rtd)
 	struct card_private *ctx = snd_soc_card_get_drvdata(rtd->card);
 	struct snd_soc_dai *dai = asoc_rtd_to_codec(rtd, 0);
 	struct hdmi_pcm *pcm;
+
+	dev_dbg(rtd->dev, "Fred: %s: hdmi_init card=%s start\n", __func__, rtd->card->name);
 
 	pcm = devm_kzalloc(rtd->card->dev, sizeof(*pcm), GFP_KERNEL);
 	if (!pcm)
@@ -413,6 +423,24 @@ SND_SOC_DAILINK_DEF(idisp3_codec,
 
 SND_SOC_DAILINK_DEF(platform,
 	DAILINK_COMP_ARRAY(COMP_PLATFORM("0000:00:1f.3")));
+
+static int sof_card_remove(struct snd_soc_card *card)
+{
+	struct snd_soc_component *component = NULL;
+	int i;
+
+	printk("Fred: %s: start card=%s\n", __func__, card->name);
+
+	for_each_card_components(card, component) {
+		printk("\tFred: component->name=%s ssp0_codec[0].name=%s\n",component->name, ssp0_codec[0].name);
+		if (!strcmp(component->name, ssp0_codec[0].name)) {
+			printk("Fred: set snd_soc_component_set_jack(component, NULL, NULL)\n");
+			snd_soc_component_set_jack(component, NULL, NULL);
+			break;
+		}
+	}
+	return 0;
+}
 
 static struct snd_soc_dai_link cml_rt1011_rt5682_dailink[] = {
 	/* Back End DAI links */
@@ -520,6 +548,7 @@ static struct snd_soc_card snd_soc_card_cml = {
 	.num_controls = ARRAY_SIZE(cml_controls),
 	.fully_routed = true,
 	.late_probe = sof_card_late_probe,
+	.remove = sof_card_remove,
 };
 
 static int snd_cml_rt1011_probe(struct platform_device *pdev)
@@ -568,8 +597,28 @@ static int snd_cml_rt1011_probe(struct platform_device *pdev)
 	return devm_snd_soc_register_card(&pdev->dev, &snd_soc_card_cml);
 }
 
+static int snd_cml_rt1011_remove(struct platform_device *pdev)
+{
+	struct snd_soc_card *card = platform_get_drvdata(pdev);
+	struct snd_soc_component *component;
+	struct snd_soc_pcm_runtime* rtd;
+	
+	printk("Fred: %s start card=%s\n", __func__, card->name);
+	for_each_card_components(card, component) {
+		printk("\tFred: component->name=%s ssp0_codec[0].name=%s\n",component->name, ssp0_codec[0].name);
+		if (!strcmp(component->name, ssp0_codec[0].name)) {
+			printk("Fred: set snd_soc_component_set_jack(component, NULL, NULL)\n");
+			snd_soc_component_set_jack(component, NULL, NULL);
+			break;
+		}
+	}
+
+	return 0;
+}
+
 static struct platform_driver snd_cml_rt1011_rt5682_driver = {
 	.probe = snd_cml_rt1011_probe,
+	.remove = snd_cml_rt1011_remove,
 	.driver = {
 		.name = "cml_rt1011_rt5682",
 		.pm = &snd_soc_pm_ops,
