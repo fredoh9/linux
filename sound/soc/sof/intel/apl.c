@@ -36,6 +36,7 @@ static void apl_register_clients(struct snd_sof_dev *sdev)
 	 * automatically when the ancillary device is registered making
 	 * them unique.
 	 */
+	printk("Fred: %s: start\n", __func__);
 	sof_client_dev_register(sdev, "sof-ipc-test");
 	sof_client_dev_register(sdev, "sof-ipc-test");
 #endif

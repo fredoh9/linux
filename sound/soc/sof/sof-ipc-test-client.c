@@ -241,7 +241,7 @@ static int sof_ipc_test_probe(struct ancillary_device *adev)
 {
 	struct sof_client_dev *cdev = ancillary_dev_to_sof_client_dev(adev);
 	struct sof_ipc_client_data *ipc_client_data;
-
+	printk("Fred: %s: start\n", __func__);
 	/*
 	 * The ancillary device has a usage count of 0 even before runtime PM
 	 * is enabled. So, increment the usage count to let the device

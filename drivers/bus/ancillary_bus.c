@@ -7,7 +7,6 @@
  * Please see Documentation/driver-api/ancillary_bus.rst for
  * more information
  */
-
 #include <linux/string.h>
 #include <linux/ancillary_bus.h>
 #include <linux/of_irq.h>
@@ -30,7 +29,10 @@ static const
 struct ancillary_device_id *ancillary_match_id(const struct ancillary_device_id *id,
 					struct ancillary_device *adev)
 {
+	printk("Fred: %s: start\n", __func__);
+
 	while (id->name[0]) {
+		printk("\tFred: adev->match_name=%s, id->name=%s\n", adev->match_name, id->name);
 		if (!strcmp(adev->match_name, id->name))
 			return id;
 		id++;
@@ -50,6 +52,7 @@ static int ancillary_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct ancillary_device *adev = to_ancillary_dev(dev);
 
+	printk("Fred: %s: start\n", __func__);
 	if (add_uevent_var(env, "MODALIAS=%s%s", ANCILLARY_MODULE_PREFIX,
 			   adev->match_name))
 		return -ENOMEM;
@@ -102,6 +105,7 @@ static void ancillary_release_device(struct device *_dev)
 int ancillary_register_device(struct ancillary_device *adev)
 {
 	int ret;
+	printk("Fred: %s: start\n", __func__);
 
 	if (WARN_ON(!adev->release))
 		return -EINVAL;
@@ -155,6 +159,7 @@ static int ancillary_probe_driver(struct device *_dev)
 	struct ancillary_device *adev = to_ancillary_dev(_dev);
 	int ret;
 
+	printk("Fred: %s: start\n", __func__);
 	ret = dev_pm_domain_attach(_dev, true);
 	if (ret) {
 		dev_warn(_dev, "Failed to attach to PM Domain : %d\n", ret);
@@ -219,9 +224,10 @@ static int ancillary_resume_driver(struct device *_dev)
  */
 int __ancillary_register_driver(struct ancillary_driver *adrv, struct module *owner)
 {
+	printk("Fred: %s: start\n", __func__);
 	if (!adrv->probe || !adrv->remove || !adrv->shutdown || !adrv->id_table)
 		return -EINVAL;
-
+	printk("\tFred: initialize adrv, bus_type, probe func etc\n");
 	adrv->driver.owner = owner;
 	adrv->driver.bus = &ancillary_bus_type;
 	adrv->driver.probe = ancillary_probe_driver;
@@ -236,6 +242,7 @@ EXPORT_SYMBOL_GPL(__ancillary_register_driver);
 
 static int __init ancillary_bus_init(void)
 {
+	printk("Fred: %s: start\n", __func__);
 	return bus_register(&ancillary_bus_type);
 }
 

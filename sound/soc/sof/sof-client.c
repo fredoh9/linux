@@ -21,6 +21,7 @@ static void sof_client_connect(struct ancillary_device *adev)
 {
 	struct sof_client_dev *cdev = ancillary_dev_to_sof_client_dev(adev);
 	struct snd_sof_dev *sdev = cdev->sdev;
+	printk("Fred: %s: start\n", __func__);
 
 	/* add to list of SOF client devices */
 	mutex_lock(&sdev->client_mutex);
@@ -51,6 +52,7 @@ int sof_client_dev_register(struct snd_sof_dev *sdev,
 {
 	struct sof_client_dev *cdev;
 	struct ancillary_device *adev;
+	printk("Fred: %s: start\n", __func__);
 
 	cdev = kzalloc(sizeof(*cdev), GFP_KERNEL);
 	if (!cdev)
