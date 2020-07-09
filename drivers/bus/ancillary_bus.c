@@ -46,6 +46,17 @@ static int ancillary_match(struct device *dev, struct device_driver *drv)
 	return ancillary_match_id(adrv->id_table, adev) != NULL;
 }
 
+static int ancillary_uevent(struct device *dev, struct kobj_uevent_env *env)
+{
+	struct ancillary_device *adev = to_ancillary_dev(dev);
+
+	if (add_uevent_var(env, "MODALIAS=%s%s", ANCILLARY_MODULE_PREFIX,
+			   adev->match_name))
+		return -ENOMEM;
+
+	return 0;
+}
+
 static int ancillary_suspend(struct device *dev, pm_message_t state)
 {
 	if (!dev->driver->suspend)
@@ -65,6 +76,7 @@ static int ancillary_resume(struct device *dev)
 struct bus_type ancillary_bus_type = {
 	.name = "ancillary",
 	.match = ancillary_match,
+	.uevent = ancillary_uevent,
 	.suspend = ancillary_suspend,
 	.resume = ancillary_resume,
 };
