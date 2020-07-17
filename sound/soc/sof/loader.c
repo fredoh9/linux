@@ -197,6 +197,29 @@ static int ext_man_get_dbg_abi_info(struct snd_sof_dev *sdev,
 	return 0;
 }
 
+static int ext_man_get_config_data(struct snd_sof_dev *sdev,
+				   const struct sof_ext_man_elem_header *hdr)
+{
+	const struct sof_ext_man_config_data *config_data =
+		container_of(hdr, struct sof_ext_man_config_data, hdr);
+	u32 ipc_size;
+	int i;
+
+	for (i = 0; i < SOF_EXT_MAN_CONFIG_LAST_ELEM - 1; i++)
+		switch (config_data->elems[i].token) {
+		case SOF_EXT_MAN_CONFIG_IPC_MSG_SIZE:
+			ipc_size = config_data->elems[i].value;
+			dev_dbg(sdev->dev, "IPC msg size: %d\n", ipc_size);
+			break;
+		default:
+			dev_warn(sdev->dev, "unsupported token type: %d\n",
+				 config_data->elems[i].token);
+			break;
+		}
+
+	return 0;
+}
+
 static ssize_t snd_sof_ext_man_size(const struct firmware *fw)
 {
 	const struct sof_ext_man_header *head;
@@ -278,6 +301,9 @@ static int snd_sof_fw_ext_man_parse(struct snd_sof_dev *sdev,
 			break;
 		case SOF_EXT_MAN_ELEM_DBG_ABI:
 			ret = ext_man_get_dbg_abi_info(sdev, elem_hdr);
+			break;
+		case SOF_EXT_MAN_ELEM_CONFIG_DATA:
+			ret = ext_man_get_config_data(sdev, elem_hdr);
 			break;
 		default:
 			dev_warn(sdev->dev, "warning: unknown sof_ext_man header type %d size 0x%X\n",
