@@ -407,6 +407,7 @@ struct snd_sof_dev {
 	struct sof_ipc_fw_ready fw_ready;
 	struct sof_ipc_fw_version fw_version;
 	struct sof_ipc_cc_version *cc_version;
+	s32 clk_config;
 
 	/* topology */
 	struct snd_soc_tplg_ops *tplg_ops;

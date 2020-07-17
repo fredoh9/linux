@@ -299,6 +299,7 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
 #if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_PROBES)
 	sdev->extractor_stream_tag = SOF_PROBE_INVALID_NODE_ID;
 #endif
+	sdev->clk_config = INT_MIN; /* initialize with negative number as UNKNOWN */
 	dev_set_drvdata(dev, sdev);
 
 	/* check all mandatory ops */
