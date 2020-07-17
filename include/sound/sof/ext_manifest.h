@@ -61,7 +61,21 @@ enum sof_ext_man_elem_type {
 	SOF_EXT_MAN_ELEM_WINDOW			= SOF_IPC_EXT_WINDOW,
 	SOF_EXT_MAN_ELEM_CC_VERSION		= SOF_IPC_EXT_CC_INFO,
 	SOF_EXT_MAN_ELEM_DBG_ABI		= SOF_IPC_EXT_USER_ABI_INFO,
+	SOF_EXT_MAN_ELEM_CONFIG_DATA		= SOF_IPC_EXT_CONFIG_DATA,
+	SOF_EXT_MAN_ELEM_PLATFORM_CONFIG_DATA	= SOF_IPC_EXT_PLATFORM_CONFIG_DATA,
+
 };
+
+/* EXT_MAN_ELEM_PLATFORM_CONFIG_DATA elements identificators */
+enum sof_cavs_config_elem_type {
+	SOF_EXT_MAN_CAVS_CONFIG_CAVS_LPRO	= 1,
+	SOF_EXT_MAN_CAVS_CONFIG_LAST_ELEM,	/*< keep it at the end of enum list */
+};
+
+struct sof_config_elem {
+	uint32_t token;
+	uint32_t value;
+} __packed;
 
 /* extended manifest element header */
 struct sof_ext_man_elem_header {
@@ -99,4 +113,10 @@ struct ext_man_dbg_abi {
 	struct sof_ipc_user_abi_version dbg_abi;
 } __packed;
 
+/* EXT_MAN_ELEM_PLATFORM_CONFIG_DATA elements */
+struct sof_ext_man_cavs_config_data {
+	struct sof_ext_man_elem_header hdr;
+
+	struct sof_config_elem elems[SOF_EXT_MAN_CAVS_CONFIG_LAST_ELEM];
+} __packed;
 #endif /* __SOF_FIRMWARE_EXT_MANIFEST_H__ */
