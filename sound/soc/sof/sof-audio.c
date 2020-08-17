@@ -11,6 +11,63 @@
 #include "sof-audio.h"
 #include "ops.h"
 
+static int sof_widget_free(struct snd_sof_dev *sdev, struct snd_sof_widget *swidget)
+{
+	struct sof_ipc_free ipc_free = {
+		.hdr = {
+			.size = sizeof(ipc_free),
+			.cmd = SOF_IPC_GLB_TPLG_MSG,
+		},
+		.id = swidget->comp_id,
+	};
+	struct sof_ipc_reply reply;
+	int ret;
+
+	if (!swidget->private)
+		return 0;
+
+	switch (swidget->id) {
+	case snd_soc_dapm_scheduler:
+		ipc_free.hdr.cmd |= SOF_IPC_TPLG_PIPE_FREE;
+		break;
+	case snd_soc_dapm_buffer:
+		ipc_free.hdr.cmd |= SOF_IPC_TPLG_BUFFER_FREE;
+		break;
+	default:
+		ipc_free.hdr.cmd |= SOF_IPC_TPLG_COMP_FREE;
+		break;
+	}
+
+	ret = sof_ipc_tx_message(sdev->ipc, ipc_free.hdr.cmd, &ipc_free, sizeof(ipc_free),
+				 &reply, sizeof(reply));
+	if (ret < 0) {
+		dev_err(sdev->dev, "error: failed to free widget %s\n", swidget->widget->name);
+	} else {
+		swidget->complete = 0;
+		dev_dbg(sdev->dev, "widget %s freed\n", swidget->widget->name);
+	}
+
+	return ret;
+}
+
+/*
+ * Free all widgets. This function should be called after topology parsing is complete to
+ * facilitate dynamic widget loading/unloading when a PCM stream is started/stopped.
+ */
+int sof_widgets_free_all(struct snd_soc_component *scomp)
+{
+	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+	struct snd_sof_widget *swidget;
+
+	/*
+	 * Free as many as possible even in case of errors
+	 */
+	list_for_each_entry_reverse(swidget, &sdev->widget_list, list)
+		sof_widget_free(sdev, swidget);
+
+	return 0;
+}
+
 /*
  * helper to determine if there are only D0i3 compatible
  * streams active
