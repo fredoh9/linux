@@ -243,6 +243,8 @@ int hda_dsp_enable_core(struct snd_sof_dev *sdev, unsigned int core_mask)
 	const struct sof_intel_dsp_desc *chip = hda->desc;
 	int ret;
 
+	dev_dbg(sdev->dev, "%s: core_mask = %x\n", __func__, core_mask);
+
 	/* restrict core_mask to host managed cores mask */
 	core_mask &= chip->host_managed_cores_mask;
 

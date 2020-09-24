@@ -335,6 +335,8 @@ int hda_dsp_iccmax_stream_hw_params(struct snd_sof_dev *sdev, struct hdac_ext_st
 	int ret;
 	u32 mask = 0x1 << hstream->index;
 
+	dev_dbg(sdev->dev, "%s: start\n", __func__);
+
 	if (!stream) {
 		dev_err(sdev->dev, "error: no stream available\n");
 		return -ENODEV;
