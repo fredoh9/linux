@@ -182,6 +182,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	}
 
 	/* load the firmware */
+	dev_err(sdev->dev, "%s: call snd_sof_load_firmware\n", __func__);
 	ret = snd_sof_load_firmware(sdev);
 	if (ret < 0) {
 		dev_err(sdev->dev, "error: failed to load DSP firmware %d\n",
@@ -195,6 +196,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 	 * Boot the firmware. The FW boot status will be modified
 	 * in snd_sof_run_firmware() depending on the outcome.
 	 */
+	dev_err(sdev->dev, "%s: call snd_sof_run_firmware\n", __func__);
 	ret = snd_sof_run_firmware(sdev);
 	if (ret < 0) {
 		dev_err(sdev->dev, "error: failed to boot DSP firmware %d\n",
@@ -231,6 +233,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
 		goto fw_trace_err;
 	}
 
+	dev_err(sdev->dev, "%s: call snd_sof_machine_register\n", __func__);
 	ret = snd_sof_machine_register(sdev, plat_data);
 	if (ret < 0)
 		goto fw_trace_err;

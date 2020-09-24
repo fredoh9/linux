@@ -90,6 +90,10 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
 	unsigned int status;
 	int ret;
 	int i;
+	u32 iccmax_mask;
+
+	dev_err(sdev->dev, "%s: CHIP cores=%d managed_core_mask=%d init_core_mask=%d\n", __func__, chip->cores_num,
+		chip->host_managed_cores_mask, chip->init_core_mask);
 
 	/* step 1: power up corex */
 	ret = hda_dsp_core_power_up(sdev, chip->host_managed_cores_mask);
@@ -114,8 +118,17 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
 			  chip->ipc_req_mask | (HDA_DSP_IPC_PURGE_FW |
 			  ((stream_tag - 1) << 9)));
 
+
+	/* Fred: 1. Only for ICL
+	 *       2. Only when HPRO, set C3 core to up
+	 */
+	if (hda->clk_config_lpro)
+		iccmax_mask = BIT(0);
+	else
+		iccmax_mask = BIT(0) | BIT(3);
+
 	/* step 3: unset core 0 reset state & unstall/run core 0 */
-	ret = hda_dsp_core_run(sdev, BIT(0));
+	ret = hda_dsp_core_run(sdev, iccmax_mask);
 	if (ret < 0) {
 		if (hda->boot_iteration == HDA_FW_BOOT_ATTEMPTS)
 			dev_err(sdev->dev,
@@ -147,7 +160,7 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
 				       chip->ipc_ack_mask);
 
 	/* step 5: power down corex */
-	ret = hda_dsp_core_power_down(sdev, chip->host_managed_cores_mask & ~(BIT(0)));
+	ret = hda_dsp_core_power_down(sdev, chip->host_managed_cores_mask & ~(iccmax_mask));
 	if (ret < 0) {
 		if (hda->boot_iteration == HDA_FW_BOOT_ATTEMPTS)
 			dev_err(sdev->dev,
@@ -215,6 +228,8 @@ static int cl_cleanup(struct snd_sof_dev *sdev, struct snd_dma_buffer *dmab,
 	int sd_offset = SOF_STREAM_SD_OFFSET(hstream);
 	int ret = 0;
 
+	dev_err(sdev->dev,"%s: start... direction=%d\n", __func__, hstream->direction);
+
 	if (hstream->direction == SNDRV_PCM_STREAM_PLAYBACK)
 		ret = hda_dsp_stream_spib_config(sdev, stream, HDA_DSP_SPIB_DISABLE, 0);
 	else
@@ -281,12 +296,15 @@ static int cl_copy_fw(struct snd_sof_dev *sdev, struct hdac_ext_stream *stream)
 
 int hda_dsp_cl_boot_firmware_iccmax(struct snd_sof_dev *sdev)
 {
+	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
 	struct snd_sof_pdata *plat_data = sdev->pdata;
 	struct hdac_ext_stream *iccmax_stream;
 	struct hdac_bus *bus = sof_to_bus(sdev);
 	struct firmware stripped_firmware;
 	int ret, ret1;
 	u8 original_gb;
+
+	dev_err(sdev->dev, "%s: start... ICCMAX\n", __func__);
 
 	/* save the original LTRP guardband value */
 	original_gb = snd_hdac_chip_readb(bus, VS_LTRP) & HDA_VS_INTEL_LTRP_GB_MASK;
@@ -308,6 +326,12 @@ int hda_dsp_cl_boot_firmware_iccmax(struct snd_sof_dev *sdev)
 
 	ret = hda_dsp_cl_boot_firmware(sdev);
 
+	// Ferd HACK: if HPRO is enabled, update 4th bit to enable
+	if (!hda->clk_config_lpro) {
+		int retold = ret;
+		ret = ret | (1<<3);
+		dev_err(sdev->dev, "%s: HPRO [%d] -> [%d]\n", __func__, retold, ret);
+	}
 	/*
 	 * Perform iccmax stream cleanup. This should be done even if firmware loading fails.
 	 * If the cleanup also fails, we return the initial error
@@ -336,6 +360,8 @@ int hda_dsp_cl_boot_firmware(struct snd_sof_dev *sdev)
 	struct hdac_ext_stream *stream;
 	struct firmware stripped_firmware;
 	int ret, ret1, i;
+
+	dev_err(sdev->dev, "%s: start... NON-ICCMAX\n", __func__);
 
 	chip_info = desc->chip_info;
 
@@ -448,6 +474,8 @@ cleanup:
 /* pre fw run operations */
 int hda_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 {
+	dev_err(sdev->dev, "%s: pre fw run operations\n", __func__);
+
 	/* disable clock gating and power gating */
 	return hda_dsp_ctrl_clock_power_gating(sdev, false);
 }
@@ -456,6 +484,8 @@ int hda_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 int hda_dsp_post_fw_run(struct snd_sof_dev *sdev)
 {
 	int ret;
+
+	dev_err(sdev->dev, "%s: post fw run operations, first_boot=%d\n", __func__, sdev->first_boot);
 
 	if (sdev->first_boot) {
 		ret = hda_sdw_startup(sdev);

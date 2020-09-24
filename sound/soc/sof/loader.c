@@ -448,6 +448,8 @@ int sof_fw_ready(struct snd_sof_dev *sdev, u32 msg_id)
 	int bar;
 	int ret;
 
+	dev_err(sdev->dev, "%s: start...\n", __func__);
+
 	/* mailbox must be on 4k boundary */
 	offset = snd_sof_dsp_get_mailbox_offset(sdev);
 	if (offset < 0) {
