@@ -294,6 +294,9 @@ const struct snd_sof_dsp_ops sof_cnl_ops = {
 	.pre_fw_run = hda_dsp_pre_fw_run,
 	.post_fw_run = hda_dsp_post_fw_run,
 
+	/* parse Intel platform specific ext manifest */
+	.parse_hda_ext_manifest = hda_dsp_parse_platform_ext_manifest,
+
 	/* dsp core power up/down */
 	.core_power_up = hda_dsp_enable_core,
 	.core_power_down = hda_dsp_core_reset_power_down,

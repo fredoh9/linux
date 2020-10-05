@@ -19,6 +19,7 @@
 #include <sound/hdaudio_ext.h>
 #include <sound/hda_register.h>
 #include <sound/sof.h>
+#include "intel_ext_manifest.h"
 #include "../ops.h"
 #include "hda.h"
 
@@ -470,3 +471,121 @@ int hda_dsp_post_fw_run(struct snd_sof_dev *sdev)
 	/* re-enable clock gating and power gating */
 	return hda_dsp_ctrl_clock_power_gating(sdev, true);
 }
+
+static int hda_dsp_ext_man_get_cavs_config_data(struct snd_sof_dev *sdev,
+				   const struct sof_ext_man_elem_header *hdr)
+{
+	const struct sof_ext_man_cavs_config_data *config_data =
+		container_of(hdr, struct sof_ext_man_cavs_config_data, hdr);
+	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
+	int i;
+
+	for (i = 0; i < SOF_EXT_MAN_CAVS_CONFIG_LAST_ELEM - 1; i++)
+		switch (config_data->elems[i].token) {
+		case SOF_EXT_MAN_CAVS_CONFIG_CAVS_LPRO:
+			hda->clk_config = config_data->elems[i].value;
+			dev_dbg(sdev->dev, "FW clock config: %s\n", hda->clk_config ? "LPRO" : "HPRO");
+			break;
+		default:
+			dev_warn(sdev->dev, "unsupported token type: %d\n",
+				 config_data->elems[i].token);
+			break;
+		}
+
+	return 0;
+}
+
+static ssize_t snd_sof_ext_man_size(const struct firmware *fw)
+{
+	const struct sof_ext_man_header *head;
+
+	head = (struct sof_ext_man_header *)fw->data;
+
+	/*
+	 * assert fw size is big enough to contain extended manifest header,
+	 * it prevents from reading unallocated memory from `head` in following
+	 * step.
+	 */
+	if (fw->size < sizeof(*head))
+		return -EINVAL;
+
+	/*
+	 * When fw points to extended manifest,
+	 * then first u32 must be equal SOF_EXT_MAN_MAGIC_NUMBER.
+	 */
+	if (head->magic == SOF_EXT_MAN_MAGIC_NUMBER)
+		return head->full_size;
+
+	/* otherwise given fw don't have an extended manifest */
+	return 0;
+}
+
+/* Parse Intel platform specific ext manifest */
+int hda_dsp_parse_platform_ext_manifest(struct snd_sof_dev *sdev)
+{
+	struct snd_sof_pdata *plat_data = sdev->pdata;
+	const struct firmware *fw = plat_data->fw;
+	const struct sof_ext_man_elem_header *elem_hdr;
+	const struct sof_ext_man_header *head;
+	ssize_t ext_man_size;
+	ssize_t remaining;
+	uintptr_t iptr;
+	int ret = 0;
+
+	head = (struct sof_ext_man_header *)fw->data;
+	remaining = head->full_size - head->header_size;
+	ext_man_size = snd_sof_ext_man_size(fw);
+
+	/* Assert firmware starts with extended manifest */
+	if (ext_man_size <= 0)
+		return ext_man_size;
+
+	/* incompatible version */
+	if (SOF_EXT_MAN_VERSION_INCOMPATIBLE(SOF_EXT_MAN_VERSION,
+					     head->header_version)) {
+		dev_err(sdev->dev, "error: extended manifest version 0x%X differ from used 0x%X\n",
+			head->header_version, SOF_EXT_MAN_VERSION);
+		return -EINVAL;
+	}
+
+	/* get first extended manifest element header */
+	iptr = (uintptr_t)fw->data + head->header_size;
+
+	while (remaining > sizeof(*elem_hdr)) {
+		elem_hdr = (struct sof_ext_man_elem_header *)iptr;
+
+		dev_dbg(sdev->dev, "found sof_ext_man header type %d size 0x%X\n",
+			elem_hdr->type, elem_hdr->size);
+
+		if (elem_hdr->size < sizeof(*elem_hdr) ||
+		    elem_hdr->size > remaining) {
+			dev_err(sdev->dev, "error: invalid sof_ext_man header size, type %d size 0x%X\n",
+				elem_hdr->type, elem_hdr->size);
+			return -EINVAL;
+		}
+
+		/* process only platform specific data */
+		switch (elem_hdr->type) {
+		case SOF_EXT_MAN_ELEM_PLATFORM_CONFIG_DATA:
+			ret = hda_dsp_ext_man_get_cavs_config_data(sdev, elem_hdr);
+			break;
+		}
+
+		if (ret < 0) {
+			dev_err(sdev->dev, "error: failed to parse sof_ext_man header type %d size 0x%X\n",
+				elem_hdr->type, elem_hdr->size);
+			return ret;
+		}
+
+		remaining -= elem_hdr->size;
+		iptr += elem_hdr->size;
+	}
+
+	if (remaining) {
+		dev_err(sdev->dev, "error: sof_ext_man header is inconsistent\n");
+		return -EINVAL;
+	}
+
+	return ext_man_size;
+}
+

@@ -207,6 +207,7 @@ struct snd_sof_dsp_ops {
 	/* pre/post firmware run */
 	int (*pre_fw_run)(struct snd_sof_dev *sof_dev); /* optional */
 	int (*post_fw_run)(struct snd_sof_dev *sof_dev); /* optional */
+	int (*parse_hda_ext_manifest)(struct snd_sof_dev *sof_dev); /* optional */
 
 	/* DSP PM */
 	int (*suspend)(struct snd_sof_dev *sof_dev,

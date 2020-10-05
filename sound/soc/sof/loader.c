@@ -305,6 +305,9 @@ static int snd_sof_fw_ext_man_parse(struct snd_sof_dev *sdev,
 		case SOF_EXT_MAN_ELEM_CONFIG_DATA:
 			ret = ext_man_get_config_data(sdev, elem_hdr);
 			break;
+		case SOF_EXT_MAN_ELEM_PLATFORM_CONFIG_DATA:
+			/* this is platform specific data, no need to print warning */
+			break;
 		default:
 			dev_warn(sdev->dev, "warning: unknown sof_ext_man header type %d size 0x%X\n",
 				 elem_hdr->type, elem_hdr->size);
@@ -772,11 +775,17 @@ EXPORT_SYMBOL(snd_sof_load_firmware_memcpy);
 
 int snd_sof_load_firmware(struct snd_sof_dev *sdev)
 {
+	int ret;
 	dev_dbg(sdev->dev, "loading firmware\n");
 
 	if (sof_ops(sdev)->load_firmware)
-		return sof_ops(sdev)->load_firmware(sdev);
-	return 0;
+		ret = sof_ops(sdev)->load_firmware(sdev);
+
+	/* parse platform specific data after load firmware, safely ignore return value */
+	if (sof_ops(sdev)->parse_hda_ext_manifest)
+		sof_ops(sdev)->parse_hda_ext_manifest(sdev);
+
+	return ret;
 }
 EXPORT_SYMBOL(snd_sof_load_firmware);
 

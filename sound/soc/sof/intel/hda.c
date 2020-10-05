@@ -790,6 +790,7 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 #else
 	hdev->no_ipc_position = sof_ops(sdev)->pcm_pointer ? 1 : 0;
 #endif
+	hdev->clk_config = INT_MIN; /* initialize with negative number as UNKNOWN */
 
 	/* set up HDA base */
 	bus = sof_to_bus(sdev);

@@ -447,6 +447,9 @@ struct sof_intel_hda_dev {
 
 	/* sdw context allocated by SoundWire driver */
 	struct sdw_intel_ctx *sdw;
+
+	/* FW clock config, 0:LPRO, 1:HPRO */
+	s32 clk_config;
 };
 
 static inline struct hdac_bus *sof_to_bus(struct snd_sof_dev *s)
@@ -617,6 +620,9 @@ int hda_dsp_cl_boot_firmware_skl(struct snd_sof_dev *sdev);
 /* pre and post fw run ops */
 int hda_dsp_pre_fw_run(struct snd_sof_dev *sdev);
 int hda_dsp_post_fw_run(struct snd_sof_dev *sdev);
+
+/* parse Intel specific ext manifest ops */
+int hda_dsp_parse_platform_ext_manifest(struct snd_sof_dev *sdev);
 
 /*
  * HDA Controller Operations.
