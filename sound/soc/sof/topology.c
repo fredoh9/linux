@@ -3609,6 +3609,7 @@ static void sof_complete(struct snd_soc_component *scomp)
 {
 	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
 	struct snd_sof_widget *swidget;
+	int i, ret;
 
 	/* some widget types require completion notificattion */
 	list_for_each_entry(swidget, &sdev->widget_list, list) {
@@ -3629,6 +3630,23 @@ static void sof_complete(struct snd_soc_component *scomp)
 	 * IPC. It may be overwritten by alsa-mixer after booting up
 	 */
 	snd_sof_cache_kcontrol_val(scomp);
+
+/* Fred: experimental for possible memory leak */
+#define FRED_LOOP 50
+	for(i = 0; i < FRED_LOOP; i++) {
+		dev_dbg(scomp->dev, "Fred: [%d/50] sof_widget_free_all()\n",i);
+		sof_widgets_free_all(scomp);
+
+		/* restore pipelines */
+		ret = sof_restore_pipelines(scomp->dev);
+		if (ret < 0) {
+			dev_err(scomp->dev, "error: failed to restore pipeline %d\n", ret);
+			return;
+		}
+	}
+
+	sof_widgets_free_all(scomp);
+
 }
 
 /* manifest - optional to inform component of manifest */
