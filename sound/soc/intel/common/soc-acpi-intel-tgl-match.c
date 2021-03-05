@@ -188,11 +188,13 @@ static const struct snd_soc_acpi_link_adr tgl_rvp[] = {
 		.num_adr = ARRAY_SIZE(rt711_0_adr),
 		.adr_d = rt711_0_adr,
 	},
+#if 0
 	{
 		.mask = BIT(1),
 		.num_adr = ARRAY_SIZE(rt1308_1_dual_adr),
 		.adr_d = rt1308_1_dual_adr,
 	},
+#endif
 	{}
 };
 
@@ -351,6 +353,13 @@ EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_tgl_machines);
 
 /* this table is used when there is no I2S codec present */
 struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_sdw_machines[] = {
+	{
+		.link_mask = 0x1, /* SDW#0=0x1, SDW#0+SDW#1=0x3 */
+		.links = tgl_rvp,
+		.drv_name = "sof_sdw",
+		.sof_fw_filename = "sof-tgl.ri",
+		.sof_tplg_filename = "sof-adls-rt711.tplg",
+	},
 	{
 		.link_mask = 0x7,
 		.links = tgl_sdw_rt711_link1_rt1308_link2_rt715_link0,
