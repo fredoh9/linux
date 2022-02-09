@@ -912,8 +912,8 @@ static int sof_ipc4_get_dmic_vendor_blob(struct snd_sof_dev *sdev, struct nhlt_e
 static int snd_sof_get_nhlt_endpoint_data(struct snd_sof_dev *sdev, u32 dai_index, u32 linktype,
 					  u32 **dst, u32 *len)
 {
-	struct nhlt_acpi_table *top = (struct nhlt_acpi_table *)sdev->nhlt_blob;
-	u8 *byte_p = sdev->nhlt_blob + sizeof(struct nhlt_acpi_table);
+	struct nhlt_acpi_table *top = (struct nhlt_acpi_table *)sdev->nhlt;
+	u8 *byte_p = sdev->nhlt + sizeof(struct nhlt_acpi_table);
 	struct nhlt_endpoint *ep;
 	bool found = false;
 	int ret = 0;
