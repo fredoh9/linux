@@ -13,6 +13,7 @@
 #include "sof-priv.h"
 #include "sof-audio.h"
 #include "ipc4-priv.h"
+#include "ipc4-mtrace.h"
 #include "ops.h"
 
 #ifdef DEBUG_VERBOSE
@@ -533,6 +534,9 @@ static int ipc4_fw_ready(struct snd_sof_dev *sdev, struct sof_ipc4_msg *ipc4_msg
 	sdev->host_box.offset = outbox_offset;
 	sdev->host_box.size = outbox_size;
 
+	sdev->debug_box.offset = snd_sof_dsp_get_window_offset(sdev, 2);
+	sdev->debug_box.size = IPC4_DBOX_CAVS_25_SIZE;
+
 	dev_dbg(sdev->dev, "mailbox upstream 0x%x - size 0x%x\n",
 		inbox_offset, inbox_size);
 	dev_dbg(sdev->dev, "mailbox downstream 0x%x - size 0x%x\n",
@@ -572,6 +576,9 @@ static void sof_ipc4_rx_msg(struct snd_sof_dev *sdev)
 		break;
 	case SOF_IPC4_NOTIFY_RESOURCE_EVENT:
 		data_size = sizeof(struct sof_ipc4_notify_resource_data);
+		break;
+	case SOF_IPC4_NOTIFY_LOG_BUFFER_STATUS:
+		sof_ipc4_mtrace_update_pos(sdev);
 		break;
 	default:
 		dev_dbg(sdev->dev, "%s: Unhandled DSP message: %#x|%#x\n", __func__,
@@ -644,6 +651,7 @@ const struct sof_ipc_ops ipc4_ops = {
 	.get_reply = sof_ipc4_get_reply,
 	.pm = &ipc4_pm_ops,
 	.fw_loader = &ipc4_loader_ops,
+	.fw_tracing = &ipc4_mtrace_ops,
 	.tplg = &ipc4_tplg_ops,
 	.pcm = &ipc4_pcm_ops,
 };
