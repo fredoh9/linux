@@ -82,7 +82,7 @@ static int tgl_dsp_ipc4_core_get(struct snd_sof_dev *sdev, int core)
 	msg.data_size = sizeof(dx_info);
 
 	/* now send the iPC */
-	return sof_ipc_tx_message(sdev->ipc, &msg, 0, NULL, 0);
+	return sof_ipc_tx_message(sdev->ipc, &msg, sizeof(dx_info), NULL, 0);
 }
 
 static int tgl_dsp_ipc4_core_put(struct snd_sof_dev *sdev, int core)
@@ -99,7 +99,7 @@ static int tgl_dsp_ipc4_core_put(struct snd_sof_dev *sdev, int core)
 	msg.data_size = sizeof(dx_info);
 
 	/* now send the iPC */
-	return sof_ipc_tx_message(sdev->ipc, &msg, 0, NULL, 0);
+	return sof_ipc_tx_message(sdev->ipc, &msg, sizeof(dx_info), NULL, 0);
 }
 
 /* Tigerlake ops */
