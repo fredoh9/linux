@@ -213,6 +213,7 @@ int sof_pci_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 	sof_pdata->desc = desc;
 	sof_pdata->dev = dev;
 
+	dev_dbg(&pci->dev, "set ipc_type %d\n", desc->ipc_default);
 	sof_pdata->ipc_type = desc->ipc_default;
 
 	if (sof_pci_ipc_type < 0) {
@@ -233,6 +234,7 @@ int sof_pci_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		}
 		sof_pdata->ipc_type = sof_pci_ipc_type;
 	}
+	dev_dbg(&pci->dev, "check ipc_type %d\n", sof_pdata->ipc_type);
 
 	if (fw_filename) {
 		sof_pdata->fw_filename = fw_filename;
