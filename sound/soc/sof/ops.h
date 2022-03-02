@@ -67,11 +67,13 @@ static inline int snd_sof_shutdown(struct snd_sof_dev *sdev)
  */
 static inline int snd_sof_dsp_run(struct snd_sof_dev *sdev)
 {
+	dev_dbg(sdev->dev, "Fred: run\n");
 	return sof_ops(sdev)->run(sdev);
 }
 
 static inline int snd_sof_dsp_stall(struct snd_sof_dev *sdev, unsigned int core_mask)
 {
+	dev_dbg(sdev->dev, "Fred: core_mask: %d\n", core_mask);
 	if (sof_ops(sdev)->stall)
 		return sof_ops(sdev)->stall(sdev, core_mask);
 
@@ -80,6 +82,7 @@ static inline int snd_sof_dsp_stall(struct snd_sof_dev *sdev, unsigned int core_
 
 static inline int snd_sof_dsp_reset(struct snd_sof_dev *sdev)
 {
+	dev_dbg(sdev->dev, "Fred: dsp_reset\n");
 	if (sof_ops(sdev)->reset)
 		return sof_ops(sdev)->reset(sdev);
 
@@ -89,6 +92,7 @@ static inline int snd_sof_dsp_reset(struct snd_sof_dev *sdev)
 /* dsp core get/put */
 static inline int snd_sof_dsp_core_get(struct snd_sof_dev *sdev, int core)
 {
+	dev_dbg(sdev->dev, "Fred: core id: %d for num_cores: %d\n", core, sdev->num_cores);
 	if (core > sdev->num_cores - 1) {
 		dev_err(sdev->dev, "invalid core id: %d for num_cores: %d\n", core,
 			sdev->num_cores);
@@ -101,6 +105,7 @@ static inline int snd_sof_dsp_core_get(struct snd_sof_dev *sdev, int core)
 		/* if current ref_count is > 0, increment it and return */
 		if (sdev->dsp_core_ref_count[core] > 0) {
 			sdev->dsp_core_ref_count[core]++;
+			dev_dbg(sdev->dev, "Fred: core %d incresed dsp_core_ref_count %d return\n", core, sdev->dsp_core_ref_count[core]);
 			return 0;
 		}
 
@@ -116,6 +121,8 @@ static inline int snd_sof_dsp_core_get(struct snd_sof_dev *sdev, int core)
 		sdev->enabled_cores_mask |= BIT(core);
 
 		dev_dbg(sdev->dev, "Core %d powered up\n", core);
+	}else {
+		dev_err(sdev->dev, "sof_ops(sdev)->core_get is NULL\n");
 	}
 
 	return 0;
@@ -123,6 +130,7 @@ static inline int snd_sof_dsp_core_get(struct snd_sof_dev *sdev, int core)
 
 static inline int snd_sof_dsp_core_put(struct snd_sof_dev *sdev, int core)
 {
+	dev_dbg(sdev->dev, "Fred: core id: %d\n", core);
 	if (core > sdev->num_cores - 1) {
 		dev_err(sdev->dev, "invalid core id: %d for num_cores: %d\n", core,
 			sdev->num_cores);
@@ -133,8 +141,10 @@ static inline int snd_sof_dsp_core_put(struct snd_sof_dev *sdev, int core)
 		int ret;
 
 		/* decrement ref_count and return if it is > 0 */
-		if (--(sdev->dsp_core_ref_count[core]) > 0)
+		if (--(sdev->dsp_core_ref_count[core]) > 0) {
+			dev_dbg(sdev->dev, "Fred: core %d decreased dsp_core_ref_count %d return\n", core, sdev->dsp_core_ref_count[core]);
 			return 0;
+		}
 
 		/* power down the core */
 		ret = sof_ops(sdev)->core_put(sdev, core);

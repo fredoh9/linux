@@ -1015,6 +1015,8 @@ int hda_dsp_core_get(struct snd_sof_dev *sdev, int core)
 	const struct sof_ipc_pm_ops *pm_ops = sdev->ipc->ops->pm;
 	int ret, ret1;
 
+	dev_dbg(sdev->dev, "Fred: power up core %d\n",core);
+
 	/* power up core */
 	ret = hda_dsp_enable_core(sdev, BIT(core));
 	if (ret < 0) {

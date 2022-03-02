@@ -84,6 +84,8 @@ int sof_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget *swidget)
 	const struct sof_ipc_tplg_ops *tplg_ops = sdev->ipc->ops->tplg;
 	int ret;
 
+	dev_dbg(sdev->dev, "%s start...swidget->core %d\n", __func__, swidget->core);
+
 	/* skip if there is no private data */
 	if (!swidget->private)
 		return 0;

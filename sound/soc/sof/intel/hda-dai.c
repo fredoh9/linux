@@ -822,6 +822,7 @@ void hda_set_dai_drv_ops(struct snd_sof_dev *sdev, struct snd_sof_dsp_ops *ops)
 		break;
 	}
 	default:
+		dev_dbg(sdev->dev, "default case ipc_type %d\n", sdev->pdata->ipc_type);
 		break;
 	}
 }

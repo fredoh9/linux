@@ -68,6 +68,9 @@ static int tgl_dsp_ipc4_core_get(struct snd_sof_dev *sdev, int core)
 	msg.primary = SOF_IPC4_MSG_TYPE_SET(SOF_IPC4_MOD_SET_DX);
 	msg.primary |= SOF_IPC4_MSG_DIR(SOF_IPC4_MSG_REQUEST);
 	msg.primary |= SOF_IPC4_MSG_TARGET(SOF_IPC4_MODULE_MSG);
+
+	dev_dbg(sdev->dev, "Fred: core_get core=%d dx_mask=%d\n", core, dx_info.dx_mask);
+
 	msg.data_ptr = &dx_info;
 	msg.data_size = sizeof(dx_info);
 
@@ -85,6 +88,9 @@ static int tgl_dsp_ipc4_core_put(struct snd_sof_dev *sdev, int core)
 	msg.primary = SOF_IPC4_MSG_TYPE_SET(SOF_IPC4_MOD_SET_DX);
 	msg.primary |= SOF_IPC4_MSG_DIR(SOF_IPC4_MSG_REQUEST);
 	msg.primary |= SOF_IPC4_MSG_TARGET(SOF_IPC4_MODULE_MSG);
+
+	dev_dbg(sdev->dev, "Fred: core_put core=%d dx_mask=%d\n", core, dx_info.dx_mask);
+
 	msg.data_ptr = &dx_info;
 	msg.data_size = sizeof(dx_info);
 
@@ -98,6 +104,8 @@ EXPORT_SYMBOL_NS(sof_tgl_ops, SND_SOC_SOF_INTEL_HDA_COMMON);
 
 int sof_tgl_ops_init(struct snd_sof_dev *sdev)
 {
+	dev_dbg(sdev->dev, "Fred: sof_tgl_ops_init() start... ipc_type=%d\n", sdev->pdata->ipc_type);
+
 	/* common defaults */
 	memcpy(&sof_tgl_ops, &sof_hda_common_ops, sizeof(struct snd_sof_dsp_ops));
 
@@ -122,6 +130,8 @@ int sof_tgl_ops_init(struct snd_sof_dev *sdev)
 		sdev->private = devm_kzalloc(sdev->dev, sizeof(*ipc4_data), GFP_KERNEL);
 		if (!sdev->private)
 			return -ENOMEM;
+
+		dev_dbg(sdev->dev, "Fred: sof_tgl_ops for ipc4\n");
 
 		ipc4_data = sdev->private;
 		ipc4_data->manifest_fw_hdr_offset = SOF_MAN4_FW_HDR_OFFSET;
