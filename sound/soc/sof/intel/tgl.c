@@ -75,6 +75,8 @@ static int tgl_dsp_ipc4_core_get(struct snd_sof_dev *sdev, int core)
 
 	dx_info.core_mask = BIT(core);
 	dx_info.dx_mask = BIT(core);
+	dev_dbg(sdev->dev, "FRED: core_get core=%d dx_mask=%d\n", core, dx_info.dx_mask);
+
 	msg.primary = SOF_IPC4_GLB_MSG_TYPE(SOF_IPC4_MOD_SET_DX);
 	msg.primary |= SOF_IPC4_GLB_MSG_DIR(SOF_IPC4_MSG_REQUEST);
 	msg.primary |= SOF_IPC4_GLB_MSG_TARGET(SOF_IPC4_MODULE_MSG);
@@ -92,6 +94,8 @@ static int tgl_dsp_ipc4_core_put(struct snd_sof_dev *sdev, int core)
 
 	dx_info.core_mask = BIT(core);
 	dx_info.dx_mask = ~BIT(core);
+	dev_dbg(sdev->dev, "FRED: core_put core=%d dx_mask=%d\n", core, dx_info.dx_mask);
+
 	msg.primary = SOF_IPC4_GLB_MSG_TYPE(SOF_IPC4_MOD_SET_DX);
 	msg.primary |= SOF_IPC4_GLB_MSG_DIR(SOF_IPC4_MSG_REQUEST);
 	msg.primary |= SOF_IPC4_GLB_MSG_TARGET(SOF_IPC4_MODULE_MSG);
@@ -108,6 +112,8 @@ EXPORT_SYMBOL_NS(sof_tgl_ops, SND_SOC_SOF_INTEL_HDA_COMMON);
 
 int sof_tgl_ops_init(struct snd_sof_dev *sdev)
 {
+	dev_dbg(sdev->dev, "FRED: sof_tgl_ops_init() start... ipc_type=%d\n", sdev->pdata->ipc_type);
+
 	/* common defaults */
 	memcpy(&sof_tgl_ops, &sof_hda_common_ops, sizeof(struct snd_sof_dsp_ops));
 

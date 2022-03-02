@@ -83,6 +83,7 @@ static inline int snd_sof_dsp_reset(struct snd_sof_dev *sdev)
 /* dsp core get/put */
 static inline int snd_sof_dsp_core_get(struct snd_sof_dev *sdev, int core)
 {
+	dev_dbg(sdev->dev, "FRED: %s core id: %d for num_cores: %d\n", __func__, core, sdev->num_cores);
 	if (core > sdev->num_cores - 1) {
 		dev_err(sdev->dev, "invalid core id: %d for num_cores: %d\n", core,
 			sdev->num_cores);
@@ -110,6 +111,8 @@ static inline int snd_sof_dsp_core_get(struct snd_sof_dev *sdev, int core)
 		sdev->enabled_cores_mask |= BIT(core);
 
 		dev_dbg(sdev->dev, "Core %d powered up\n", core);
+	}else {
+		dev_err(sdev->dev, "sof_ops(sdev)->core_get is NULL\n");
 	}
 
 	return 0;
