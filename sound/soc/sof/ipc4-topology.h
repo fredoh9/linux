@@ -217,4 +217,11 @@ struct sof_ipc4_mixer {
 	struct sof_ipc4_available_audio_format available_fmt;
 	struct sof_ipc4_msg msg;
 };
+
+/* Fred: IPC4 effect config data */
+struct sof_ipc4_effect {
+	struct sof_ipc4_base_module_cfg base_config;
+	struct sof_ipc4_available_audio_format available_fmt;
+	struct sof_ipc4_msg msg;
+};
 #endif

@@ -117,6 +117,13 @@ static const struct sof_topology_token ipc4_core_tokens[] = {
        {SOF_TKN_COMP_CORE_ID, SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32, 0},
 };
 
+static const struct sof_topology_token ipc4_process_tokens[] = {
+/*	Fred: No data to parse?
+	SOF_TKN_EFFECT_TYPE = SOF_TKN_PROCESS_TYPE
+*/
+       {SOF_TKN_PROCESS_TYPE, SND_SOC_TPLG_TUPLE_TYPE_STRING, get_token_dai_type, 0},
+};
+
 static const struct sof_token_info ipc4_token_list[SOF_TOKEN_COUNT] = {
 	[SOF_DAI_TOKENS] = {"DAI tokens", dai_tokens, ARRAY_SIZE(dai_tokens)},
 	[SOF_PIPELINE_TOKENS] = {"Pipeline tokens", pipeline_tokens, ARRAY_SIZE(pipeline_tokens)},
@@ -143,6 +150,7 @@ static const struct sof_token_info ipc4_token_list[SOF_TOKEN_COUNT] = {
 	[SOF_IPC4_MIXER_TOKENS] = {"IPC4 Mixer tokens", ipc4_mixer_tokens,
 		ARRAY_SIZE(ipc4_mixer_tokens)},
 	[SOF_CORE_TOKENS] = {"Core tokens", ipc4_core_tokens, ARRAY_SIZE(ipc4_core_tokens)},
+	[SOF_PROCESS_TOKENS] = {"Process tokens", ipc4_process_tokens, ARRAY_SIZE(ipc4_process_tokens)},
 };
 
 static void sof_ipc4_dbg_audio_format(struct device *dev,
@@ -696,6 +704,43 @@ static int sof_ipc4_widget_setup_comp_mixer(struct snd_sof_widget *swidget)
 	return 0;
 err:
 	kfree(mixer);
+	return ret;
+}
+
+// Fred: WIP
+static int sof_ipc4_widget_setup_comp_effect(struct snd_sof_widget *swidget)
+{
+	struct snd_soc_component *scomp = swidget->scomp;
+	struct sof_ipc4_effect *config;
+	int ret;
+
+	dev_err(scomp->dev, "FRED: %s start...\n", __func__);
+
+	config = kzalloc(sizeof(*config), GFP_KERNEL);
+	if (!config)
+		return -ENOMEM;
+
+	swidget->private = config;
+
+	/* The out_audio_fmt in topology is required for downmixer */
+	ret = sof_ipc4_get_audio_fmt(scomp, swidget, &config->available_fmt, true);
+	if (ret != 0)
+		goto err;
+
+	ret = sof_update_ipc_object(scomp, config, SOF_PROCESS_TOKENS, swidget->tuples,
+				    swidget->num_tuples, sizeof(*config), 1);
+	if (ret != 0) {
+		dev_err(scomp->dev, "parse process tokens failed\n");
+		goto err;
+	}
+
+	ret = sof_ipc4_widget_setup_msg(swidget, &config->msg);
+	if (ret < 0)
+		goto err;
+
+	return 0;
+err:
+	kfree(config);
 	return ret;
 }
 
@@ -1253,6 +1298,35 @@ static int sof_ipc4_prepare_mixer_module(struct snd_sof_widget *swidget,
 	return sof_ipc4_widget_assign_instance_id(sdev, swidget);
 }
 
+static int sof_ipc4_prepare_effect_module(struct snd_sof_widget *swidget,
+					  struct snd_pcm_hw_params *fe_params,
+					  struct snd_sof_platform_stream_params *platform_params,
+					  struct snd_pcm_hw_params *pipeline_params, int dir)
+{
+	struct snd_soc_component *scomp = swidget->scomp;
+	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+	struct sof_ipc4_effect *config = swidget->private;
+	int ret;
+
+	dev_dbg(scomp->dev, "%s: swidget->core = %d\n", __func__, swidget->core);
+
+	/* only 32bit is supported by effect */
+	config->available_fmt.ref_audio_fmt = &config->available_fmt.base_config->audio_fmt;
+
+	/* output format is not required to be sent to the FW for gain */
+	ret = sof_ipc4_init_audio_fmt(sdev, swidget, &config->base_config,
+				      NULL, pipeline_params, &config->available_fmt,
+				      sizeof(config->base_config));
+	if (ret < 0)
+		return ret;
+
+	/* update pipeline memory usage */
+	sof_ipc4_update_pipeline_mem_usage(sdev, swidget, &config->base_config);
+
+	/* assign instance ID */
+	return sof_ipc4_widget_assign_instance_id(sdev, swidget);
+}
+
 static int sof_ipc4_control_load_volume(struct snd_sof_dev *sdev, struct snd_sof_control *scontrol)
 {
 	struct sof_ipc4_control_data *control_data;
@@ -1395,6 +1469,23 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 		msg->extension |= SOF_IPC4_MOD_EXT_DOMAIN(pipeline->lp_mode);
 		break;
 	}
+	case snd_soc_dapm_effect:
+	{
+		struct snd_sof_widget *pipe_widget = swidget->pipe_widget;
+		struct sof_ipc4_pipeline *pipeline = pipe_widget->private;
+		struct sof_ipc4_effect *effect = swidget->private;
+
+		ipc_size = sizeof(effect->base_config);
+		ipc_data = &effect->base_config;
+
+		msg = &effect->msg;
+		msg->primary &= ~SOF_IPC4_MOD_INSTANCE_MASK;
+		msg->primary |= SOF_IPC4_MOD_INSTANCE(swidget->instance_id);
+
+		msg->extension |= ipc_size >> 2;
+		msg->extension |= SOF_IPC4_MOD_EXT_DOMAIN(pipeline->lp_mode);
+		break;
+	}
 	default:
 		dev_err(sdev->dev, "widget type %d not supported", swidget->id);
 		return -EINVAL;
@@ -1528,6 +1619,8 @@ static int sof_ipc4_dai_config(struct snd_sof_dev *sdev, struct snd_sof_widget *
 	struct sof_ipc4_gtw_attributes *gtw_attr;
 	struct sof_ipc4_copier_data *copier_data;
 	struct sof_ipc4_copier *ipc4_copier;
+
+	dev_dbg(sdev->dev, "%s: start...\n", __func__);
 
 	if (!dai || !dai->private) {
 		dev_err(sdev->dev, "No private data for DAI %s\n", swidget->widget->name);
@@ -1668,6 +1761,17 @@ static enum sof_tokens mixer_token_list[] = {
 	SOF_CORE_TOKENS,
 };
 
+static enum sof_tokens process_token_list[] = {
+	SOF_IPC4_COMP_TOKENS,
+	SOF_PROCESS_TOKENS,
+	SOF_IPC4_AUDIO_FMT_NUM_TOKENS,
+	SOF_IPC4_IN_AUDIO_FORMAT_TOKENS,
+	SOF_IPC4_OUT_AUDIO_FORMAT_TOKENS,
+	SOF_IPC4_AUDIO_FORMAT_BUFFER_SIZE_TOKENS,
+	SOF_COMP_EXT_TOKENS,
+	SOF_CORE_TOKENS,
+};
+
 static const struct sof_ipc_tplg_widget_ops tplg_ipc4_widget_ops[SND_SOC_DAPM_TYPE_COUNT] = {
 	[snd_soc_dapm_aif_in] =  {sof_ipc4_widget_setup_pcm, sof_ipc4_widget_free_comp,
 				  host_token_list, ARRAY_SIZE(host_token_list), NULL,
@@ -1696,6 +1800,11 @@ static const struct sof_ipc_tplg_widget_ops tplg_ipc4_widget_ops[SND_SOC_DAPM_TY
 				mixer_token_list, ARRAY_SIZE(mixer_token_list),
 				NULL, sof_ipc4_prepare_mixer_module,
 				sof_ipc4_unprepare_generic_module},
+	[snd_soc_dapm_effect] = {sof_ipc4_widget_setup_comp_effect, sof_ipc4_widget_free_comp,
+				process_token_list, ARRAY_SIZE(process_token_list),
+				NULL, sof_ipc4_prepare_effect_module,
+				sof_ipc4_unprepare_generic_module},
+
 };
 
 const struct sof_ipc_tplg_ops ipc4_tplg_ops = {
