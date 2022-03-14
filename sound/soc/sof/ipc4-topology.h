@@ -218,9 +218,35 @@ struct sof_ipc4_mixer {
 	struct sof_ipc4_msg msg;
 };
 
+/* -----------------------------------------------
+* Fred: move this later
+*/
+struct sof_ipc4_pin_format {
+	uint32_t pin_index;
+	uint32_t iobs;	/* input or output */
+	struct sof_ipc4_audio_format audio_fmt;
+} __packed;
+
+
+struct sof_ipc4_base_module_cfgext {
+	struct sof_ipc4_base_module_cfg base_config;
+	uint16_t num_input_pins;
+	uint16_t num_output_pins;
+	uint8_t reserved[8];
+	uint32_t param_length;
+	/* input pin formats followed by output ones */
+	struct sof_ipc4_pin_format pin_fmts[];
+} __packed;
+
+/*
+* Fred: end of 'move this later'
+* -----------------------------------------------
+*/
+
 /* Fred: IPC4 effect config data */
 struct sof_ipc4_effect {
 	struct sof_ipc4_base_module_cfg base_config;
+	struct sof_ipc4_base_module_cfgext cfg_ext;
 	struct sof_ipc4_available_audio_format available_fmt;
 	struct sof_ipc4_msg msg;
 };

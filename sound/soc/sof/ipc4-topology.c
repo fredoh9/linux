@@ -117,13 +117,6 @@ static const struct sof_topology_token ipc4_core_tokens[] = {
        {SOF_TKN_COMP_CORE_ID, SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32, 0},
 };
 
-static const struct sof_topology_token ipc4_process_tokens[] = {
-/*	Fred: No data to parse?
-	SOF_TKN_EFFECT_TYPE = SOF_TKN_PROCESS_TYPE
-*/
-       {SOF_TKN_PROCESS_TYPE, SND_SOC_TPLG_TUPLE_TYPE_STRING, get_token_dai_type, 0},
-};
-
 static const struct sof_token_info ipc4_token_list[SOF_TOKEN_COUNT] = {
 	[SOF_DAI_TOKENS] = {"DAI tokens", dai_tokens, ARRAY_SIZE(dai_tokens)},
 	[SOF_PIPELINE_TOKENS] = {"Pipeline tokens", pipeline_tokens, ARRAY_SIZE(pipeline_tokens)},
@@ -150,7 +143,6 @@ static const struct sof_token_info ipc4_token_list[SOF_TOKEN_COUNT] = {
 	[SOF_IPC4_MIXER_TOKENS] = {"IPC4 Mixer tokens", ipc4_mixer_tokens,
 		ARRAY_SIZE(ipc4_mixer_tokens)},
 	[SOF_CORE_TOKENS] = {"Core tokens", ipc4_core_tokens, ARRAY_SIZE(ipc4_core_tokens)},
-	[SOF_PROCESS_TOKENS] = {"Process tokens", ipc4_process_tokens, ARRAY_SIZE(ipc4_process_tokens)},
 };
 
 static void sof_ipc4_dbg_audio_format(struct device *dev,
@@ -367,7 +359,7 @@ static int sof_ipc4_widget_setup_pcm(struct snd_sof_widget *swidget)
 	swidget->private = ipc4_copier;
 	available_fmt = &ipc4_copier->available_fmt;
 
-	dev_dbg(scomp->dev, "Updating IPC structure for %s\n", swidget->widget->name);
+	dev_dbg(scomp->dev, "Updating IPC structures for %s\n", swidget->widget->name);
 
 	ret = sof_ipc4_get_audio_fmt(scomp, swidget, available_fmt, true);
 	if (ret != 0)
@@ -714,7 +706,7 @@ static int sof_ipc4_widget_setup_comp_effect(struct snd_sof_widget *swidget)
 	struct sof_ipc4_effect *config;
 	int ret;
 
-	dev_err(scomp->dev, "FRED: %s start...\n", __func__);
+	dev_dbg(scomp->dev, "Updating EFFECT IPC structures for %s, size %ld\n", swidget->widget->name, sizeof(*config));
 
 	config = kzalloc(sizeof(*config), GFP_KERNEL);
 	if (!config)
@@ -727,12 +719,12 @@ static int sof_ipc4_widget_setup_comp_effect(struct snd_sof_widget *swidget)
 	if (ret != 0)
 		goto err;
 
-	ret = sof_update_ipc_object(scomp, config, SOF_PROCESS_TOKENS, swidget->tuples,
-				    swidget->num_tuples, sizeof(*config), 1);
-	if (ret != 0) {
-		dev_err(scomp->dev, "parse process tokens failed\n");
-		goto err;
-	}
+	/* Fred: hard coded for now
+	* Need to populate cfg_ext somehow here
+	*/
+	config->cfg_ext.num_input_pins = 1;
+	config->cfg_ext.num_output_pins = 1;
+	// ...
 
 	ret = sof_ipc4_widget_setup_msg(swidget, &config->msg);
 	if (ret < 0)
@@ -1390,6 +1382,9 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 		struct sof_ipc4_pipeline *pipeline = pipe_widget->private;
 		struct sof_ipc4_copier *ipc4_copier;
 
+		dev_dbg(sdev->dev, "DAPM AIF: %d memory pages: %d instance_id: %d lp_mode: %d\n", swidget->pipeline_id,
+					pipeline->mem_usage, swidget->instance_id, pipeline->lp_mode);
+
 		ipc4_copier = swidget->private;
 		ipc_size = ipc4_copier->ipc_config_size;
 		ipc_data = ipc4_copier->ipc_config_data;
@@ -1410,6 +1405,9 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 		struct sof_ipc4_copier *ipc4_copier;
 		struct snd_sof_dai *dai;
 
+		dev_dbg(sdev->dev, "DAPM DAI: %d memory pages: %d instance_id: %d lp_mode: %d\n", swidget->pipeline_id,
+							pipeline->mem_usage, swidget->instance_id, pipeline->lp_mode);
+
 		dai = swidget->private;
 		ipc4_copier = dai->private;
 		ipc_size = ipc4_copier->ipc_config_size;
@@ -1427,8 +1425,8 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 	{
 		struct sof_ipc4_pipeline *pipeline = swidget->private;
 
-		dev_dbg(sdev->dev, "pipeline: %d memory pages: %d\n", swidget->pipeline_id,
-			pipeline->mem_usage);
+		dev_dbg(sdev->dev, "pipeline: %d memory pages: %d instance_id: %d lp_mode: %d\n", swidget->pipeline_id,
+			pipeline->mem_usage, swidget->instance_id, pipeline->lp_mode);
 
 		msg = &pipeline->msg;
 		msg->primary |= pipeline->mem_usage;
@@ -1439,6 +1437,9 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 		struct snd_sof_widget *pipe_widget = swidget->pipe_widget;
 		struct sof_ipc4_pipeline *pipeline = pipe_widget->private;
 		struct sof_ipc4_gain *gain = swidget->private;
+
+		dev_dbg(sdev->dev, "GAIN: %d memory pages: %d instance_id: %d lp_mode: %d\n", swidget->pipeline_id,
+			pipeline->mem_usage, swidget->instance_id, pipeline->lp_mode);
 
 		ipc_size = sizeof(struct sof_ipc4_base_module_cfg) +
 			   sizeof(struct sof_ipc4_gain_data);
@@ -1458,6 +1459,9 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 		struct sof_ipc4_pipeline *pipeline = pipe_widget->private;
 		struct sof_ipc4_mixer *mixer = swidget->private;
 
+		dev_dbg(sdev->dev, "MIXER: %d memory pages: %d instance_id: %d lp_mode: %d\n", swidget->pipeline_id,
+			pipeline->mem_usage, swidget->instance_id, pipeline->lp_mode);
+
 		ipc_size = sizeof(mixer->base_config);
 		ipc_data = &mixer->base_config;
 
@@ -1474,9 +1478,48 @@ static int sof_ipc4_widget_setup(struct snd_sof_dev *sdev, struct snd_sof_widget
 		struct snd_sof_widget *pipe_widget = swidget->pipe_widget;
 		struct sof_ipc4_pipeline *pipeline = pipe_widget->private;
 		struct sof_ipc4_effect *effect = swidget->private;
+		struct sof_ipc4_base_module_cfgext *cfg;
+		struct sof_ipc4_pin_format pin[2];
+		size_t cfg_size, pins_count = 2;
+		int ret, i;
 
-		ipc_size = sizeof(effect->base_config);
-		ipc_data = &effect->base_config;
+		dev_dbg(sdev->dev, "EFFECT: %d memory pages: %d instance_id: %d lp_mode: %d\n", swidget->pipeline_id,
+			pipeline->mem_usage, swidget->instance_id, pipeline->lp_mode);
+
+	/*
+	* Fred Hard coded for Downmixer init
+	*/
+		cfg_size = sizeof(*cfg);
+		cfg_size += sizeof(struct sof_ipc4_pin_format) * pins_count; // pin count, 1 input + 1 output
+		cfg = kzalloc(cfg_size, GFP_KERNEL);	// free is required
+			if (!cfg) {
+				dev_dbg(sdev->dev, "EFFECT: Memory allocation error, %ld\n", cfg_size);
+				return -ENOMEM;
+			}
+
+		cfg->base_config.cpc = effect->base_config.cpc;
+		cfg->base_config.ibs = effect->base_config.ibs;
+		cfg->base_config.obs = effect->base_config.obs;
+		cfg->base_config.is_pages = effect->base_config.is_pages;
+		cfg->base_config.audio_fmt = effect->base_config.audio_fmt; // memcpy?
+		cfg->num_input_pins = 1;
+		cfg->num_output_pins = 1;
+		cfg->param_length = sizeof(struct sof_ipc4_pin_format) * pins_count; // only two pins
+
+		pin[0].pin_index = 0;	// zero index?
+		pin[0].iobs = 384;
+		pin[0].audio_fmt = effect->base_config.audio_fmt;
+		pin[1].pin_index = 0;
+		pin[1].iobs = 384;
+		pin[1].audio_fmt = effect->base_config.audio_fmt;
+
+		memcpy(cfg + sizeof(*cfg), pin, cfg->param_length);
+
+		ipc_size = cfg_size;
+		ipc_data = cfg;
+
+		//ipc_size = sizeof(effect->base_config);
+		//ipc_data = &effect->base_config;
 
 		msg = &effect->msg;
 		msg->primary &= ~SOF_IPC4_MOD_INSTANCE_MASK;
@@ -1761,9 +1804,9 @@ static enum sof_tokens mixer_token_list[] = {
 	SOF_CORE_TOKENS,
 };
 
-static enum sof_tokens process_token_list[] = {
+static enum sof_tokens effect_token_list[] = {
 	SOF_IPC4_COMP_TOKENS,
-	SOF_PROCESS_TOKENS,
+//	SOF_PROCESS_TOKENS,
 	SOF_IPC4_AUDIO_FMT_NUM_TOKENS,
 	SOF_IPC4_IN_AUDIO_FORMAT_TOKENS,
 	SOF_IPC4_OUT_AUDIO_FORMAT_TOKENS,
@@ -1801,7 +1844,7 @@ static const struct sof_ipc_tplg_widget_ops tplg_ipc4_widget_ops[SND_SOC_DAPM_TY
 				NULL, sof_ipc4_prepare_mixer_module,
 				sof_ipc4_unprepare_generic_module},
 	[snd_soc_dapm_effect] = {sof_ipc4_widget_setup_comp_effect, sof_ipc4_widget_free_comp,
-				process_token_list, ARRAY_SIZE(process_token_list),
+				effect_token_list, ARRAY_SIZE(effect_token_list),
 				NULL, sof_ipc4_prepare_effect_module,
 				sof_ipc4_unprepare_generic_module},
 
