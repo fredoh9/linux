@@ -1113,12 +1113,13 @@ static int snd_sof_get_nhlt_endpoint_data(struct snd_sof_dev *sdev, struct snd_s
 		bit_depth = params_width(params);
 		channel_count = params_channels(params);
 		sample_rate = params_rate(params);
-#if 1 /* HACK for DMIC blob*/
+#if 0 /* HACK for DMIC blob*/
 		*len = sizeof(mtl_windows_dmic_32) >> 2;
 		*dst = mtl_windows_dmic_32;
 		pr_err("bard: using hardcode dmic blob\n");
 		return 0;
-
+#else
+		pr_err("Fred: disabled bard dmic blob\n");
 #endif
 		break;
 	case SOF_DAI_INTEL_SSP:
