@@ -227,6 +227,16 @@ static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 	u32 dsphfdsscs, dsphfpwrsts;
 	u32 cpa, pgs;
 	int ret;
+	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
+	const struct sof_intel_dsp_desc *chip = hda->desc;
+	u32 caps;
+	int i;
+	u32 offset;
+
+	dsphfdsscs = snd_sof_dsp_read(sdev, HDA_DSP_BAR, MTL_HfDSSCS);
+	pr_err("bard: %s dsphfdsscs %#x\n", __func__, dsphfdsscs);
+	caps = ioread32(sdev->bar[HDA_DSP_BAR] + chip->sdw_shim_base + SDW_SHIM_LCAP);
+	pr_err("bard: %s %d SDW_SHIM_LCAP %#x\n", __func__, __LINE__, caps);
 
 	/* Set the DSP subsystem power on */
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, MTL_HfDSSCS,
@@ -261,6 +271,27 @@ static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 					    HDA_DSP_RESET_TIMEOUT_US);
 	if (ret < 0)
 		dev_err(sdev->dev, "error: failed to power up gated DSP domain\n");
+
+	offset = 0x0;
+	pr_err("bard: %#x (DfDSSCF) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
+	offset = 0x54;
+	pr_err("bard: %#x (DfALHCP) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
+	offset = 0x5c;
+	pr_err("bard: %#x (DfDMICCP) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
+	offset = 0x68;
+	pr_err("bard: %#x (DfSNDWCP) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
+	pr_err("bard: SOCCI registers\n");
+	for (i = 0; i <= 0x30; i += 4) {
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x1c80 + i));
+	}
+	pr_err("bard: Digital Mic Shim registers\n");
+	for (i = 0; i <= 0x20; i += 4) {
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0xc000 + i));
+	}
+	pr_err("bard: SoundWire Shim registers\n");
+	for (i = 0; i <= 0xc; i += 4) {
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0xc000 + i));
+	}
 
 	return ret;
 }
