@@ -868,6 +868,7 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 	struct hdac_bus *bus;
 	const struct sof_intel_dsp_desc *chip;
 	int ret = 0;
+	u32 caps;
 
 	/*
 	 * detect DSP by checking class/subclass/prog-id information
@@ -935,6 +936,9 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
 
 	sdev->mmio_bar = HDA_DSP_BAR;
 	sdev->mailbox_bar = HDA_DSP_BAR;
+	caps = ioread32(sdev->bar[HDA_DSP_BAR] + hdev->desc->sdw_shim_base + SDW_SHIM_LCAP);
+	pr_err("bard: %s SDW_SHIM_LCAP %#x\n", __func__, caps);
+
 
 	/* allow 64bit DMA address if supported by H/W */
 	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(64))) {
