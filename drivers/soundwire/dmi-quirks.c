@@ -32,6 +32,19 @@ static const struct adr_remap intel_tgl_bios[] = {
 	{}
 };
 
+/* There is no ALC700 or ALC701 on MTL-P RVP, remop them to ALC711 and ALC711-SDCA */
+static const struct adr_remap intel_mtl_bios[] = {
+	{
+		0x000010025D070000ull,
+		0x000020025D071100ull
+	},
+	{
+		0x000010025D070100ull,
+		0x000030025D071101ull
+	},
+	{}
+};
+
 /*
  * The initial version of the Dell SKU 0A3E did not expose the devices
  * on the correct links.
@@ -77,6 +90,14 @@ static const struct dmi_system_id adr_remap_quirk_table[] = {
 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A3E")
 		},
 		.driver_data = (void *)dell_sku_0A3E,
+	},
+	{
+		.matches = {
+			/* FIXME: check DMI info by sudo dmidecode */
+			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Meteor Lake Client Platform"),
+		},
+		.driver_data = (void *)intel_mtl_bios,
 	},
 	{}
 };
