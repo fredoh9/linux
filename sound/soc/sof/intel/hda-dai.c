@@ -804,6 +804,7 @@ void hda_set_dai_drv_ops(struct snd_sof_dev *sdev, struct snd_sof_dsp_ops *ops)
 #endif
 		}
 
+		dev_err(sdev->dev, "%s: Fred hda_use_tplg_nhlt %d\n", __func__, hda_use_tplg_nhlt);
 		if (!hda_use_tplg_nhlt)
 			ipc4_data->nhlt = intel_nhlt_init(sdev->dev);
 
