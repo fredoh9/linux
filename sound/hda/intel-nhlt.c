@@ -12,8 +12,10 @@ struct nhlt_acpi_table *intel_nhlt_init(struct device *dev)
 	status = acpi_get_table(ACPI_SIG_NHLT, 0,
 				(struct acpi_table_header **)&nhlt);
 	if (ACPI_FAILURE(status)) {
-		dev_warn(dev, "NHLT table not found\n");
+		dev_err(dev, "Fred: NHLT table NOT found!\n");
 		return NULL;
+	} else {
+		dev_err(dev, "Fred: NHLT table found\n");
 	}
 
 	return nhlt;
