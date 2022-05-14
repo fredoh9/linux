@@ -299,6 +299,7 @@ sdw_intel_startup_controller(struct sdw_intel_ctx *ctx)
 	struct sdw_intel_link_dev *ldev;
 	u32 caps;
 	u32 link_mask;
+	u32 lctl;
 	int i;
 
 	if (!adev)
@@ -306,7 +307,10 @@ sdw_intel_startup_controller(struct sdw_intel_ctx *ctx)
 
 	/* Check SNDWLCAP.LCOUNT */
 	caps = ioread32(ctx->mmio_base + ctx->shim_base + SDW_SHIM_LCAP);
+	pr_err("bard: %s SDW_SHIM_LCAP %#x\n", __func__, caps);
 	caps &= GENMASK(2, 0);
+	lctl = ioread32(ctx->mmio_base + ctx->shim_base + SDW_SHIM_LCTL);
+	pr_err("bard: %s SDW_SHIM_LCTL %#x\n", __func__, lctl);
 
 	/* Check HW supported vs property value */
 	if (caps < ctx->count) {
