@@ -233,7 +233,23 @@ static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 	int i;
 	u32 offset;
 
+	pr_err("bard: %s power down DSP subsystem before powering up\n", __func__);
+	/* Set the DSP subsystem power down */
+	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, MTL_HfDSSCS,
+				MTL_HfDSSCS_SPA_MASK, 0);
+
+	/* Wait for unstable CPA read (1 then 0 then 1) just after setting SPA bit */
+	usleep_range(1000, 1010);
+
+	/* poll with timeout to check if operation successful */
+	cpa = MTL_HfDSSCS_CPA_MASK;
 	dsphfdsscs = snd_sof_dsp_read(sdev, HDA_DSP_BAR, MTL_HfDSSCS);
+	ret = snd_sof_dsp_read_poll_timeout(sdev, HDA_DSP_BAR, MTL_HfDSSCS, dsphfdsscs,
+					    (dsphfdsscs & cpa) == 0, HDA_DSP_REG_POLL_INTERVAL_US,
+					    HDA_DSP_RESET_TIMEOUT_US);
+	if (ret < 0)
+		dev_err(sdev->dev, "failed to disable DSP subsystem\n");
+
 	pr_err("bard: %s dsphfdsscs %#x\n", __func__, dsphfdsscs);
 	caps = ioread32(sdev->bar[HDA_DSP_BAR] + chip->sdw_shim_base + SDW_SHIM_LCAP);
 	pr_err("bard: %s %d SDW_SHIM_LCAP %#x\n", __func__, __LINE__, caps);
@@ -290,7 +306,7 @@ static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 	}
 	pr_err("bard: SoundWire Shim registers\n");
 	for (i = 0; i <= 0xc; i += 4) {
-		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0xc000 + i));
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x38000 + i));
 	}
 
 	return ret;
