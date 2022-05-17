@@ -790,6 +790,8 @@ static int sof_ipc4_init_audio_fmt(struct snd_sof_dev *sdev,
 		return -EINVAL;
 	}
 
+	dev_err(sdev->dev, "Fred: sample_valid_bits=%d\n", sample_valid_bits);
+
 	if (!available_fmt->audio_fmt_num) {
 		dev_err(sdev->dev, "no formats available for %s\n", swidget->widget->name);
 		return -EINVAL;
@@ -1270,8 +1272,6 @@ sof_ipc4_prepare_copier_module(struct snd_sof_widget *swidget,
 			 * 32-bit always
 			 */
 			fmt = hw_param_mask(pipeline_params, SNDRV_PCM_HW_PARAM_FORMAT);
-			snd_mask_none(fmt);
-			snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S32_LE);
 		} else {
 			available_fmt->ref_audio_fmt = &available_fmt->base_config->audio_fmt;
 			ref_audio_fmt_size = sizeof(struct sof_ipc4_base_module_cfg);
