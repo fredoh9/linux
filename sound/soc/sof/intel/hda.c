@@ -208,6 +208,7 @@ static int hda_sdw_probe(struct snd_sof_dev *sdev)
 	res.count = hdev->info.count;
 	res.link_mask = hdev->info.link_mask;
 
+	dev_dbg(sdev->dev, "Fred: make sure SoundWire is not power-gated set BIT(9)\n");
 	/* make sure SoundWire is not power-gated */
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_HDA_BAR,
 				0x00001d00 + 0x18,

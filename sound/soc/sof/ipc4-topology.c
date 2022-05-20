@@ -790,7 +790,7 @@ static int sof_ipc4_init_audio_fmt(struct snd_sof_dev *sdev,
 		return -EINVAL;
 	}
 
-	dev_err(sdev->dev, "Fred: sample_valid_bits=%d\n", sample_valid_bits);
+	dev_dbg(sdev->dev, "Fred: sample_valid_bits=%d\n", sample_valid_bits);
 
 	if (!available_fmt->audio_fmt_num) {
 		dev_err(sdev->dev, "no formats available for %s\n", swidget->widget->name);
