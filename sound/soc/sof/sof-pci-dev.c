@@ -157,6 +157,9 @@ static void sof_pci_probe_complete(struct device *dev)
 {
 	dev_dbg(dev, "Completing SOF PCI probe");
 
+	/* disable runtime pm */
+	return;
+
 	if (sof_pci_debug & SOF_PCI_DISABLE_PM_RUNTIME)
 		return;
 
