@@ -790,6 +790,7 @@ static int sof_ipc4_init_audio_fmt(struct snd_sof_dev *sdev,
 		return -EINVAL;
 	}
 
+	dev_dbg(sdev->dev, "Fred: sample_valid_bits=%d\n", sample_valid_bits);
 	if (!available_fmt->audio_fmt_num) {
 		dev_err(sdev->dev, "no formats available for %s\n", swidget->widget->name);
 		return -EINVAL;
@@ -1146,10 +1147,10 @@ static int snd_sof_get_nhlt_endpoint_data(struct snd_sof_dev *sdev, struct snd_s
 #if 0 /* HACK for DMIC blob*/
 		*len = sizeof(mtl_windows_dmic_32) >> 2;
 		*dst = mtl_windows_dmic_32;
-		pr_err("bard: using hardcode dmic blob\n");
+		pr_debug("bard: using hardcode dmic blob\n");
 		return 0;
 #else
-		pr_err("Fred: disabled bard dmic blob\n");
+		pr_debug("Fred: disabled bard dmic blob\n");
 #endif
 		break;
 	case SOF_DAI_INTEL_SSP:
