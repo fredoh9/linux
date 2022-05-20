@@ -231,9 +231,12 @@ static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 	const struct sof_intel_dsp_desc *chip = hda->desc;
 	u32 caps;
 	int i;
-	u32 offset;
+	//u32 offset;
 
-	pr_err("bard: %s power down DSP subsystem before powering up\n", __func__);
+	dsphfdsscs = snd_sof_dsp_read(sdev, HDA_DSP_BAR, MTL_HfDSSCS);
+	pr_err("bard: %s dsphfdsscs %#x\n", __func__, dsphfdsscs);
+	caps = ioread32(sdev->bar[HDA_DSP_BAR] + chip->sdw_shim_base + SDW_SHIM_LCAP);
+	pr_err("bard: %s %d SDW_SHIM_LCAP %#x\n", __func__, __LINE__, caps);
 	/* Set the DSP subsystem power down */
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, MTL_HfDSSCS,
 				MTL_HfDSSCS_SPA_MASK, 0);
@@ -288,27 +291,31 @@ static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
 	if (ret < 0)
 		dev_err(sdev->dev, "error: failed to power up gated DSP domain\n");
 
-	offset = 0x0;
-	pr_err("bard: %#x (DfDSSCF) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
-	offset = 0x54;
-	pr_err("bard: %#x (DfALHCP) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
-	offset = 0x5c;
-	pr_err("bard: %#x (DfDMICCP) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
-	offset = 0x68;
-	pr_err("bard: %#x (DfSNDWCP) = 0x%08x\n", offset, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x2000 + offset));
-	pr_err("bard: SOCCI registers\n");
-	for (i = 0; i <= 0x30; i += 4) {
-		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x1c80 + i));
+	/* make sure SoundWire is not power-gated */
+	snd_sof_dsp_update_bits(sdev, HDA_DSP_HDA_BAR,
+				0x00001d00 + 0x18,
+				BIT(9), BIT(9));
+
+	pr_err("\nbard: HfPCMCU registers\n");
+	for (i = 0; i <= 0x1C; i += 4) {
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, i + 0x00001d00));
 	}
-	pr_err("bard: Digital Mic Shim registers\n");
+	pr_err("\nbard: HfDSSGBL registers\n");
+	for (i = 0; i <= 0x84; i += 4) {
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, i));
+	}
+	pr_err("\nbard: Digital Mic Shim registers\n");
 	for (i = 0; i <= 0x20; i += 4) {
 		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0xc000 + i));
 	}
-	pr_err("bard: SoundWire Shim registers\n");
+	pr_err("\nbard: SoundWire Shim registers\n");
 	for (i = 0; i <= 0xc; i += 4) {
 		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x38000 + i));
 	}
-
+	pr_err("\nbard: ALH registers\n");
+	for (i = 0; i <= 0x4; i += 4) {
+		pr_err("bard: read %#x =  0x%08x\n", i, snd_sof_dsp_read(sdev, HDA_DSP_BAR, 0x24000 + i));
+	}
 	return ret;
 }
 
