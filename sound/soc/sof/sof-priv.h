@@ -553,6 +553,8 @@ struct snd_sof_dev {
 	/* firmwre tracing */
 	bool fw_trace_is_supported; /* set with Kconfig or module parameter */
 	void *fw_trace_data; /* private data used by firmware tracing implementation */
+	/* Fred HACK to compile */
+	wait_queue_head_t trace_sleep;
 
 	bool msi_enabled;
 
