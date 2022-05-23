@@ -756,7 +756,9 @@ int sof_mtl_ops_init(struct snd_sof_dev *sdev)
 	sof_mtl_ops.parse_platform_ext_manifest = NULL;
 
 	/* dsp core get/put */
-	/* TODO: add core_get and core_put */
+	/* TODO: add core_get and core_put, Fred: Still TODO: need to consider multicore too??? */
+	sof_mtl_ops.core_get = mtl_dsp_core_power_up,
+	sof_mtl_ops.core_put = mtl_dsp_core_power_down,
 
 	/* PM */
 	sof_mtl_ops.suspend = mtl_dsp_suspend;
