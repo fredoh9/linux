@@ -577,7 +577,8 @@ static void sof_ipc4_rx_msg(struct snd_sof_dev *sdev)
 		data_size = sizeof(struct sof_ipc4_notify_resource_data);
 		break;
 	case SOF_IPC4_NOTIFY_LOG_BUFFER_STATUS:
-		sof_ipc4_mtrace_update_pos(sdev);
+		sof_ipc4_mtrace_update_pos(sdev,
+					   SOF_IPC4_LOG_CORE_GET(ipc4_msg->primary));
 		break;
 	default:
 		dev_dbg(sdev->dev, "%s: Unhandled DSP message: %#x|%#x\n", __func__,

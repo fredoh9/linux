@@ -15,18 +15,28 @@
 
 #define IPC4_DBOX_CAVS_25_SIZE 0x10000
 
+enum sof_ipc4_mtrace_type {
+	SOF_IPC4_MTRACE_NOT_AVAILABLE = 0,
+	SOF_IPC4_MTRACE_INTEL_APL,
+	SOF_IPC4_MTRACE_INTEL_SKL,
+	SOF_IPC4_MTRACE_INTEL_TGL,
+};
+
 /**
  * struct sof_ipc4_fw_data - IPC4-specific data
  * @manifest_fw_hdr_offset: FW header offset in the manifest
  * @num_fw_modules : Number of modules in base FW
  * @fw_modules: Array of base FW modules
  * @nhlt: NHLT table either from the BIOS or the topology manifest
+ * @mtrace_type: mtrace type supported on the booted platform
  */
 struct sof_ipc4_fw_data {
 	u32 manifest_fw_hdr_offset;
 	int num_fw_modules;
 	void *fw_modules;
 	void *nhlt;
+	enum sof_ipc4_mtrace_type mtrace_type;
+	u32 mtrace_log_bytes;
 };
 
 /**
@@ -50,5 +60,5 @@ extern const struct sof_ipc_pcm_ops ipc4_pcm_ops;
 extern const struct sof_ipc_fw_tracing_ops ipc4_mtrace_ops;
 
 int sof_ipc4_set_pipeline_state(struct snd_sof_dev *sdev, u32 id, u32 state);
-int sof_ipc4_mtrace_update_pos(struct snd_sof_dev *sdev);
+int sof_ipc4_mtrace_update_pos(struct snd_sof_dev *sdev, int core);
 #endif
