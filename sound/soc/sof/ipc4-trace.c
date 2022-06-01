@@ -305,8 +305,8 @@ void sof_ipc4_enable_mtrace(struct snd_sof_dev *sdev, u32 module_id)
 	iops->set_get_data(sdev, &msg, msg.data_size, true);
 
 	setting.enable = 1;
-	setting.aging_timer_period = 0x400;
-	setting.fifo_full_timer_period = 0x1000;
+	setting.aging_timer_period = 10;
+	setting.fifo_full_timer_period = 10;
 	memzero_explicit(&setting.logs_priorities_mask, 16*sizeof(uint32_t));
 	setting.logs_priorities_mask[module_id] = sdev->mtrace_setting;
 
