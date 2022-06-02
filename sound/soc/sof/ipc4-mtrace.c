@@ -260,7 +260,7 @@ static void sof_mtrace_find_core_slots(struct snd_sof_dev *sdev)
 {
 	struct sof_mtrace_priv *priv = sdev->fw_trace_data;
 	struct sof_mtrace_slot *slot_data;
-	u32 debug_address, val, core, slot;
+	u32 debug_address, val, core;
 	int i;
 
 	debug_address = sdev->debug_box.offset;
@@ -273,15 +273,9 @@ static void sof_mtrace_find_core_slots(struct snd_sof_dev *sdev)
 			if (core >= sdev->num_cores)
 				continue;
 
-			sof_mailbox_read(sdev, debug_address, &slot, 4);
-			/* slot == 0 is the 2nd slot in the debug window */
-			slot++;
-			if (!slot || slot >= MAX_MTRACE_SLOTS)
-				continue;
-
 			slot_data = &priv->slots[core];
 			slot_data->slot_offset = sdev->debug_box.offset;
-			slot_data->slot_offset += SOF_MTRACE_SLOT_SIZE * slot;
+			slot_data->slot_offset += SOF_MTRACE_SLOT_SIZE * (i + 1);
 			if (slot_data->missed_update) {
 				sof_ipc4_mtrace_update_pos(sdev, core);
 				slot_data->missed_update = false;
