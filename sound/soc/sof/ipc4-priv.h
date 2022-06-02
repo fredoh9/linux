@@ -64,4 +64,14 @@ extern const struct sof_ipc_fw_tracing_ops ipc4_mtrace_ops;
 
 int sof_ipc4_set_pipeline_state(struct snd_sof_dev *sdev, u32 id, u32 state);
 int sof_ipc4_mtrace_update_pos(struct snd_sof_dev *sdev, int core);
+
+/**
+ * struct sof_ipc4_dx_info: ipc4 core/Dx mask data
+ * @core_mask: core to be modified
+ * @dx_mask: Dx mask, 0 is D3, 1 is D0
+ */
+struct sof_ipc4_dx_info {
+	u32 core_mask;
+	u32 dx_mask;
+};
 #endif

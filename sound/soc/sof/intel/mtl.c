@@ -345,6 +345,40 @@ static bool mtl_dsp_primary_core_is_enabled(struct snd_sof_dev *sdev)
 	return false;
 }
 
+static int mtl_dsp_core_get(struct snd_sof_dev *sdev, int core)
+{
+	struct sof_ipc4_msg msg;
+	struct sof_ipc4_dx_info dx_info;
+
+	dx_info.core_mask = BIT(core);
+	dx_info.dx_mask = BIT(core);
+	msg.primary = SOF_IPC4_MSG_TYPE_SET(SOF_IPC4_MOD_SET_DX);
+	msg.primary |= SOF_IPC4_MSG_DIR(SOF_IPC4_MSG_REQUEST);
+	msg.primary |= SOF_IPC4_MSG_TARGET(SOF_IPC4_MODULE_MSG);
+
+	msg.data_ptr = &dx_info;
+	msg.data_size = sizeof(dx_info);
+
+	return sof_ipc_tx_message(sdev->ipc, &msg, sizeof(dx_info), NULL, 0);
+}
+
+static int mtl_dsp_core_put(struct snd_sof_dev *sdev, int core)
+{
+	struct sof_ipc4_msg msg;
+	struct sof_ipc4_dx_info dx_info;
+
+	dx_info.core_mask = BIT(core);
+	dx_info.dx_mask = ~BIT(core);
+	msg.primary = SOF_IPC4_MSG_TYPE_SET(SOF_IPC4_MOD_SET_DX);
+	msg.primary |= SOF_IPC4_MSG_DIR(SOF_IPC4_MSG_REQUEST);
+	msg.primary |= SOF_IPC4_MSG_TARGET(SOF_IPC4_MODULE_MSG);
+
+	msg.data_ptr = &dx_info;
+	msg.data_size = sizeof(dx_info);
+
+	return sof_ipc_tx_message(sdev->ipc, &msg, sizeof(dx_info), NULL, 0);
+}
+
 static int mtl_dsp_core_power_up(struct snd_sof_dev *sdev, int core)
 {
 	unsigned int cpa;
@@ -750,7 +784,8 @@ int sof_mtl_ops_init(struct snd_sof_dev *sdev)
 	sof_mtl_ops.parse_platform_ext_manifest = NULL;
 
 	/* dsp core get/put */
-	/* TODO: add core_get and core_put */
+	sof_mtl_ops.core_get = mtl_dsp_core_get,
+	sof_mtl_ops.core_put = mtl_dsp_core_put,
 
 	/* PM */
 	sof_mtl_ops.suspend = mtl_dsp_suspend;
