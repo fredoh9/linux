@@ -1172,7 +1172,10 @@ int hda_dsp_remove(struct snd_sof_dev *sdev)
 				SOF_HDA_INT_CTRL_EN | SOF_HDA_INT_GLOBAL_EN, 0);
 
 	/* disable cores */
-	if (chip)
+	if (chip && chip->hw_ip_version == SOF_INTEL_ACE_1_0) {
+		if (sof_ops(sdev)->core_put)
+			sof_ops(sdev)->core_put(sdev, chip->host_managed_cores_mask);
+	} else if (chip)
 		hda_dsp_core_reset_power_down(sdev, chip->host_managed_cores_mask);
 
 	/* disable DSP */
