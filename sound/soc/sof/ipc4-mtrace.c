@@ -226,7 +226,7 @@ static int mtrace_debugfs_create(struct snd_sof_dev *sdev)
 	if (!sdev)
 		return -EINVAL;
 
-	dfs_root = debugfs_create_dir("mtrace", sdev->debugfs_root);
+	dfs_root = debugfs_create_dir("mtrace_root", sdev->debugfs_root);
 	if (IS_ERR_OR_NULL(dfs_root))
 		return 0;
 
@@ -243,6 +243,8 @@ static int mtrace_debugfs_create(struct snd_sof_dev *sdev)
 		snprintf(dfs_name, sizeof(dfs_name), "core%d", i);
 		debugfs_create_file(dfs_name, 0444, dfs_root, &priv->slots[i],
 				    &sof_dfs_mtrace_fops);
+		if (i == 0)
+			debugfs_create_symlink("mtrace", sdev->debugfs_root, "mtrace_root/core0");
 	}
 
 	return 0;
