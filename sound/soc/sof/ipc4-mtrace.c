@@ -187,9 +187,9 @@ static ssize_t sof_ipc4_mtrace_read(struct file *file, char __user *buffer,
 	slot_data->host_read_ptr = write_ptr;
 
 	/* move debugfs reading position */
-	*ppos += avail;
+	*ppos += SOF_MTRACE_SLOT_SIZE;
 
-	return avail;
+	return SOF_MTRACE_SLOT_SIZE;
 }
 
 static const struct file_operations sof_dfs_mtrace_fops = {
