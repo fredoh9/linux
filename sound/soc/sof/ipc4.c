@@ -545,6 +545,8 @@ static int ipc4_fw_ready(struct snd_sof_dev *sdev, struct sof_ipc4_msg *ipc4_msg
 	sdev->host_box.offset = outbox_offset;
 	sdev->host_box.size = outbox_size;
 
+	sdev->debug_box.offset = snd_sof_dsp_get_window_offset(sdev, 2);
+
 	dev_dbg(sdev->dev, "mailbox upstream 0x%x - size 0x%x\n",
 		inbox_offset, inbox_size);
 	dev_dbg(sdev->dev, "mailbox downstream 0x%x - size 0x%x\n",
