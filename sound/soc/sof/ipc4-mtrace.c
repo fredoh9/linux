@@ -378,6 +378,8 @@ static int ipc4_mtrace_init(struct snd_sof_dev *sdev)
 	struct sof_mtrace_priv *priv;
 	int i, ret;
 
+	dev_err(sdev->dev, "Fred: %s: mtrace_type= %d", __func__, ipc4_data->mtrace_type);
+
 	if (sdev->fw_trace_data) {
 		dev_err(sdev->dev, "fw_trace_data has been already allocated\n");
 		return -EBUSY;
@@ -385,7 +387,8 @@ static int ipc4_mtrace_init(struct snd_sof_dev *sdev)
 
 	if (!ipc4_data->mtrace_log_bytes) {
 		sdev->fw_trace_is_supported = false;
-		return 0;
+		dev_err(sdev->dev, "Fred: mtrace_log_bytes 0, mtrace_type= %d", ipc4_data->mtrace_type);
+		//return 0;
 	}
 
 	switch (ipc4_data->mtrace_type) {
