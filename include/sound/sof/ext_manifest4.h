@@ -90,6 +90,18 @@ struct sof_man4_segment_desc {
 	uint32_t file_offset;
 } __packed;
 
+/* bit definition for type in sof_man4_module */
+#define SOF_IPC4_MODULE_LOAD_TYPE_MASK 0xf
+#define SOF_IPC4_MODULE_LOAD_TYPE_SHIFT 0
+#define SOF_IPC4_MODULE_AUTO_START_MASK 0x10
+#define SOF_IPC4_MODULE_AUTO_START_SHIFT 4
+#define SOF_IPC4_MODULE_DOMAIN_LL_MASK 0x20
+#define SOF_IPC4_MODULE_DOMAIN_LL_SHIFT 5
+#define SOF_IPC4_MODULE_DOMAIN_DP_MASK 0x40
+#define SOF_IPC4_MODULE_DOMAIN_DP_SHIFT 6
+#define SOF_IPC4_MODULE_LIB_CODE_MASK 0x40
+#define SOF_IPC4_MODULE_LIB_CODE_SHIFT 07
+
 struct sof_man4_module {
 	uint32_t id;
 	uint8_t name[MAX_MODULE_NAME_LEN];
