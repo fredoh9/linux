@@ -229,7 +229,7 @@ int hda_dsp_core_power_up(struct snd_sof_dev *sdev, unsigned int core_mask)
 	return ret;
 }
 
-static int hda_dsp_core_power_down(struct snd_sof_dev *sdev, unsigned int core_mask)
+int hda_dsp_core_power_down(struct snd_sof_dev *sdev, unsigned int core_mask)
 {
 	u32 adspcs;
 	int ret;

@@ -187,6 +187,7 @@ struct sof_intel_dsp_desc {
 	bool (*check_sdw_irq)(struct snd_sof_dev *sdev);
 	bool (*check_ipc_irq)(struct snd_sof_dev *sdev);
 	int (*cl_init)(struct snd_sof_dev *sdev, int stream_tag, bool imr_boot);
+	int (*power_down_host_managed_cores)(struct snd_sof_dev *sdev);
 };
 
 extern struct snd_sof_dsp_ops sof_tng_ops;

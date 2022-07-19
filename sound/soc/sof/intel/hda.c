@@ -1173,8 +1173,12 @@ int hda_dsp_remove(struct snd_sof_dev *sdev)
 
 	/* disable cores */
 	if (chip && chip->hw_ip_version == SOF_INTEL_ACE_1_0) {
-		if (sof_ops(sdev)->core_put)
-			sof_ops(sdev)->core_put(sdev, chip->host_managed_cores_mask);
+		//if (sof_ops(sdev)->core_put)
+		//	sof_ops(sdev)->core_put(sdev, chip->host_managed_cores_mask);
+		dev_err(sdev->dev, "Fred: call chip->power_down_host_managed_cores() when hw_ip_version %d\n", chip->hw_ip_version);
+		//hda_dsp_core_power_down(sdev, chip->host_managed_cores_mask);
+		if(chip->power_down_host_managed_cores)
+			chip->power_down_host_managed_cores(sdev);
 	} else if (chip)
 		hda_dsp_core_reset_power_down(sdev, chip->host_managed_cores_mask);
 

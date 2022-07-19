@@ -809,6 +809,25 @@ int sof_mtl_ops_init(struct snd_sof_dev *sdev)
 };
 EXPORT_SYMBOL_NS(sof_mtl_ops_init, SND_SOC_SOF_INTEL_HDA_COMMON);
 
+/* Quesion: is this anything to do with core_get/core_put 
+*/
+int mtl_power_down_host_managed_cores(struct snd_sof_dev *sdev)
+{
+	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
+	const struct sof_intel_dsp_desc *chip = hda->desc;
+
+	/* Question: without this, timeout on HDA_DSP_REG_ADSPCS 
+	 */
+
+	/* if core is not enabled, no need to power down */
+	if (!hda_dsp_core_is_enabled(sdev, chip->host_managed_cores_mask))
+		return 0;
+
+	dev_err(sdev->dev, "Fred: WIP testing host_cores=%d\n", chip->host_managed_cores_mask);
+	hda_dsp_core_power_down(sdev, chip->host_managed_cores_mask);
+	return 0;
+}
+
 const struct sof_intel_dsp_desc mtl_chip_info = {
 	.cores_num = 3,
 	.init_core_mask = BIT(0),
@@ -827,6 +846,7 @@ const struct sof_intel_dsp_desc mtl_chip_info = {
 	.check_sdw_irq = mtl_dsp_check_sdw_irq,
 	.check_ipc_irq = mtl_dsp_check_ipc_irq,
 	.cl_init = mtl_dsp_cl_init,
+	.power_down_host_managed_cores = mtl_power_down_host_managed_cores,
 	.hw_ip_version = SOF_INTEL_ACE_1_0,
 };
 EXPORT_SYMBOL_NS(mtl_chip_info, SND_SOC_SOF_INTEL_HDA_COMMON);
