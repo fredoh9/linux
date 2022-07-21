@@ -116,6 +116,7 @@ static void mtl_enable_ipc_interrupts(struct snd_sof_dev *sdev)
 				MTL_DSP_REG_HFIPCXCTL_BUSY | MTL_DSP_REG_HFIPCXCTL_DONE);
 }
 
+#if 0
 static void mtl_disable_ipc_interrupts(struct snd_sof_dev *sdev)
 {
 	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
@@ -125,6 +126,7 @@ static void mtl_disable_ipc_interrupts(struct snd_sof_dev *sdev)
 	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, chip->ipc_ctl,
 				MTL_DSP_REG_HFIPCXCTL_BUSY | MTL_DSP_REG_HFIPCXCTL_DONE, 0);
 }
+#endif
 
 static int mtl_enable_interrupts(struct snd_sof_dev *sdev)
 {
@@ -181,6 +183,10 @@ static int mtl_enable_interrupts(struct snd_sof_dev *sdev)
 	return ret;
 }
 
+/* mtl_suspend, mtl_resume use to use below functions
+ * TBD: Will these need soon
+ */
+#if 0
 static int mtl_disable_interrupts(struct snd_sof_dev *sdev)
 {
 	u32 hfintipptr;
@@ -241,6 +247,7 @@ static int mtl_disable_interrupts(struct snd_sof_dev *sdev)
 
 	return ret;
 }
+#endif
 
 /* pre fw run operations */
 static int mtl_dsp_pre_fw_run(struct snd_sof_dev *sdev)
@@ -580,45 +587,6 @@ static int mtl_dsp_ipc_get_window_offset(struct snd_sof_dev *sdev, u32 id)
 	return MTL_SRAM_WINDOW_OFFSET(id);
 }
 
-static int mtl_suspend(struct snd_sof_dev *sdev, bool runtime_suspend)
-{
-	struct sof_intel_hda_dev *hda = sdev->pdata->hw_pdata;
-	const struct sof_intel_dsp_desc *chip = hda->desc;
-#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
-	struct hdac_bus *bus = sof_to_bus(sdev);
-#endif
-	int ret;
-	int i;
-
-	mtl_disable_ipc_interrupts(sdev);
-	ret = mtl_disable_interrupts(sdev);
-	if (ret)
-		return ret;
-
-#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
-	hda_codec_jack_wake_enable(sdev, runtime_suspend);
-	/* power down all hda link */
-	snd_hdac_ext_bus_link_power_down_all(bus);
-#endif
-	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, MTL_HFPWRCTL,
-				MTL_HFPWRCTL_WPDSPHPXPG, 0);
-
-	ret = mtl_dsp_power_down_dsp_subsystem(sdev);
-	if (ret < 0)
-		dev_err(sdev->dev, "failed to disable DSP subsystem\n");
-
-	/* reset ref counts for all cores */
-	for (i = 0; i < chip->cores_num; i++)
-		sdev->dsp_core_ref_count[i] = 0;
-
-	/* TODO: need to reset controller? */
-
-	/* display codec can be powered off after link reset */
-	hda_codec_i915_display_power(sdev, false);
-
-	return 0;
-}
-
 static int mtl_dsp_suspend(struct snd_sof_dev *sdev, u32 target_state)
 {
 	const struct sof_dsp_power_state target_dsp_state = {
@@ -628,7 +596,7 @@ static int mtl_dsp_suspend(struct snd_sof_dev *sdev, u32 target_state)
 	};
 	int ret;
 
-	ret = mtl_suspend(sdev, false);
+	ret = hda_dsp_suspend(sdev, target_state);
 	if (ret < 0)
 		return ret;
 
@@ -642,43 +610,11 @@ static int mtl_dsp_runtime_suspend(struct snd_sof_dev *sdev)
 	};
 	int ret;
 
-	ret = mtl_suspend(sdev, true);
+	ret = mtl_dsp_suspend(sdev, true);
 	if (ret < 0)
 		return ret;
 
 	return snd_sof_dsp_set_power_state(sdev, &target_state);
-}
-
-static int mtl_resume(struct snd_sof_dev *sdev, bool runtime_resume)
-{
-#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
-	struct hdac_bus *bus = sof_to_bus(sdev);
-	struct hdac_ext_link *hlink = NULL;
-#endif
-
-	/* display codec must be powered before link reset */
-	hda_codec_i915_display_power(sdev, true);
-
-#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
-	/* check jack status */
-	if (runtime_resume) {
-		hda_codec_jack_wake_enable(sdev, false);
-		if (sdev->system_suspend_target == SOF_SUSPEND_NONE)
-			hda_codec_jack_check(sdev);
-	}
-
-	/* turn off the links that were off before suspend */
-	list_for_each_entry(hlink, &bus->hlink_list, list) {
-		if (!hlink->ref_count)
-			snd_hdac_ext_bus_link_power_down(hlink);
-	}
-
-	/* check dma status and clean up CORB/RIRB buffers */
-	if (!bus->cmd_dma_state)
-		snd_hdac_bus_stop_cmd_io(bus);
-#endif
-
-	return 0;
 }
 
 static int mtl_dsp_resume(struct snd_sof_dev *sdev)
@@ -689,7 +625,7 @@ static int mtl_dsp_resume(struct snd_sof_dev *sdev)
 	};
 	int ret;
 
-	ret = mtl_resume(sdev, false);
+	ret = hda_dsp_resume(sdev);
 	if (ret < 0)
 		return ret;
 
@@ -703,7 +639,7 @@ static int mtl_dsp_runtime_resume(struct snd_sof_dev *sdev)
 	};
 	int ret;
 
-	ret = mtl_resume(sdev, true);
+	ret = mtl_dsp_resume(sdev);
 	if (ret < 0)
 		return ret;
 
